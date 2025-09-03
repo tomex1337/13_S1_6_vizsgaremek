@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">corelytics</string>
+    <string name="title_activity_main">corelytics</string>
+    <string name="package_name">eu.corelytics.app</string>
+    <string name="custom_url_scheme">eu.corelytics.app</string>
+</resources>
