@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "eu.corelytics.app"
+    namespace "eu.corelytics"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "eu.corelytics.app"
+        applicationId "eu.corelytics"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

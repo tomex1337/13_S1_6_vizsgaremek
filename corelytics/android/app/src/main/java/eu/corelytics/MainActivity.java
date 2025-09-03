@@ -1,4 +1,4 @@
-package eu.corelytics.app;
+package eu.corelytics;
 
 import com.getcapacitor.BridgeActivity;
 
