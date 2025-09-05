@@ -13,3 +13,131 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id           String        @id @db.Uuid
+  email        String        @unique
+  username     String        @unique
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime?     @map("created_at")
+  updatedAt    DateTime?     @map("updated_at")
+
+  profile      UserProfile?
+  foodItems    FoodItem[]    @relation("CreatedFoods")
+  foodLogs     UserFoodLog[]
+  exerciseLogs UserExerciseLog[]
+  weightLogs   WeightLog[]
+  dailyGoals   DailyGoal[]
+}
+
+model UserProfile {
+  userId         String   @id @db.Uuid
+  age            Int?
+  gender         String?  @db.VarChar(10)
+  heightCm       Int?     @map("height_cm")
+  weightKg       Decimal? @db.Decimal(5, 2) @map("weight_kg")
+
+  activityLevel  ActivityLevel? @relation(fields: [activityLevelId], references: [id])
+  activityLevelId Int?
+
+  goal           Goal? @relation(fields: [goalId], references: [id])
+  goalId         Int?
+
+  user           User    @relation(fields: [userId], references: [id])
+}
+
+model FoodItem {
+  id              String        @id @db.Uuid
+  name            String
+  brand           String?
+  servingSizeGrams Decimal?     @map("serving_size_grams")
+  calories        Decimal?
+  protein         Decimal?
+  fat             Decimal?
+  carbs           Decimal?
+  fiber           Decimal?
+  sugar           Decimal?
+  sodium          Decimal?
+  isCustom        Boolean       @default(false) @map("is_custom")
+  createdBy       String?       @db.Uuid @map("created_by")
+
+  createdByUser   User?         @relation("CreatedFoods", fields: [createdBy], references: [id])
+  foodLogs        UserFoodLog[]
+}
+
+model UserFoodLog {
+  id          String     @id @db.Uuid
+  userId      String     @db.Uuid
+  foodItemId  String     @db.Uuid
+  logDate     DateTime?  @db.Date
+  mealTypeId  Int?
+  quantity    Decimal?
+  createdAt   DateTime?  @map("created_at")
+
+  user        User       @relation(fields: [userId], references: [id])
+  foodItem    FoodItem   @relation(fields: [foodItemId], references: [id])
+  mealType    MealType?  @relation(fields: [mealTypeId], references: [id])
+}
+
+model Exercise {
+  id                     String     @id @db.Uuid
+  name                   String
+  category               String?
+  metValue               Decimal?   @map("met_value")
+  defaultDurationMinutes Int?       @map("default_duration_minutes")
+
+  exerciseLogs           UserExerciseLog[]
+}
+
+model UserExerciseLog {
+  id             String    @id @db.Uuid
+  userId         String    @db.Uuid
+  exerciseId     String    @db.Uuid
+  durationMinutes Int?     @map("duration_minutes")
+  caloriesBurned  Decimal? @map("calories_burned")
+  logDate         DateTime? @db.Date
+  createdAt       DateTime? @map("created_at")
+
+  user            User     @relation(fields: [userId], references: [id])
+  exercise        Exercise @relation(fields: [exerciseId], references: [id])
+}
+
+model DailyGoal {
+  userId       String   @db.Uuid
+  date         DateTime @db.Date
+  caloriesGoal Int?     @map("calories_goal")
+  proteinGoal  Decimal? @map("protein_goal")
+  fatGoal      Decimal? @map("fat_goal")
+  carbsGoal    Decimal? @map("carbs_goal")
+
+  user         User     @relation(fields: [userId], references: [id])
+
+  @@id([userId, date])
+}
+
+model WeightLog {
+  id        String   @id @db.Uuid
+  userId    String   @db.Uuid
+  weightKg  Decimal? @map("weight_kg")
+  loggedAt  DateTime @db.Date @map("logged_at")
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model MealType {
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  logs  UserFoodLog[]
+}
+
+model ActivityLevel {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  profiles UserProfile[]
+}
+
+model Goal {
+  id       Int          @id @default(autoincrement())
+  name     String       @unique
+  profiles UserProfile[]
+}
