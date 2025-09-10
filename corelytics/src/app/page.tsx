@@ -1,9 +1,27 @@
+"use client";
+
 import Image from "next/image";
+import { useSession, signOut } from "next-auth/react";
 
 export default function Home() {
+  const { data: session } = useSession();
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+        {session?.user ? (
+          <div className="flex flex-col items-center sm:items-start gap-4 mb-4">
+            <div className="text-2xl font-semibold">
+              Welcome back, {session.user.name || session.user.email}! 👋
+            </div>
+            <button
+              onClick={() => signOut()}
+              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            >
+              Sign Out
+            </button>
+          </div>
+        ) : null}
         <Image
           className="dark:invert"
           src="/next.svg"
