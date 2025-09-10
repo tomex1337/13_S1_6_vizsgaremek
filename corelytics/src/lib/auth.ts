@@ -3,6 +3,7 @@ import { type NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import { compare } from "bcrypt"
+// Import env to ensure environment variables are validated
 import { env } from "@/env"
 
 export const authOptions: NextAuthOptions = {
@@ -29,11 +30,11 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
-        if (!user || !user.hashedPassword) {
+        if (!user || !user.passwordHash) {
           return null
         }
 
-        const isPasswordValid = await compare(credentials.password, user.hashedPassword)
+        const isPasswordValid = await compare(credentials.password, user.passwordHash)
 
         if (!isPasswordValid) {
           return null
@@ -42,7 +43,7 @@ export const authOptions: NextAuthOptions = {
         return {
           id: user.id,
           email: user.email,
-          name: user.name,
+          name: user.username,
         }
       }
     })
