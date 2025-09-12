@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default function Home() {
   const { data: session } = useSession();
