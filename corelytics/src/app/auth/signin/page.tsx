@@ -4,29 +4,34 @@ import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
+import { useForm } from "react-hook-form"
+
+interface SignInFormInputs {
+  email: string
+  password: string
+}
 
 export default function SignIn() {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormInputs>()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
-
+  const onSubmit = async (data: SignInFormInputs) => {
+    const { email, password } = data
     try {
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       })
-
       if (result?.error) {
         setError("Invalid credentials")
         return
       }
-
       router.push("/")
       router.refresh()
     } catch (_) {
@@ -42,7 +47,7 @@ export default function SignIn() {
             Sign in to your account
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="-space-y-px rounded-md shadow-sm">
             <div>
               <label htmlFor="email" className="sr-only">
@@ -50,12 +55,22 @@ export default function SignIn() {
               </label>
               <input
                 id="email"
-                name="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    message: "Invalid email address",
+                  },
+                })}
                 type="email"
-                required
                 className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 placeholder="Email address"
               />
+              {errors.email && (
+                <span className="text-red-500 text-xs">
+                  {errors.email.message}
+                </span>
+              )}
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
@@ -63,12 +78,16 @@ export default function SignIn() {
               </label>
               <input
                 id="password"
-                name="password"
+                {...register("password", { required: "Password is required" })}
                 type="password"
-                required
                 className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 placeholder="Password"
               />
+              {errors.password && (
+                <span className="text-red-500 text-xs">
+                  {errors.password.message}
+                </span>
+              )}
             </div>
           </div>
 
