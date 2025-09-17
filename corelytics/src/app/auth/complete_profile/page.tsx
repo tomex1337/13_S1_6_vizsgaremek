@@ -4,7 +4,6 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import axios from "axios"
 
@@ -107,7 +106,7 @@ export default function CompleteProfile() {
     fetchData()
   }, [])
 
-  const onSubmit = async (data: any) => {
+  const onSubmit = async (data: Record<string, unknown>) => {
     if (!session?.user?.id) {
       setSubmitError("Session expired. Please sign in again.")
       return
@@ -122,7 +121,7 @@ export default function CompleteProfile() {
       
       if (!validationResult.success) {
         // Extract and format validation errors for user display
-        const errorMessages = validationResult.error.issues.map((err: any) => err.message)
+        const errorMessages = validationResult.error.issues.map((err: { message: string }) => err.message)
         setSubmitError(`Please fix the following errors: ${errorMessages.join(', ')}`)
         setIsLoading(false)
         return
