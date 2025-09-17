@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
+import axios from "axios"
 
 interface SignInFormInputs {
   email: string
@@ -32,7 +33,22 @@ export default function SignIn() {
         setError("Invalid credentials")
         return
       }
-      router.push("/")
+      
+      // Check if user has completed their profile
+      try {
+        const profileResponse = await axios.get('/api/profile')
+        // Profile exists, go to home
+        router.push("/")
+      } catch (profileError) {
+        if (axios.isAxiosError(profileError) && profileError.response?.status === 404) {
+          // Profile doesn't exist, redirect to complete profile
+          router.push("/auth/complete_profile")
+        } else {
+          // Some other error, still go to home but user can complete profile later
+          router.push("/")
+        }
+      }
+      
       router.refresh()
     } catch (_) {
       setError("Something went wrong")
