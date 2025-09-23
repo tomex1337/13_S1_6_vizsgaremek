@@ -15,7 +15,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
         <p>You requested a password reset for your Corelytics account. Click the link below to reset your password:</p>
         <a href="${resetUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Reset Password</a>
         <p>This link will expire in 24 hours.</p>
-        <p>If you didn't request this, please ignore this email and your password will remain unchanged.</p>
+        <p>If you didn&apos;t request this, please ignore this email and your password will remain unchanged.</p>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
         <p style="color: #666; font-size: 12px;">© Corelytics - Your Fitness Tracking Companion</p>
       </div>
