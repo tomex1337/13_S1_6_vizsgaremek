@@ -6,7 +6,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
   const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password/${resetToken}`
   
   await resend.emails.send({
-    from: 'Corelytics <noreply@corelytics.app>',
+    from: 'Corelytics <noreply@mail.corelytics.tomex.xyz>',
     to: email,
     subject: 'Password Reset Request - Corelytics',
     html: `
@@ -25,7 +25,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
 
 export async function sendWelcomeEmail(email: string, name: string) {
   await resend.emails.send({
-    from: 'Corelytics <noreply@corelytics.app>',
+    from: 'Corelytics <noreply@mail.corelytics.tomex.xyz>',
     to: email,
     subject: 'Welcome to Corelytics!',
     html: `
