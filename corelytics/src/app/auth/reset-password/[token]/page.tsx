@@ -83,7 +83,7 @@ export default function ResetPassword() {
         <div className="w-full max-w-md text-center">
           <div className="p-6 bg-green-50 border border-green-200 rounded-md">
             <h2 className="text-2xl font-bold text-green-800 mb-2">Password Reset Successfully!</h2>
-            <p className="text-green-700">Your password has been updated. You'll be redirected to sign in shortly.</p>
+            <p className="text-green-700">Your password has been updated. You&apos;ll be redirected to sign in shortly.</p>
           </div>
           <Link
             href="/auth/signin"
