@@ -21,6 +21,8 @@ model User {
   passwordHash String        @map("password_hash")
   createdAt    DateTime?     @map("created_at")
   updatedAt    DateTime?     @map("updated_at")
+  resetToken   String?       @map("reset_token")
+  resetTokenExpiry DateTime? @map("reset_token_expiry")
 
   profile      UserProfile?
   foodItems    FoodItem[]    @relation("CreatedFoods")
