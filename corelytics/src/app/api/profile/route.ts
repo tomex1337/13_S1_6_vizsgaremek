@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
 
     // Invalidate the cache tag for this user's profile
     await prisma.$accelerate.invalidate({
-      tags: [`user-profile:${validatedData.userId}`]
+      tags: [`user_profile_${validatedData.userId.replace(/-/g, '_')}`]
     })
 
     return NextResponse.json(profile)
@@ -112,7 +112,7 @@ export async function GET(request: NextRequest) {
       },
       cacheStrategy: { 
         ttl: 300, // Cache for 5 minutes
-        tags: [`user-profile:${session.user.id}`]
+        tags: [`user_profile_${session.user.id.replace(/-/g, '_')}`]
       },
     })
 
