@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hash } from "bcrypt"
 import { v4 as uuidv4 } from 'uuid'
+import { sendWelcomeEmail } from "@/lib/email"
 
 export async function POST(req: Request) {
   try {
@@ -31,6 +32,14 @@ export async function POST(req: Request) {
         updatedAt: now,
       },
     })
+
+    // Send welcome email
+    try {
+      await sendWelcomeEmail(email, name)
+    } catch (emailError) {
+      console.error("Failed to send welcome email:", emailError)
+      // Don't fail the registration if email sending fails
+    }
 
     return NextResponse.json(
       { message: "User created successfully", user: { id: user.id, email: user.email, username: user.username } },
