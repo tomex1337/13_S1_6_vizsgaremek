@@ -132,6 +132,7 @@ export default function CompleteProfile() {
         ...validationResult.data,
       })
 
+      // Navigate to home page - Prisma cache tags will handle cache invalidation
       router.push('/')
     } catch (error) {
       if (axios.isAxiosError(error)) {

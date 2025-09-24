@@ -70,6 +70,11 @@ export async function POST(request: NextRequest) {
       })
     }
 
+    // Invalidate the cache tag for this user's profile
+    await prisma.$accelerate.invalidate({
+      tags: [`user-profile:${validatedData.userId}`]
+    })
+
     return NextResponse.json(profile)
   } catch (error) {
     console.error('Error creating/updating profile:', error)
@@ -105,7 +110,10 @@ export async function GET(request: NextRequest) {
         activityLevel: true,
         goal: true,
       },
-      cacheStrategy: { ttl: 300 }, // Cache for 5 minutes
+      cacheStrategy: { 
+        ttl: 300, // Cache for 5 minutes
+        tags: [`user-profile:${session.user.id}`]
+      },
     })
 
     if (!profile) {
