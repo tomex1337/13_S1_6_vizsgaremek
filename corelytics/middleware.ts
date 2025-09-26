@@ -1,5 +1,6 @@
 import { withAuth } from "next-auth/middleware"
 import { NextResponse } from "next/server"
+import axios from "axios"
 
 export default withAuth(
   async function middleware(req) {
@@ -9,10 +10,11 @@ export default withAuth(
     if (token && !req.nextUrl.pathname.startsWith('/auth/')) {
       // Check if user has a complete profile
       try {
-        const response = await fetch(new URL('/api/profile', req.url), {
+        const response = await axios.get(new URL('/api/profile', req.url).toString(), {
           headers: {
             Cookie: req.headers.get('cookie') || '',
           },
+          validateStatus: (status) => status < 500, // Don't throw for 4xx errors
         })
         
         // If profile doesn't exist (404) and user is not already on complete_profile page
