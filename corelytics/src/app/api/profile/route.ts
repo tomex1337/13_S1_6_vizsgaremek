@@ -70,11 +70,6 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Invalidate the cache tag for this user's profile
-    await prisma.$accelerate.invalidate({
-      tags: [`user_profile_${validatedData.userId.replace(/-/g, '_')}`]
-    })
-
     return NextResponse.json(profile)
   } catch (error) {
     console.error('Error creating/updating profile:', error)
@@ -109,11 +104,7 @@ export async function GET(request: NextRequest) {
       include: {
         activityLevel: true,
         goal: true,
-      },
-      cacheStrategy: { 
-        ttl: 300, // Cache for 5 minutes
-        tags: [`user_profile_${session.user.id.replace(/-/g, '_')}`]
-      },
+      }
     })
 
     if (!profile) {
@@ -124,11 +115,6 @@ export async function GET(request: NextRequest) {
     }
 
     const response = NextResponse.json(profile)
-    
-    // Cache for 5 minutes (300 seconds) since user profiles can change
-    // but not as frequently as real-time data
-    response.headers.set('Cache-Control', 'private, s-maxage=300, stale-while-revalidate=600')
-    
     return response
   } catch (error) {
     console.error('Error fetching profile:', error)
