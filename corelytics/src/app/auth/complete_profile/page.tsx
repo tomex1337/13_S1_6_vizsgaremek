@@ -59,8 +59,6 @@ const profileSchema = z.object({
     .transform((val) => Number(val)),
 })
 
-type ProfileFormData = z.infer<typeof profileSchema>
-
 interface ActivityLevel {
   id: number
   name: string
@@ -82,7 +80,6 @@ export default function CompleteProfile() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
   } = useForm({
     mode: "onSubmit", // Only validate on submit to avoid initial validation errors
   })

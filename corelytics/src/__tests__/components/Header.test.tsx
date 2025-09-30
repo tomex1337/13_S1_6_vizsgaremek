@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
 import Header from '@/components/header'
 

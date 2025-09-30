@@ -36,7 +36,7 @@ export default function SignIn() {
       
       // Check if user has completed their profile
       try {
-        const profileResponse = await axios.get('/api/profile')
+        await axios.get('/api/profile')
         // Profile exists, go to home
         router.push("/")
       } catch (profileError) {
@@ -51,6 +51,7 @@ export default function SignIn() {
       
       router.refresh()
     } catch (_) {
+      console.error(_);
       setError("Something went wrong")
     }
   }

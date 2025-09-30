@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
