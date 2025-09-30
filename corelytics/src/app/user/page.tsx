@@ -1,0 +1,283 @@
+'use client'
+
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import {
+  CalendarIcon,
+  ChartBarIcon,
+  FireIcon,
+  HeartIcon,
+  TrophyIcon,
+  UserIcon,
+  CogIcon,
+  ArrowTrendingUpIcon,
+  ClockIcon,
+  PlayIcon
+} from '@heroicons/react/24/outline';
+import { 
+  FireIcon as FireIconSolid,
+  HeartIcon as HeartIconSolid 
+} from '@heroicons/react/24/solid';
+
+interface UserStats {
+  caloriesConsumed: number;
+  caloriesTarget: number;
+  workoutsCompleted: number;
+  weeklyGoal: number;
+  waterIntake: number;
+  waterTarget: number;
+  currentStreak: number;
+  totalWorkouts: number;
+}
+
+export default function UserPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [stats, setStats] = useState<UserStats>({
+    caloriesConsumed: 1450,
+    caloriesTarget: 2000,
+    workoutsCompleted: 4,
+    weeklyGoal: 5,
+    waterIntake: 6,
+    waterTarget: 8,
+    currentStreak: 7,
+    totalWorkouts: 28
+  });
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin");
+    }
+  }, [status, router]);
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (status === "unauthenticated") {
+    return null;
+  }
+
+  const caloriesProgress = (stats.caloriesConsumed / stats.caloriesTarget) * 100;
+  const workoutProgress = (stats.workoutsCompleted / stats.weeklyGoal) * 100;
+  const waterProgress = (stats.waterIntake / stats.waterTarget) * 100;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
+                <UserIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold">
+                  Welcome back, {session?.user?.name || 'User'}!
+                </h1>
+                <p className="text-blue-100 mt-1">
+                  Keep up the great work on your fitness journey
+                </p>
+              </div>
+            </div>
+            <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+              <CogIcon className="h-6 w-6" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Calories Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-orange-100 rounded-lg">
+                  <FireIconSolid className="h-6 w-6 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Calories Today</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.caloriesConsumed}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(caloriesProgress, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {stats.caloriesTarget - stats.caloriesConsumed} left of {stats.caloriesTarget}
+            </p>
+          </div>
+
+          {/* Workouts Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Workouts This Week</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.workoutsCompleted}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(workoutProgress, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {stats.weeklyGoal - stats.workoutsCompleted} more to reach goal
+            </p>
+          </div>
+
+          {/* Water Intake Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-cyan-100 rounded-lg">
+                  <HeartIconSolid className="h-6 w-6 text-cyan-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Water Today</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.waterIntake} cups
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-cyan-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(waterProgress, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {stats.waterTarget - stats.waterIntake} cups remaining
+            </p>
+          </div>
+
+          {/* Streak Card */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-yellow-100 rounded-lg">
+                  <TrophyIcon className="h-6 w-6 text-yellow-600" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Current Streak</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.currentStreak} days
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-2 text-sm text-gray-500">
+              <ArrowTrendingUpIcon className="h-4 w-4" />
+              <span>Keep it up!</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Recent Activities */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  {[
+                    { name: "Morning Run", time: "30 minutes", calories: "285 cal", icon: PlayIcon, color: "text-green-600" },
+                    { name: "Breakfast Logged", time: "8:30 AM", calories: "420 cal", icon: CalendarIcon, color: "text-blue-600" },
+                    { name: "Strength Training", time: "45 minutes", calories: "320 cal", icon: ChartBarIcon, color: "text-purple-600" },
+                    { name: "Lunch Logged", time: "12:45 PM", calories: "550 cal", icon: CalendarIcon, color: "text-orange-600" }
+                  ].map((activity, index) => (
+                    <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                      <div className={`p-2 bg-white rounded-lg ${activity.color}`}>
+                        <activity.icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-gray-900">{activity.name}</p>
+                        <p className="text-sm text-gray-500">{activity.time}</p>
+                      </div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {activity.calories}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="space-y-6">
+            {/* Quick Log */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <div className="space-y-3">
+                <button className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <CalendarIcon className="h-5 w-5 text-blue-600" />
+                    <span className="font-medium text-blue-900">Log Food</span>
+                  </div>
+                </button>
+                <button className="w-full p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <PlayIcon className="h-5 w-5 text-green-600" />
+                    <span className="font-medium text-green-900">Start Workout</span>
+                  </div>
+                </button>
+                <button className="w-full p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <ChartBarIcon className="h-5 w-5 text-purple-600" />
+                    <span className="font-medium text-purple-900">View Progress</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            {/* Weekly Summary */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Total Workouts</span>
+                  <span className="font-semibold text-gray-900">{stats.totalWorkouts}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Avg. Calories/Day</span>
+                  <span className="font-semibold text-gray-900">1,650</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-600">Goals Met</span>
+                  <span className="font-semibold text-green-600">85%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
