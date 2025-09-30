@@ -9,10 +9,10 @@ export default function Home() {
     <SpeedInsights/>
 
   return (
-
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <>
       <SpeedInsights/>
       <Header />
+      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {session?.user ? (
           <div className="flex flex-col items-center sm:items-start gap-4 mb-4">
@@ -136,6 +136,7 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
-    </div>
+    </div>    
+  </>
   );
 }
