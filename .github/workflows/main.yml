@@ -1,0 +1,31 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./corelytics
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install ts-node
+        run: npm i ts-node
+
+      - name: Install enviroment jsdom
+        run: npm i jest-environment-jsdom
+
+      - name: Run Jest tests
+        run: npm test
