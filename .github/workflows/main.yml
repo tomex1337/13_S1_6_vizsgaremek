@@ -5,11 +5,14 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./corelytics
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
+        
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
