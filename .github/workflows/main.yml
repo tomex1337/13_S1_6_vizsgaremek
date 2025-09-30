@@ -24,5 +24,8 @@ jobs:
       - name: Install ts-node
         run: npm i ts-node
 
+      - name: Install enviroment jsdom
+        run: npm i jest-environment-jsdom
+
       - name: Run Jest tests
         run: npm test
