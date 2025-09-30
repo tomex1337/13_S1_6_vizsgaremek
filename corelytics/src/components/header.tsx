@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import {
   Dialog,
@@ -21,13 +23,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
-export default function Header() {
-    return (
-        'use client'
-    )
-
-
-
 const products = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
   { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
@@ -40,7 +35,7 @@ const callsToAction = [
   { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
 
-export default function Example() {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -202,5 +197,4 @@ export default function Example() {
       </Dialog>
     </header>
   )
-}
 }
