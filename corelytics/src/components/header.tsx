@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogPanel,
@@ -38,6 +39,7 @@ const callsToAction = [
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { data: session } = useSession();
 
   return (
     <header className="bg-white">
@@ -120,9 +122,15 @@ export default function Header() {
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+          {session?.user ? (
           <a href="#" className="text-sm/6 font-semibold text-gray-900">
+            <span aria-hidden="true">Logged in!</span>
+          </a>
+          ) : (
+          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
+          )}
         </div>
       </nav>
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
