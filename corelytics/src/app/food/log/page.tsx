@@ -6,16 +6,12 @@ import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import Header from "@/components/header";
 import {
-  CalendarIcon,
-  ClockIcon,
   MagnifyingGlassIcon,
   PlusIcon,
-  FireIcon,
   ScaleIcon,
   BeakerIcon,
   CheckIcon,
   XMarkIcon,
-  ChevronDownIcon,
   PencilIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
@@ -43,17 +39,25 @@ interface MealType {
   name: string;
 }
 
-interface FoodLog {
+interface DailyLog {
   id: string;
-  foodItem: FoodItem;
-  mealType?: MealType;
   quantity: number;
   logDate: Date;
   createdAt: Date;
+  foodItem: FoodItem;
+  mealType?: MealType;
+}
+
+interface NutritionTotals {
+  calories: number;
+  protein: number;
+  fat: number;
+  carbs: number;
+  fiber: number;
 }
 
 export default function FoodLogPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -132,7 +136,7 @@ export default function FoodLogPage() {
     }
   };
 
-  const handleEditLog = (log: any) => {
+  const handleEditLog = (log: DailyLog) => {
     setEditingLog(log.id);
     setEditQuantity(Number(log.quantity));
   };
@@ -153,15 +157,15 @@ export default function FoodLogPage() {
     setEditQuantity(1);
   };
 
-  const calculateTotals = () => {
-    return dailyLogs.reduce((totals: any, log: any) => {
+  const calculateTotals = (): NutritionTotals => {
+    return (dailyLogs as unknown as DailyLog[]).reduce((totals: NutritionTotals, log: DailyLog) => {
       const multiplier = Number(log.quantity);
       return {
-        calories: totals.calories + (Number(log.foodItem.calories) || 0) * multiplier,
-        protein: totals.protein + (Number(log.foodItem.protein) || 0) * multiplier,
-        fat: totals.fat + (Number(log.foodItem.fat) || 0) * multiplier,
-        carbs: totals.carbs + (Number(log.foodItem.carbs) || 0) * multiplier,
-        fiber: totals.fiber + (Number(log.foodItem.fiber) || 0) * multiplier
+        calories: totals.calories + (Number(log.foodItem?.calories) || 0) * multiplier,
+        protein: totals.protein + (Number(log.foodItem?.protein) || 0) * multiplier,
+        fat: totals.fat + (Number(log.foodItem?.fat) || 0) * multiplier,
+        carbs: totals.carbs + (Number(log.foodItem?.carbs) || 0) * multiplier,
+        fiber: totals.fiber + (Number(log.foodItem?.fiber) || 0) * multiplier
       };
     }, { calories: 0, protein: 0, fat: 0, carbs: 0, fiber: 0 });
   };
@@ -295,9 +299,9 @@ export default function FoodLogPage() {
         {/* Meal Sections */}
         <div className="space-y-6">
           {mealTypes.map((mealType) => {
-            const mealLogs = dailyLogs.filter((log: any) => log.mealType?.id === mealType.id);
-            const mealCalories = mealLogs.reduce((sum: number, log: any) => 
-              sum + (Number(log.foodItem.calories) || 0) * Number(log.quantity), 0
+            const mealLogs = (dailyLogs as unknown as DailyLog[]).filter((log: DailyLog) => log.mealType?.id === mealType.id);
+            const mealCalories = mealLogs.reduce((sum: number, log: DailyLog) => 
+              sum + (Number(log.foodItem?.calories) || 0) * Number(log.quantity), 0
             );
 
             return (
@@ -324,7 +328,7 @@ export default function FoodLogPage() {
                 <div className="p-6">
                   {mealLogs.length > 0 ? (
                     <div className="space-y-4">
-                      {mealLogs.map((log: any) => (
+                      {mealLogs.map((log: DailyLog) => (
                         <div key={log.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
@@ -479,8 +483,8 @@ export default function FoodLogPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-medium text-gray-900">{mealType.name}</span>
                       <div className="text-sm text-gray-500">
-                        {dailyLogs.filter((log: any) => log.mealType?.id === mealType.id).reduce((sum: number, log: any) => 
-                          sum + (Number(log.foodItem.calories) || 0) * Number(log.quantity), 0
+                        {(dailyLogs as unknown as DailyLog[]).filter((log: DailyLog) => log.mealType?.id === mealType.id).reduce((sum: number, log: DailyLog) => 
+                          sum + (Number(log.foodItem?.calories) || 0) * Number(log.quantity), 0
                         )} cal logged
                       </div>
                     </div>
@@ -566,7 +570,7 @@ export default function FoodLogPage() {
                       </div>
                     ) : searchQuery.length > 2 ? (
                       <div className="text-center py-8 text-gray-500">
-                        <p>No foods found for "{searchQuery}"</p>
+                        <p>No foods found for &quot;{searchQuery}&quot;</p>
                         <button className="text-blue-600 hover:text-blue-700 font-medium mt-2">
                           Create custom food
                         </button>
