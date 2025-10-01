@@ -278,7 +278,10 @@ export default function UserPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
               <div className="space-y-3">
-                <button className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors">
+                <button 
+                  onClick={() => router.push('/food/log')}
+                  className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors"
+                >
                   <div className="flex items-center space-x-3">
                     <CalendarIcon className="h-5 w-5 text-blue-600" />
                     <span className="font-medium text-blue-900">Log Food</span>

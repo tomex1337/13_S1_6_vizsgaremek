@@ -215,6 +215,200 @@ export const appRouter = router({
         };
       }),
   }),
+  food: router({
+    search: protectedProcedure
+      .input(z.object({ 
+        query: z.string().min(1),
+        limit: z.number().optional().default(20)
+      }))
+      .query(async ({ input, ctx }) => {
+        const foods = await ctx.prisma.foodItem.findMany({
+          where: {
+            OR: [
+              { name: { contains: input.query, mode: 'insensitive' } },
+              { brand: { contains: input.query, mode: 'insensitive' } }
+            ]
+          },
+          take: input.limit,
+          orderBy: [
+            { isCustom: 'asc' }, // Show non-custom foods first
+            { name: 'asc' }
+          ]
+        });
+        
+        return foods;
+      }),
+    
+    logFood: protectedProcedure
+      .input(z.object({
+        foodItemId: z.string(),
+        mealTypeId: z.number(),
+        quantity: z.number().positive(),
+        logDate: z.string().optional()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const logDate = input.logDate ? new Date(input.logDate) : new Date();
+        
+        const foodLog = await ctx.prisma.userFoodLog.create({
+          data: {
+            id: crypto.randomUUID(),
+            userId,
+            foodItemId: input.foodItemId,
+            mealTypeId: input.mealTypeId,
+            quantity: input.quantity,
+            logDate,
+            createdAt: new Date()
+          },
+          include: {
+            foodItem: true,
+            mealType: true
+          }
+        });
+        
+        return foodLog;
+      }),
+    
+    getDailyLogs: protectedProcedure
+      .input(z.object({
+        date: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const targetDate = input.date ? new Date(input.date) : new Date();
+        
+        // Set to start and end of day
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        const logs = await ctx.prisma.userFoodLog.findMany({
+          where: {
+            userId,
+            logDate: {
+              gte: startOfDay,
+              lte: endOfDay
+            }
+          },
+          include: {
+            foodItem: true,
+            mealType: true
+          },
+          orderBy: [
+            { mealTypeId: 'asc' },
+            { createdAt: 'asc' }
+          ]
+        });
+        
+        return logs;
+      }),
+    
+    deleteLog: protectedProcedure
+      .input(z.object({
+        logId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        // Verify the log belongs to the user
+        const log = await ctx.prisma.userFoodLog.findFirst({
+          where: {
+            id: input.logId,
+            userId
+          }
+        });
+        
+        if (!log) {
+          throw new Error('Food log not found or access denied');
+        }
+        
+        await ctx.prisma.userFoodLog.delete({
+          where: { id: input.logId }
+        });
+        
+        return { success: true };
+      }),
+    
+    updateLogQuantity: protectedProcedure
+      .input(z.object({
+        logId: z.string(),
+        quantity: z.number().positive()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        // Verify the log belongs to the user
+        const log = await ctx.prisma.userFoodLog.findFirst({
+          where: {
+            id: input.logId,
+            userId
+          }
+        });
+        
+        if (!log) {
+          throw new Error('Food log not found or access denied');
+        }
+        
+        const updatedLog = await ctx.prisma.userFoodLog.update({
+          where: { id: input.logId },
+          data: { quantity: input.quantity },
+          include: {
+            foodItem: true,
+            mealType: true
+          }
+        });
+        
+        return updatedLog;
+      }),
+    
+    getMealTypes: publicProcedure
+      .query(async ({ ctx }) => {
+        const mealTypes = await ctx.prisma.mealType.findMany({
+          orderBy: { id: 'asc' }
+        });
+        
+        return mealTypes;
+      }),
+    
+    createCustomFood: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        brand: z.string().optional(),
+        servingSizeGrams: z.number().positive().optional(),
+        calories: z.number().nonnegative().optional(),
+        protein: z.number().nonnegative().optional(),
+        fat: z.number().nonnegative().optional(),
+        carbs: z.number().nonnegative().optional(),
+        fiber: z.number().nonnegative().optional(),
+        sugar: z.number().nonnegative().optional(),
+        sodium: z.number().nonnegative().optional()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const customFood = await ctx.prisma.foodItem.create({
+          data: {
+            id: crypto.randomUUID(),
+            name: input.name,
+            brand: input.brand,
+            servingSizeGrams: input.servingSizeGrams,
+            calories: input.calories,
+            protein: input.protein,
+            fat: input.fat,
+            carbs: input.carbs,
+            fiber: input.fiber,
+            sugar: input.sugar,
+            sodium: input.sodium,
+            isCustom: true,
+            createdBy: userId
+          }
+        });
+        
+        return customFood;
+      })
+  }),
 });
 
 export type AppRouter = typeof appRouter;
