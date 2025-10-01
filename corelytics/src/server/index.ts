@@ -61,13 +61,19 @@ export const appRouter = router({
         startOfWeek.setDate(today.getDate() - today.getDay());
         
         // Get today's food logs for calories
+        const startOfDay = new Date(today);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+        
         const todayFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
             userId,
             logDate: {
-              gte: today,
-              lt: tomorrow,
-            },
+              gte: startOfDay,
+              lte: endOfDay
+            }
           },
           include: {
             foodItem: true,
@@ -138,9 +144,10 @@ export const appRouter = router({
         const caloriesConsumed = todayFoodLogs.reduce((total, log) => {
           const calories = log.foodItem.calories || 0;
           const quantity = log.quantity || 1;
-          return total + (Number(calories) * Number(quantity));
+          const logCalories = Number(calories) * Number(quantity);
+          return total + logCalories;
         }, 0);
-
+        
         // Calculate streak (consecutive days with logged activities)
         let currentStreak = 0;
         const checkDate = new Date(today);
