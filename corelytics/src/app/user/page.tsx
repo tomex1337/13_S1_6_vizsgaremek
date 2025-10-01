@@ -2,7 +2,8 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { trpc } from "@/lib/trpc";
 import {
   CalendarIcon,
   ChartBarIcon,
@@ -20,29 +21,11 @@ import {
   HeartIcon as HeartIconSolid 
 } from '@heroicons/react/24/solid';
 
-interface UserStats {
-  caloriesConsumed: number;
-  caloriesTarget: number;
-  workoutsCompleted: number;
-  weeklyGoal: number;
-  waterIntake: number;
-  waterTarget: number;
-  currentStreak: number;
-  totalWorkouts: number;
-}
-
 export default function UserPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [stats, setStats] = useState<UserStats>({
-    caloriesConsumed: 1450,
-    caloriesTarget: 2000,
-    workoutsCompleted: 4,
-    weeklyGoal: 5,
-    waterIntake: 6,
-    waterTarget: 8,
-    currentStreak: 7,
-    totalWorkouts: 28
+  const { data: stats, isLoading, error } = trpc.user.stats.useQuery(undefined, {
+    enabled: status === "authenticated",
   });
 
   useEffect(() => {
@@ -51,7 +34,7 @@ export default function UserPage() {
     }
   }, [status, router]);
 
-  if (status === "loading") {
+  if (status === "loading" || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -61,6 +44,22 @@ export default function UserPage() {
 
   if (status === "unauthenticated") {
     return null;
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-600">Error loading user data</div>
+      </div>
+    );
+  }
+
+  if (!stats) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div>No data available</div>
+      </div>
+    );
   }
 
   const caloriesProgress = (stats.caloriesConsumed / stats.caloriesTarget) * 100;
@@ -206,25 +205,36 @@ export default function UserPage() {
               </div>
               <div className="p-6">
                 <div className="space-y-4">
-                  {[
-                    { name: "Morning Run", time: "30 minutes", calories: "285 cal", icon: PlayIcon, color: "text-green-600" },
-                    { name: "Breakfast Logged", time: "8:30 AM", calories: "420 cal", icon: CalendarIcon, color: "text-blue-600" },
-                    { name: "Strength Training", time: "45 minutes", calories: "320 cal", icon: ChartBarIcon, color: "text-purple-600" },
-                    { name: "Lunch Logged", time: "12:45 PM", calories: "550 cal", icon: CalendarIcon, color: "text-orange-600" }
-                  ].map((activity, index) => (
-                    <div key={index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                      <div className={`p-2 bg-white rounded-lg ${activity.color}`}>
-                        <activity.icon className="h-5 w-5" />
+                  {stats.recentActivities.length > 0 ? (
+                    stats.recentActivities.map((activity, index) => (
+                      <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                        <div className={`p-2 bg-white rounded-lg ${
+                          activity.type === 'exercise' ? 'text-green-600' : 
+                          activity.name.toLowerCase().includes('breakfast') ? 'text-blue-600' :
+                          activity.name.toLowerCase().includes('lunch') ? 'text-orange-600' :
+                          'text-purple-600'
+                        }`}>
+                          {activity.type === 'exercise' ? (
+                            <PlayIcon className="h-5 w-5" />
+                          ) : (
+                            <CalendarIcon className="h-5 w-5" />
+                          )}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900">{activity.name}</p>
+                          <p className="text-sm text-gray-500">{activity.time}</p>
+                        </div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {activity.calories}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">{activity.name}</p>
-                        <p className="text-sm text-gray-500">{activity.time}</p>
-                      </div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {activity.calories}
-                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No recent activities to show</p>
+                      <p className="text-sm">Start logging your meals and workouts!</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>
