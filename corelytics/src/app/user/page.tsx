@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import Header from "@/components/header";
 import {
   CalendarIcon,
   ChartBarIcon,
@@ -14,7 +15,8 @@ import {
   CogIcon,
   ArrowTrendingUpIcon,
   ClockIcon,
-  PlayIcon
+  PlayIcon,
+  ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { 
   FireIcon as FireIconSolid,
@@ -27,6 +29,9 @@ export default function UserPage() {
   const { data: stats, isLoading, error } = trpc.user.stats.useQuery(undefined, {
     enabled: status === "authenticated",
   });
+  const { data: profileData, isLoading: profileLoading } = trpc.user.profile.useQuery(undefined, {
+    enabled: status === "authenticated",
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -34,7 +39,7 @@ export default function UserPage() {
     }
   }, [status, router]);
 
-  if (status === "loading" || isLoading) {
+  if (status === "loading" || isLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -67,6 +72,8 @@ export default function UserPage() {
   const waterProgress = (stats.waterIntake / stats.waterTarget) * 100;
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-gray-50">
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
@@ -93,6 +100,31 @@ export default function UserPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Profile Completion Banner */}
+        {profileData && !profileData.isComplete && (
+          <div className="mb-8 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <ExclamationTriangleIcon className="h-6 w-6 text-orange-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                  Complete Your Profile
+                </h3>
+                <p className="text-orange-700 mb-4">
+                  Your profile is incomplete. Complete it now to get personalized recommendations and better track your fitness journey.
+                </p>
+                <button
+                  onClick={() => router.push('/auth/complete_profile')}
+                  className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+                >
+                  Finish Your Profile Now
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Calories Card */}
@@ -289,5 +321,6 @@ export default function UserPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

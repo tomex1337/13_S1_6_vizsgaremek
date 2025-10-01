@@ -12,6 +12,42 @@ export const appRouter = router({
       }),
   }),
   user: router({
+    profile: protectedProcedure
+      .query(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const profile = await ctx.prisma.userProfile.findUnique({
+          where: { userId },
+          include: {
+            activityLevel: true,
+            goal: true,
+          }
+        });
+
+        if (!profile) {
+          return {
+            exists: false,
+            isComplete: false,
+            profile: null
+          };
+        }
+
+        // Check if profile is complete - all required fields should be filled
+        const isComplete = !!(
+          profile.age &&
+          profile.gender &&
+          profile.heightCm &&
+          profile.weightKg &&
+          profile.activityLevelId &&
+          profile.goalId
+        );
+
+        return {
+          exists: true,
+          isComplete,
+          profile
+        };
+      }),
     stats: protectedProcedure
       .query(async ({ ctx }) => {
         const userId = ctx.session.user.id;
