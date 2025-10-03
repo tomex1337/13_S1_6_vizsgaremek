@@ -108,7 +108,7 @@ export const appRouter = router({
         const recentFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
             userId,
-            logDate: {
+            createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
             },
@@ -126,7 +126,7 @@ export const appRouter = router({
         const recentExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
             userId,
-            logDate: {
+            createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
             },
@@ -195,10 +195,10 @@ export const appRouter = router({
             ...recentExerciseLogs.map(log => ({
               id: log.id,
               type: 'exercise' as const,
-              name: log.exercise.name,
+              name: log.exercise?.name || 'Workout',
               time: `${log.durationMinutes || 0} minutes`,
               calories: `${Math.round(Number(log.caloriesBurned || 0))} cal`,
-              date: log.createdAt || log.logDate,
+              date: log.createdAt || log.logDate || new Date(),
             })),
             ...recentFoodLogs.map(log => ({
               id: log.id,
@@ -209,13 +209,14 @@ export const appRouter = router({
                 minute: '2-digit',
                 hour12: true 
               }) || 'Unknown time',
-              calories: `${Math.round(Number(log.foodItem.calories || 0) * Number(log.quantity || 1))} cal`,
-              date: log.createdAt || log.logDate,
+              calories: `${Math.round(Number(log.foodItem?.calories || 0) * Number(log.quantity || 1))} cal`,
+              date: log.createdAt || log.logDate || new Date(),
             })),
           ]
+          .filter(activity => activity.date) // Only include activities with valid dates
           .sort((a, b) => {
-            const dateA = a.date ? new Date(a.date).getTime() : 0;
-            const dateB = b.date ? new Date(b.date).getTime() : 0;
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
             return dateB - dateA;
           })
           .slice(0, 4),
