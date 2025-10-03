@@ -182,6 +182,39 @@ export const appRouter = router({
           where: { userId },
         });
 
+        // Calculate average calories per day (last 7 days)
+        const last7Days = new Date(today);
+        last7Days.setDate(today.getDate() - 6); // Include today + 6 previous days
+        
+        const weeklyFoodLogs = await ctx.prisma.userFoodLog.findMany({
+          where: {
+            userId,
+            logDate: {
+              gte: last7Days,
+              lte: today,
+            },
+          },
+          include: {
+            foodItem: true,
+          },
+        });
+
+        // Group calories by date and calculate daily totals
+        const dailyCalories: { [key: string]: number } = {};
+        
+        weeklyFoodLogs.forEach(log => {
+          if (log.logDate) {
+            const dateKey = log.logDate.toISOString().split('T')[0];
+            const calories = Number(log.foodItem.calories || 0) * Number(log.quantity || 1);
+            dailyCalories[dateKey] = (dailyCalories[dateKey] || 0) + calories;
+          }
+        });
+
+        // Calculate average (only count days with logged food)
+        const daysWithLogs = Object.keys(dailyCalories).length;
+        const totalCalories = Object.values(dailyCalories).reduce((sum, cal) => sum + cal, 0);
+        const avgCaloriesPerDay = daysWithLogs > 0 ? Math.round(totalCalories / daysWithLogs) : 0;
+
         return {
           caloriesConsumed: Math.round(caloriesConsumed),
           caloriesTarget: dailyGoal?.caloriesGoal || 2000,
@@ -191,6 +224,7 @@ export const appRouter = router({
           waterTarget: 8,
           currentStreak,
           totalWorkouts,
+          avgCaloriesPerDay,
           recentActivities: [
             ...recentExerciseLogs.map(log => ({
               id: log.id,

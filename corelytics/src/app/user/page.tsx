@@ -312,8 +312,10 @@ export default function UserPage() {
                   <span className="font-semibold text-gray-900">{stats.totalWorkouts}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Avg. Calories/Day</span>
-                  <span className="font-semibold text-gray-900">1,650</span>
+                  <span className="text-sm text-gray-600">Avg. Calories/Day (7d)</span>
+                  <span className="font-semibold text-gray-900">
+                    {stats.avgCaloriesPerDay ? stats.avgCaloriesPerDay.toLocaleString() : 'No data'}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Goals Met</span>
