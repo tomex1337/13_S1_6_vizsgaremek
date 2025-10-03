@@ -70,6 +70,7 @@ export default function UserPage() {
   const caloriesProgress = (stats.caloriesConsumed / stats.caloriesTarget) * 100;
   const workoutProgress = (stats.workoutsCompleted / stats.weeklyGoal) * 100;
   const waterProgress = (stats.waterIntake / stats.waterTarget) * 100;
+  const caloriesRemaining = 2000 - stats.caloriesConsumed;
 
   return (
     <>
@@ -149,7 +150,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {stats.caloriesTarget - stats.caloriesConsumed} left of {stats.caloriesTarget}
+              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`}
             </p>
           </div>
 
