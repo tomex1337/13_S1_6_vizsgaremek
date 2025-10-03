@@ -150,7 +150,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`}
+              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`} 
             </p>
           </div>
 
