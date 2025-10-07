@@ -11,7 +11,12 @@
     "test:watch": "jest --watch",
     "postinstall": "prisma generate",
     "seed": "tsx prisma/seed.ts",
-    "android": "npm run build && npx cap sync && npx cap open android"
+    "cap:sync": "npx cap sync",
+    "cap:copy": "npx cap copy",
+    "android:dev": "npx cap sync android && npx cap open android",
+    "android:open": "npx cap open android",
+    "android": "npm run cap:sync && npx cap open android",
+    "dev:android": "echo Make sure Next.js dev server is running on port 3000 first with 'npm run dev' && npx cap sync android && npx cap open android"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
