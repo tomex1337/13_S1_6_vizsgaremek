@@ -16,6 +16,7 @@ import {
   ArrowTrendingUpIcon,
   ClockIcon,
   PlayIcon,
+  PlusIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline';
 import { 
@@ -288,16 +289,28 @@ export default function UserPage() {
                     <span className="font-medium text-blue-900">Log Food</span>
                   </div>
                 </button>
+                <button 
+                  onClick={() => router.push('/food/create')}
+                  className="w-full p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors"
+                >
+                  <div className="flex items-center space-x-3">
+                    <PlusIcon className="h-5 w-5 text-purple-600" />
+                    <span className="font-medium text-purple-900">Create Custom Food</span>
+                  </div>
+                </button>
                 <button className="w-full p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
                   <div className="flex items-center space-x-3">
                     <PlayIcon className="h-5 w-5 text-green-600" />
                     <span className="font-medium text-green-900">Start Workout</span>
                   </div>
                 </button>
-                <button className="w-full p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors">
+                <button 
+                  onClick={() => router.push('/progress/view')}
+                  className="w-full p-4 bg-orange-50 hover:bg-orange-100 rounded-lg text-left transition-colors"
+                >
                   <div className="flex items-center space-x-3">
-                    <ChartBarIcon className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-purple-900">View Progress</span>
+                    <ChartBarIcon className="h-5 w-5 text-orange-600" />
+                    <span className="font-medium text-orange-900">View Progress</span>
                   </div>
                 </button>
               </div>
