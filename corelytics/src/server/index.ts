@@ -177,10 +177,8 @@ export const appRouter = router({
           checkDate.setDate(checkDate.getDate() - 1);
         }
 
-        // Get total workouts count
-        const totalWorkouts = await ctx.prisma.userExerciseLog.count({
-          where: { userId },
-        });
+        // Get total workouts count for this week (same as workoutsCompleted)
+        const totalWorkouts = weekExerciseLogs.length;
 
         // Calculate average calories per day (last 7 days)
         const last7Days = new Date(today);
@@ -230,8 +228,6 @@ export const appRouter = router({
           proteinTarget: dailyGoal?.proteinGoal || 150, // Default protein goal
           workoutsCompleted: weekExerciseLogs.length,
           weeklyGoal: 5, // Default weekly goal
-          waterIntake: 6, // This would need a separate water tracking table
-          waterTarget: 8,
           currentStreak,
           totalWorkouts,
           avgCaloriesPerDay,
