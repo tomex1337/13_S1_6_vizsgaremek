@@ -71,7 +71,9 @@ export default function UserPage() {
 
   const caloriesProgress = (stats.caloriesConsumed / stats.caloriesTarget) * 100;
   const workoutProgress = (stats.workoutsCompleted / stats.weeklyGoal) * 100;
-  const waterProgress = (stats.waterIntake / stats.waterTarget) * 100;
+  const proteinConsumed = Number(stats.proteinConsumed) || 0;
+  const proteinTarget = Number(stats.proteinTarget) || 150;
+  const proteinProgress = (proteinConsumed / proteinTarget) * 100;
   const caloriesRemaining = 2000 - stats.caloriesConsumed;
 
   return (
@@ -182,29 +184,29 @@ export default function UserPage() {
             </p>
           </div>
 
-          {/* Water Intake Card */}
+          {/* Protein Intake Card */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-cyan-100 rounded-lg">
-                  <HeartIconSolid className="h-6 w-6 text-cyan-600" />
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <HeartIconSolid className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Water Today</p>
+                  <p className="text-sm font-medium text-gray-600">Protein Today</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.waterIntake} cups
+                    {proteinConsumed}g
                   </p>
                 </div>
               </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
-                className="bg-cyan-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(waterProgress, 100)}%` }}
+                className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(proteinProgress, 100)}%` }}
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {stats.waterTarget - stats.waterIntake} cups remaining
+              {Math.max(0, proteinTarget - proteinConsumed)}g remaining
             </p>
           </div>
 

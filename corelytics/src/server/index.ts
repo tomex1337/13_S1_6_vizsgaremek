@@ -215,9 +215,19 @@ export const appRouter = router({
         const totalCalories = Object.values(dailyCalories).reduce((sum, cal) => sum + cal, 0);
         const avgCaloriesPerDay = daysWithLogs > 0 ? Math.round(totalCalories / daysWithLogs) : 0;
 
+        // Calculate protein consumed today
+        const proteinConsumed = todayFoodLogs.reduce((total, log) => {
+          const protein = log.foodItem.protein || 0;
+          const quantity = log.quantity || 1;
+          const logProtein = Number(protein) * Number(quantity);
+          return total + logProtein;
+        }, 0);
+
         return {
           caloriesConsumed: Math.round(caloriesConsumed),
           caloriesTarget: dailyGoal?.caloriesGoal || 2000,
+          proteinConsumed: Math.round(proteinConsumed),
+          proteinTarget: dailyGoal?.proteinGoal || 150, // Default protein goal
           workoutsCompleted: weekExerciseLogs.length,
           weeklyGoal: 5, // Default weekly goal
           waterIntake: 6, // This would need a separate water tracking table
