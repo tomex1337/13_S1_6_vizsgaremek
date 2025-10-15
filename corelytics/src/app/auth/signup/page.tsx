@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import axios from "axios"
 import { useForm } from "react-hook-form"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 interface SignUpFormInputs {
   name: string
@@ -54,6 +56,8 @@ export default function SignUp() {
   }
 
   return (
+    <>
+    <Header />
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
@@ -157,5 +161,7 @@ export default function SignUp() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

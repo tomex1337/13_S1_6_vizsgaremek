@@ -4,6 +4,8 @@ import { useState } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import axios from "axios"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 interface ForgotPasswordInputs {
   email: string
@@ -43,6 +45,8 @@ export default function ForgotPassword() {
   }
 
   return (
+    <>
+    <Header />
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
@@ -121,5 +125,7 @@ export default function ForgotPassword() {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

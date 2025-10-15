@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import {
   CalendarIcon,
   ChartBarIcon,
@@ -340,6 +341,7 @@ export default function UserPage() {
         </div>
       </div>
     </div>
+    <Footer />
     </>
   );
 }

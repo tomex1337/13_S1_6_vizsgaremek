@@ -1,5 +1,6 @@
 "use client";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { SpeedInsights } from "@vercel/speed-insights/next"
@@ -136,7 +137,8 @@ export default function Home() {
           Go to nextjs.org →
         </a>
       </footer>
-    </div>    
+    </div>
+    <Footer />    
   </>
   );
 }

@@ -5,6 +5,8 @@ import { useRouter, useParams } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import axios from "axios"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 interface ResetPasswordInputs {
   password: string
@@ -62,6 +64,8 @@ export default function ResetPassword() {
 
   if (!token) {
     return (
+      <>
+      <Header />
       <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-red-600">Invalid Reset Link</h2>
@@ -74,11 +78,15 @@ export default function ResetPassword() {
           </Link>
         </div>
       </div>
+      <Footer />
+      </>
     )
   }
 
   if (success) {
     return (
+      <>
+      <Header />
       <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4">
         <div className="w-full max-w-md text-center">
           <div className="p-6 bg-green-50 border border-green-200 rounded-md">
@@ -93,10 +101,14 @@ export default function ResetPassword() {
           </Link>
         </div>
       </div>
+      <Footer />
+      </>
     )
   }
 
   return (
+    <>
+    <Header />
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
@@ -178,9 +190,11 @@ export default function ResetPassword() {
             className="font-medium text-indigo-600 hover:text-indigo-500"
           >
             Back to sign in
-          </Link>
+            </Link>
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }

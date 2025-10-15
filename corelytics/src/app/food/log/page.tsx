@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import Header from "@/components/header";
+import Footer from "@/components/footer";
 import {
   MagnifyingGlassIcon,
   PlusIcon,
@@ -660,6 +661,7 @@ export default function FoodLogPage() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

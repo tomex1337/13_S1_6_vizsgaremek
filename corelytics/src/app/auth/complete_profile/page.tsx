@@ -6,6 +6,8 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
+import Header from "@/components/header"
+import Footer from "@/components/footer"
 
 // Extend the session type to include user id
 declare module "next-auth" {
@@ -145,15 +147,21 @@ export default function CompleteProfile() {
 
   if (!session) {
     return (
+      <>
+      <Header />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <p className="text-lg">Please sign in to complete your profile.</p>
         </div>
       </div>
+      <Footer />
+      </>
     )
   }
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
@@ -299,5 +307,7 @@ export default function CompleteProfile() {
         </form>
       </div>
     </div>
+    <Footer />
+    </>
   )
 }
