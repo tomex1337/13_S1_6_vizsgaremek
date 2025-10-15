@@ -342,28 +342,20 @@ export const appRouter = router({
           calorieGoalsByDate[dateKey] = Number(goal.caloriesGoal || 2000);
         });
 
-        // Check each day if calorie goal was met (iterate through all 7 days)
-        for (let i = 0; i < 7; i++) {
-          const checkDate = new Date(last7Days);
-          checkDate.setDate(last7Days.getDate() + i);
-          const dateKey = checkDate.toISOString().split('T')[0];
-          
-          const caloriesForDay = dailyCalories[dateKey] || 0;
+        // Check each day if calorie goal was met
+        Object.keys(dailyCalories).forEach(dateKey => {
+          const caloriesForDay = dailyCalories[dateKey];
           const goalForDay = calorieGoalsByDate[dateKey] || Number(dailyGoal?.caloriesGoal || 2000);
           
-          // Only count as "met" if there were actually food logs for that day
-          if (caloriesForDay > 0) {
-            // Consider goal met if within 10% of target (not over and not too far under)
-            const minCalories = goalForDay * 0.9;
-            const maxCalories = goalForDay * 1.1;
-            
-            if (caloriesForDay >= minCalories && caloriesForDay <= maxCalories) {
-              daysMetGoal++;
-            }
+          // Consider goal met if within 10% of target (not over and not too far under)
+          const minCalories = goalForDay * 0.9;
+          const maxCalories = goalForDay * 1.1;
+          
+          if (caloriesForDay >= minCalories && caloriesForDay <= maxCalories) {
+            daysMetGoal++;
           }
-        }
+        });
 
-        // Calculate percentage based on days that had food logs
         const goalsMetPercentage = daysWithLogs > 0 
           ? Math.round((daysMetGoal / daysWithLogs) * 100)
           : 0;

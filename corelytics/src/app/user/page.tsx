@@ -206,7 +206,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {proteinConsumed >= proteinTarget ? 'Goal reached! 🎉' : `${Math.round(proteinTarget - proteinConsumed)}g remaining`}
+              {Math.max(0, proteinTarget - proteinConsumed)}g remaining
             </p>
           </div>
 
