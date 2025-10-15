@@ -78,6 +78,11 @@ export default function FoodLogPage() {
     enabled: status === "authenticated"
   });
   
+  // Get user stats for daily goals
+  const { data: userStats } = trpc.user.stats.useQuery(undefined, {
+    enabled: status === "authenticated"
+  });
+  
   const { data: searchResults = [], isLoading: isSearching } = trpc.food.search.useQuery({
     query: searchQuery,
     limit: 20
@@ -172,8 +177,14 @@ export default function FoodLogPage() {
   };
 
   const totals = calculateTotals();
-  const calorieGoal = 2000; // This would come from user's daily goal
+  const calorieGoal = userStats?.caloriesTarget || 2000;
+  const proteinGoal = Number(userStats?.proteinTarget) || 150;
+  const fatGoal = Number(userStats?.fatTarget) || 65;
+  const carbsGoal = Number(userStats?.carbsTarget) || 250;
   const caloriesRemaining = calorieGoal - totals.calories;
+  const proteinRemaining = proteinGoal - totals.protein;
+  const fatRemaining = fatGoal - totals.fat;
+  const carbsRemaining = carbsGoal - totals.carbs;
 
   if (status === "loading") {
     return (
@@ -264,6 +275,15 @@ export default function FoodLogPage() {
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-red-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.protein / proteinGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {proteinRemaining > 0 ? `${Math.round(proteinRemaining)}g remaining` : 'Goal reached! 🎉'}
+            </p>
           </div>
 
           {/* Fat Card */}
@@ -279,6 +299,15 @@ export default function FoodLogPage() {
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-yellow-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.fat / fatGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {fatRemaining > 0 ? `${Math.round(fatRemaining)}g remaining` : 'Goal reached! 🎉'}
+            </p>
           </div>
 
           {/* Carbs Card */}
@@ -294,6 +323,15 @@ export default function FoodLogPage() {
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.carbs / carbsGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 mt-2">
+              {carbsRemaining > 0 ? `${Math.round(carbsRemaining)}g remaining` : 'Goal reached! 🎉'}
+            </p>
           </div>
         </div>
 
