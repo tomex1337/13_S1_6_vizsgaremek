@@ -349,7 +349,7 @@ describe('Food Create Validation Tests', () => {
     it('should reject invalid data types for numeric fields', () => {
       const invalidData = {
         name: 'Test Food',
-        calories: 'one hundred' as any
+        calories: 'one hundred' as unknown as number
       }
 
       const result = createCustomFoodSchema.safeParse(invalidData)
