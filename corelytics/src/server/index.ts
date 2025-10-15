@@ -1,5 +1,67 @@
 import { router, publicProcedure, protectedProcedure } from './trpc';
 import { z } from 'zod';
+import { Decimal } from '@prisma/client/runtime/library';
+
+// Helper function to calculate daily nutritional goals
+function calculateDailyGoals(
+  age: number,
+  gender: string,
+  heightCm: number,
+  weightKg: number,
+  activityLevelId: number,
+  goalId: number
+) {
+  // Calculate BMR (Basal Metabolic Rate) using Mifflin-St Jeor Equation
+  let bmr: number;
+  
+  if (gender === 'male') {
+    bmr = 10 * weightKg + 6.25 * heightCm - 5 * age + 5;
+  } else if (gender === 'female') {
+    bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
+  } else {
+    bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
+  }
+
+  // Activity level multipliers
+  const activityMultipliers: { [key: number]: number } = {
+    1: 1.2,    // Sedentary
+    2: 1.375,  // Lightly active
+    3: 1.55,   // Moderately active
+    4: 1.725,  // Very active
+  };
+
+  const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
+  let tdee = bmr * activityMultiplier;
+
+  // Adjust based on goal
+  let caloriesGoal: number;
+  if (goalId === 1) {
+    caloriesGoal = tdee - 500; // Weight loss
+  } else if (goalId === 3) {
+    caloriesGoal = tdee + 500; // Weight gain
+  } else {
+    caloriesGoal = tdee; // Maintain
+  }
+
+  // Ensure minimum calories
+  const minCalories = gender === 'female' ? 1200 : gender === 'male' ? 1500 : 1350;
+  caloriesGoal = Math.max(caloriesGoal, minCalories);
+
+  // Calculate macros
+  const proteinGoal = weightKg * 1.8;
+  const fatCalories = caloriesGoal * 0.30;
+  const fatGoal = fatCalories / 9;
+  const proteinCalories = proteinGoal * 4;
+  const remainingCalories = caloriesGoal - proteinCalories - fatCalories;
+  const carbsGoal = remainingCalories / 4;
+
+  return {
+    caloriesGoal: Math.round(caloriesGoal),
+    proteinGoal: Math.round(proteinGoal),
+    fatGoal: Math.round(fatGoal),
+    carbsGoal: Math.round(carbsGoal),
+  };
+}
 
 export const appRouter = router({
   hello: router({
@@ -80,8 +142,13 @@ export const appRouter = router({
           },
         });
 
+        // Get user profile to check if it's complete
+        const userProfile = await ctx.prisma.userProfile.findUnique({
+          where: { userId },
+        });
+
         // Get today's daily goal
-        const dailyGoal = await ctx.prisma.dailyGoal.findUnique({
+        let dailyGoal = await ctx.prisma.dailyGoal.findUnique({
           where: {
             userId_date: {
               userId,
@@ -89,6 +156,40 @@ export const appRouter = router({
             },
           },
         });
+
+        // If no daily goal exists and profile is complete, create one
+        if (!dailyGoal && userProfile) {
+          const isProfileComplete = !!(
+            userProfile.age &&
+            userProfile.gender &&
+            userProfile.heightCm &&
+            userProfile.weightKg &&
+            userProfile.activityLevelId &&
+            userProfile.goalId
+          );
+
+          if (isProfileComplete) {
+            const goals = calculateDailyGoals(
+              userProfile.age!,
+              userProfile.gender!,
+              userProfile.heightCm!,
+              Number(userProfile.weightKg!),
+              userProfile.activityLevelId!,
+              userProfile.goalId!
+            );
+
+            dailyGoal = await ctx.prisma.dailyGoal.create({
+              data: {
+                userId,
+                date: today,
+                caloriesGoal: goals.caloriesGoal,
+                proteinGoal: new Decimal(goals.proteinGoal),
+                fatGoal: new Decimal(goals.fatGoal),
+                carbsGoal: new Decimal(goals.carbsGoal),
+              },
+            });
+          }
+        }
 
         // Get this week's exercise logs
         const weekExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
@@ -221,6 +322,44 @@ export const appRouter = router({
           return total + logProtein;
         }, 0);
 
+        // Calculate goals met percentage (last 7 days)
+        // Get daily goals for the last 7 days
+        const last7DaysGoals = await ctx.prisma.dailyGoal.findMany({
+          where: {
+            userId,
+            date: {
+              gte: last7Days,
+              lte: today,
+            },
+          },
+        });
+
+        let daysMetGoal = 0;
+        const calorieGoalsByDate: { [key: string]: number } = {};
+        
+        last7DaysGoals.forEach(goal => {
+          const dateKey = goal.date.toISOString().split('T')[0];
+          calorieGoalsByDate[dateKey] = Number(goal.caloriesGoal || 2000);
+        });
+
+        // Check each day if calorie goal was met
+        Object.keys(dailyCalories).forEach(dateKey => {
+          const caloriesForDay = dailyCalories[dateKey];
+          const goalForDay = calorieGoalsByDate[dateKey] || Number(dailyGoal?.caloriesGoal || 2000);
+          
+          // Consider goal met if within 10% of target (not over and not too far under)
+          const minCalories = goalForDay * 0.9;
+          const maxCalories = goalForDay * 1.1;
+          
+          if (caloriesForDay >= minCalories && caloriesForDay <= maxCalories) {
+            daysMetGoal++;
+          }
+        });
+
+        const goalsMetPercentage = daysWithLogs > 0 
+          ? Math.round((daysMetGoal / daysWithLogs) * 100)
+          : 0;
+
         return {
           caloriesConsumed: Math.round(caloriesConsumed),
           caloriesTarget: dailyGoal?.caloriesGoal || 2000,
@@ -231,6 +370,7 @@ export const appRouter = router({
           currentStreak,
           totalWorkouts,
           avgCaloriesPerDay,
+          goalsMetPercentage,
           recentActivities: [
             ...recentExerciseLogs.map(log => ({
               id: log.id,

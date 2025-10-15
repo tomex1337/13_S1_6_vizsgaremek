@@ -74,7 +74,7 @@ export default function UserPage() {
   const proteinConsumed = Number(stats.proteinConsumed) || 0;
   const proteinTarget = Number(stats.proteinTarget) || 150;
   const proteinProgress = (proteinConsumed / proteinTarget) * 100;
-  const caloriesRemaining = 2000 - stats.caloriesConsumed;
+  const caloriesRemaining = stats.caloriesTarget - stats.caloriesConsumed;
 
   return (
     <>
@@ -335,7 +335,9 @@ export default function UserPage() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-600">Goals Met</span>
-                  <span className="font-semibold text-green-600">85%</span>
+                  <span className="font-semibold text-green-600">
+                    {stats.goalsMetPercentage !== undefined ? `${stats.goalsMetPercentage}%` : 'No data'}
+                  </span>
                 </div>
               </div>
             </div>
