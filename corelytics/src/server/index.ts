@@ -31,7 +31,7 @@ function calculateDailyGoals(
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
-  let tdee = bmr * activityMultiplier;
+  const tdee = bmr * activityMultiplier;
 
   // Adjust based on goal
   let caloriesGoal: number;

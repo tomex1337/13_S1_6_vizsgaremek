@@ -49,7 +49,7 @@ function calculateDailyGoals(
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
-  let tdee = bmr * activityMultiplier; // Total Daily Energy Expenditure
+  const tdee = bmr * activityMultiplier; // Total Daily Energy Expenditure
 
   // Adjust based on goal
   // 1: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
