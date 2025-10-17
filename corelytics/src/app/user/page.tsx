@@ -97,7 +97,11 @@ export default function UserPage() {
                 </p>
               </div>
             </div>
-            <button className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors">
+            <button 
+              onClick={() => router.push('/settings')}
+              className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              title="Settings"
+            >
               <CogIcon className="h-6 w-6" />
             </button>
           </div>
