@@ -1,8 +1,4 @@
-'use client'
-
 import { useState } from 'react'
-import Image from 'next/image'
-import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogPanel,
@@ -25,6 +21,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
+export default function Header() {
+
 const products = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
   { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
@@ -36,23 +34,20 @@ const callsToAction = [
   { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
   { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
-
-export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { data: session } = useSession();
+const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
     <header className="bg-white">
-      <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
+      <nav aria-label="Global" className="mx-auto flex items-center justify-between m-3 p-2 lg:mx-24">
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
-            <Image
-              alt=""
-              src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-              className="h-8 w-auto"
+            <img
+              alt="Corelytics Logo"
+              src="/logo.svg"
               width={32}
               height={32}
+              className="h-8 w-auto"
             />
           </a>
         </div>
@@ -122,15 +117,9 @@ export default function Header() {
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          {session?.user ? (
-          <a href="/user" className="text-sm/6 font-semibold text-gray-900">
-            <span aria-hidden="true">{session?.user?.name}</span>
-          </a>
-          ) : (
-          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
+          <a href="#" className="text-sm/6 font-semibold text-gray-900">
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
-          )}
         </div>
       </nav>
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -139,12 +128,10 @@ export default function Header() {
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <Image
+              <img
                 alt=""
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                 className="h-8 w-auto"
-                width={32}
-                height={32}
               />
             </a>
             <button
