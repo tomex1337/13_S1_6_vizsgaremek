@@ -120,9 +120,15 @@ const { data: session } = useSession();
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
+            {session?.user ? (
+          <a href="/user" className="text-sm/6 font-semibold text-gray-900">
+            <span aria-hidden="true">{session?.user?.name}</span>
+          </a>
+          ) : (
+          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
             Log in <span aria-hidden="true">&rarr;</span>
           </a>
+          )}
         </div>
       </nav>
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
