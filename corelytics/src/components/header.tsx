@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { useSession } from "next-auth/react";
+
 import {
   Dialog,
   DialogPanel,
@@ -35,6 +37,7 @@ const callsToAction = [
   { name: 'Contact sales', href: '#', icon: PhoneIcon },
 ]
 const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+const { data: session } = useSession();
 
   return (
     <header className="bg-white">
@@ -184,12 +187,15 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
                 </a>
               </div>
               <div className="py-6">
-                <a
-                  href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                >
-                  Log in
-                </a>
+            {session?.user ? (
+          <a href="/user" className="text-sm/6 font-semibold text-gray-900">
+            <span aria-hidden="true">{session?.user?.name}</span>
+          </a>
+          ) : (
+          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
+            Log in <span aria-hidden="true">&rarr;</span>
+          </a>
+          )}
               </div>
             </div>
           </div>
