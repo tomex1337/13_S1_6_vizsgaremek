@@ -1,13 +1,19 @@
 "use client";
-
+import Header from "@/components/header";
+import Footer from "@/components/footer";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export default function Home() {
   const { data: session } = useSession();
+    <SpeedInsights/>
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <>
+      <SpeedInsights/>
+      <Header />
+      <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         {session?.user ? (
           <div className="flex flex-col items-center sm:items-start gap-4 mb-4">
@@ -21,7 +27,22 @@ export default function Home() {
               Sign Out
             </button>
           </div>
-        ) : null}
+        ) : (
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+            <a
+              href="/auth/signin"
+              className="w-32 text-center px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            >
+              Sign In
+            </a>
+            <a
+              href="/auth/signup"
+              className="w-32 text-center px-6 py-2 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
+            >
+              Sign Up
+            </a>
+          </div>
+        )}
         <Image
           className="dark:invert"
           src="/next.svg"
@@ -117,5 +138,7 @@ export default function Home() {
         </a>
       </footer>
     </div>
+    <Footer />    
+  </>
   );
 }

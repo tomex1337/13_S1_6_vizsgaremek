@@ -29,6 +29,30 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Running on Android Emulator
+
+To run the app on an Android emulator during development:
+
+1. **Start the Next.js development server** (in a separate terminal):
+   ```bash
+   npm run dev
+   ```
+   Make sure the server is running on `http://localhost:3000`
+
+2. **Sync and open Android Studio**:
+   ```bash
+   npm run android:dev
+   ```
+
+3. **Run the app** from Android Studio on your emulator
+
+**Important**: The Android emulator connects to your host machine's localhost via `10.0.2.2`. The Capacitor config is already set up to use this address for development.
+
+### Troubleshooting
+- Make sure the Next.js dev server is running before launching the Android app
+- Check that your emulator is running and accessible
+- Verify that port 3000 is not blocked by a firewall
+
 ## Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
