@@ -2,7 +2,8 @@
 
 :root {
   --background: #549cee;
-  --foreground: #171717;
+  --foreground: #252727;
+  --form-background: #e5f8ff;
 }
 
 @theme inline {
@@ -14,8 +15,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #224874;
+    --foreground: #e5f8ff;
+    --form-background: #252727;
   }
 }
 
@@ -23,4 +25,8 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+input{
+  background: var(--form-background);
 }
