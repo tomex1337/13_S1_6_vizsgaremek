@@ -197,7 +197,7 @@ export default function SettingsPage() {
             className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Back to Dashboard
+            Vissza a vezérlőpultra
           </button>
 
           {/* Header */}
@@ -207,8 +207,8 @@ export default function SettingsPage() {
                 <UserIcon className="h-8 w-8 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-                <p className="text-gray-600 mt-1">Update your personal information and fitness goals</p>
+                <h1 className="text-3xl font-bold text-gray-900">Profil beállítások</h1>
+                <p className="text-gray-600 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
               </div>
             </div>
           </div>
@@ -218,19 +218,19 @@ export default function SettingsPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information Section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Personal Information</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Személyes adatok</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Age */}
                   <div>
                     <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
-                      Age *
+                      Életkor *
                     </label>
                     <input
                       type="number"
                       id="age"
                       {...register("age")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g., 25"
+                      placeholder="pl. 25"
                     />
                     {errors.age && (
                       <p className="mt-1 text-sm text-red-600">{errors.age.message as string}</p>
@@ -240,17 +240,17 @@ export default function SettingsPage() {
                   {/* Gender */}
                   <div>
                     <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
-                      Gender *
+                      Nem *
                     </label>
                     <select
                       id="gender"
                       {...register("gender")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">Select gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      <option value="">Válassz nemet</option>
+                      <option value="male">Férfi</option>
+                      <option value="female">Nő</option>
+                      <option value="other">Egyéb</option>
                     </select>
                     {errors.gender && (
                       <p className="mt-1 text-sm text-red-600">{errors.gender.message as string}</p>
@@ -260,14 +260,14 @@ export default function SettingsPage() {
                   {/* Height */}
                   <div>
                     <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700 mb-2">
-                      Height (cm) *
+                      Magasság (cm) *
                     </label>
                     <input
                       type="number"
                       id="heightCm"
                       {...register("heightCm")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g., 175"
+                      placeholder="pl. 175"
                     />
                     {errors.heightCm && (
                       <p className="mt-1 text-sm text-red-600">{errors.heightCm.message as string}</p>
@@ -277,7 +277,7 @@ export default function SettingsPage() {
                   {/* Weight */}
                   <div>
                     <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700 mb-2">
-                      Weight (kg) *
+                      Súly (kg) *
                     </label>
                     <input
                       type="number"
@@ -285,7 +285,7 @@ export default function SettingsPage() {
                       id="weightKg"
                       {...register("weightKg")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g., 70.5"
+                      placeholder="pl. 70.5"
                     />
                     {errors.weightKg && (
                       <p className="mt-1 text-sm text-red-600">{errors.weightKg.message as string}</p>
@@ -296,19 +296,19 @@ export default function SettingsPage() {
 
               {/* Fitness Information Section */}
               <div className="pt-6 border-t border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Fitness Information</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Fitness információk</h2>
                 <div className="space-y-6">
                   {/* Activity Level */}
                   <div>
                     <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700 mb-2">
-                      Activity Level *
+                      Aktivitási szint *
                     </label>
                     <select
                       id="activityLevelId"
                       {...register("activityLevelId")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">Select your activity level</option>
+                      <option value="">Válaszd ki az aktivitási szintedet</option>
                       {activityLevels.map((level) => (
                         <option key={level.id} value={level.id}>
                           {level.name}
@@ -319,21 +319,21 @@ export default function SettingsPage() {
                       <p className="mt-1 text-sm text-red-600">{errors.activityLevelId.message as string}</p>
                     )}
                     <p className="mt-2 text-sm text-gray-500">
-                      Choose your typical daily activity level to help calculate your calorie needs
+                      Válaszd ki a tipikus napi aktivitási szintedet a kalóriaszükséglet számításához
                     </p>
                   </div>
 
                   {/* Fitness Goal */}
                   <div>
                     <label htmlFor="goalId" className="block text-sm font-medium text-gray-700 mb-2">
-                      Fitness Goal *
+                      Fitness cél *
                     </label>
                     <select
                       id="goalId"
                       {...register("goalId")}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
-                      <option value="">Select your fitness goal</option>
+                      <option value="">Válaszd ki a fitness célodat</option>
                       {goals.map((goal) => (
                         <option key={goal.id} value={goal.id}>
                           {goal.name}
@@ -344,7 +344,7 @@ export default function SettingsPage() {
                       <p className="mt-1 text-sm text-red-600">{errors.goalId.message as string}</p>
                     )}
                     <p className="mt-2 text-sm text-gray-500">
-                      Your goal will help us customize your calorie and nutrient targets
+                      A célod segít nekünk személyre szabni a kalória- és tápanyagcélokat
                     </p>
                   </div>
                 </div>
@@ -371,14 +371,14 @@ export default function SettingsPage() {
                   disabled={isLoading}
                   className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  {isLoading ? 'Saving...' : 'Save Changes'}
+                  {isLoading ? 'Mentés...' : 'Változtatások mentése'}
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push('/user')}
                   className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
-                  Cancel
+                  Mégse
                 </button>
               </div>
             </form>
@@ -387,7 +387,7 @@ export default function SettingsPage() {
           {/* Additional Information */}
           <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> All fields marked with * are required. Your profile information helps us provide personalized calorie and nutrient recommendations based on your goals and activity level.
+              <strong>Megjegyzés:</strong> Az összes *-gal jelölt mező kötelező. A profil információid segítenek nekünk személyre szabott kalória- és tápanyag-ajánlásokat nyújtani a céljaid és aktivitási szinted alapján.
             </p>
           </div>
         </div>

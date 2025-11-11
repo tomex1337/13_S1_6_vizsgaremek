@@ -151,7 +151,7 @@ export default function CompleteProfile() {
       <Header />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-lg">Please sign in to complete your profile.</p>
+          <p className="text-lg">Kérlek jelentkezz be a profil kiegészítéséhez.</p>
         </div>
       </div>
       <Footer />
@@ -165,9 +165,9 @@ export default function CompleteProfile() {
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Complete Your Profile</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Profil kiegészítése</h1>
           <p className="mt-2 text-gray-600">
-            Help us personalize your fitness journey
+            Segíts nekünk személyre szabni a fitness utadat
           </p>
         </div>
 
@@ -175,7 +175,7 @@ export default function CompleteProfile() {
           {/* Age */}
           <div>
             <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-              Age *
+              Életkor *
             </label>
             <input
               type="number"
@@ -183,14 +183,14 @@ export default function CompleteProfile() {
               {...register("age")}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your age"
+              placeholder="Add meg az életkorod"
             />
           </div>
 
           {/* Gender */}
           <div>
             <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-              Gender *
+              Nem *
             </label>
             <select
               id="gender"
@@ -198,17 +198,17 @@ export default function CompleteProfile() {
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">Válassz nemet</option>
+              <option value="male">Férfi</option>
+              <option value="female">Nő</option>
+              <option value="other">Egyéb</option>
             </select>
           </div>
 
           {/* Height */}
           <div>
             <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700">
-              Height (cm) *
+              Magasság (cm) *
             </label>
             <input
               type="number"
@@ -216,14 +216,14 @@ export default function CompleteProfile() {
               {...register("heightCm")}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your height in cm"
+              placeholder="Add meg a magasságod cm-ben"
             />
           </div>
 
           {/* Weight */}
           <div>
             <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700">
-              Weight (kg) *
+              Súly (kg) *
             </label>
             <input
               type="number"
@@ -232,14 +232,14 @@ export default function CompleteProfile() {
               {...register("weightKg")}
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your weight in kg"
+              placeholder="Add meg a súlyod kg-ban"
             />
           </div>
 
           {/* Activity Level */}
           <div>
             <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700">
-              Activity Level *
+              Aktivitási szint *
             </label>
             <select
               id="activityLevelId"
@@ -247,7 +247,7 @@ export default function CompleteProfile() {
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
-              <option value="">Select activity level</option>
+              <option value="">Válassz aktivitási szintet</option>
               {activityLevels.map((level) => (
                 <option key={level.id} value={level.id}>
                   {level.name}
@@ -259,7 +259,7 @@ export default function CompleteProfile() {
           {/* Goal */}
           <div>
             <label htmlFor="goalId" className="block text-sm font-medium text-gray-700">
-              Fitness Goal *
+              Fitness cél *
             </label>
             <select
               id="goalId"
@@ -267,7 +267,7 @@ export default function CompleteProfile() {
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
-              <option value="">Select your goal</option>
+              <option value="">Válaszd ki a célodat</option>
               {goals.map((goal) => (
                 <option key={goal.id} value={goal.id}>
                   {goal.name}
@@ -290,7 +290,7 @@ export default function CompleteProfile() {
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Creating Profile..." : "Complete Profile"}
+              {isLoading ? "Profil létrehozása..." : "Profil kiegészítése"}
             </button>
           </div>
 
@@ -301,7 +301,7 @@ export default function CompleteProfile() {
               onClick={() => router.push('/')}
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Skip for now
+              Kihagyás egyelőre
             </button>
           </div>
         </form>

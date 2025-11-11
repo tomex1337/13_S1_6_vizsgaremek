@@ -18,13 +18,13 @@ export default function Home() {
         {session?.user ? (
           <div className="flex flex-col items-center sm:items-start gap-4 mb-4">
             <div className="text-2xl font-semibold">
-              Welcome back, {session.user.name || session.user.email}! 👋
+              Üdvözlünk vissza, {session.user.name || session.user.email}! 👋
             </div>
             <button
               onClick={() => signOut()}
               className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
             >
-              Sign Out
+              Kijelentkezés
             </button>
           </div>
         ) : (
@@ -33,13 +33,13 @@ export default function Home() {
               href="/auth/signin"
               className="w-32 text-center px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
             >
-              Sign In
+              Bejelentkezés
             </a>
             <a
               href="/auth/signup"
               className="w-32 text-center px-6 py-2 border border-indigo-600 text-indigo-600 rounded-md hover:bg-indigo-50 transition-colors"
             >
-              Sign Up
+              Regisztráció
             </a>
           </div>
         )}
@@ -53,14 +53,14 @@ export default function Home() {
         />
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
+            Kezdéshez szerkeszd a{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
               src/app/page.tsx
-            </code>
-            .
+            </code>{" "}
+            fájlt.
           </li>
           <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
+            Mentsd el és azonnal láthatod a változásokat.
           </li>
         </ol>
 
@@ -86,7 +86,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Read our docs
+            Dokumentáció
           </a>
         </div>
       </main>
@@ -119,7 +119,7 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Examples
+          Példák
         </a>
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
@@ -134,7 +134,7 @@ export default function Home() {
             width={16}
             height={16}
           />
-          Go to nextjs.org →
+          Tovább a nextjs.org-ra →
         </a>
       </footer>
     </div>

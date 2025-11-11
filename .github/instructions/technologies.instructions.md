@@ -21,3 +21,5 @@ Ezeket a technológiákat használd a projektben:
 Egy MyFitnessPal szerű alkalmazás, amely lehetővé teszi a felhasználók számára, hogy nyomon kövessék étkezési szokásaikat és edzéseiket. A projekt célja, hogy egy könnyen használható és reszponzív alkalmazást hozzunk létre, amely segíti a felhasználókat egészséges életmódjuk fenntartásában.
 
 Legyen a header és a footer minden oldalon a components-ből.
+
+Minden oldalon a megjelenitet szöveg magyar legyen, a kódban pedig angol.

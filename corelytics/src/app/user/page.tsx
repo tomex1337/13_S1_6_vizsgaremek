@@ -56,7 +56,7 @@ export default function UserPage() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600">Error loading user data</div>
+        <div className="text-red-600">Hiba a felhasználói adatok betöltésekor</div>
       </div>
     );
   }
@@ -64,7 +64,7 @@ export default function UserPage() {
   if (!stats) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div>No data available</div>
+        <div>Nincsenek elérhető adatok</div>
       </div>
     );
   }
@@ -90,17 +90,17 @@ export default function UserPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold">
-                  Welcome back, {session?.user?.name || 'User'}!
+                  Üdvözlünk vissza, {session?.user?.name || 'Felhasználó'}!
                 </h1>
                 <p className="text-blue-100 mt-1">
-                  Keep up the great work on your fitness journey
+                  Folytasd a nagyszerű munkát a fitness utadon
                 </p>
               </div>
             </div>
             <button 
               onClick={() => router.push('/settings')}
               className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
-              title="Settings"
+              title="Beállítások"
             >
               <CogIcon className="h-6 w-6" />
             </button>
@@ -118,16 +118,16 @@ export default function UserPage() {
               </div>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-orange-900 mb-2">
-                  Complete Your Profile
+                  Profil kiegészítése
                 </h3>
                 <p className="text-orange-700 mb-4">
-                  Your profile is incomplete. Complete it now to get personalized recommendations and better track your fitness journey.
+                  A profilod nem teljes. Töltsd ki most, hogy személyre szabott ajánlásokat kapj és jobban követhesd a fitness utadat.
                 </p>
                 <button
                   onClick={() => router.push('/auth/complete_profile')}
                   className="inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
                 >
-                  Finish Your Profile Now
+                  Profil befejezése most
                 </button>
               </div>
             </div>
@@ -144,7 +144,7 @@ export default function UserPage() {
                   <FireIconSolid className="h-6 w-6 text-orange-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Calories Today</p>
+                  <p className="text-sm font-medium text-gray-600">Mai kalóriák</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats.caloriesConsumed}
                   </p>
@@ -158,7 +158,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`} 
+              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`} 
             </p>
           </div>
 
@@ -170,7 +170,7 @@ export default function UserPage() {
                   <ChartBarIcon className="h-6 w-6 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Workouts This Week</p>
+                  <p className="text-sm font-medium text-gray-600">Edzések ezen a héten</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {stats.workoutsCompleted}
                   </p>
@@ -184,7 +184,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {stats.weeklyGoal - stats.workoutsCompleted} more to reach goal
+              {stats.weeklyGoal - stats.workoutsCompleted} maradt a cél eléréséhez
             </p>
           </div>
 
@@ -196,7 +196,7 @@ export default function UserPage() {
                   <HeartIconSolid className="h-6 w-6 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Protein Today</p>
+                  <p className="text-sm font-medium text-gray-600">Mai fehérje</p>
                   <p className="text-2xl font-bold text-gray-900">
                     {proteinConsumed}g
                   </p>
@@ -210,7 +210,7 @@ export default function UserPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {proteinConsumed >= proteinTarget ? 'Goal reached! 🎉' : `${Math.round(proteinTarget - proteinConsumed)}g remaining`}
+              {proteinConsumed >= proteinTarget ? 'Cél elérve! 🎉' : `${Math.round(proteinTarget - proteinConsumed)}g maradt`}
             </p>
           </div>
 
@@ -222,16 +222,16 @@ export default function UserPage() {
                   <TrophyIcon className="h-6 w-6 text-yellow-600" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Current Streak</p>
+                  <p className="text-sm font-medium text-gray-600">Jelenlegi sorozat</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.currentStreak} days
+                    {stats.currentStreak} nap
                   </p>
                 </div>
               </div>
             </div>
             <div className="flex items-center space-x-2 text-sm text-gray-500">
               <ArrowTrendingUpIcon className="h-4 w-4" />
-              <span>Keep it up!</span>
+              <span>Így tovább!</span>
             </div>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function UserPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Recent Activities</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Legutóbbi tevékenységek</h2>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
@@ -272,8 +272,8 @@ export default function UserPage() {
                     ))
                   ) : (
                     <div className="text-center py-8 text-gray-500">
-                      <p>No recent activities to show</p>
-                      <p className="text-sm">Start logging your meals and workouts!</p>
+                      <p>Nincsenek megjeleníthető legutóbbi tevékenységek</p>
+                      <p className="text-sm">Kezdd el naplózni az étkezéseidet és edzéseidet!</p>
                     </div>
                   )}
                 </div>
@@ -285,7 +285,7 @@ export default function UserPage() {
           <div className="space-y-6">
             {/* Quick Log */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Gyors műveletek</h3>
               <div className="space-y-3">
                 <button 
                   onClick={() => router.push('/food/log')}
@@ -293,7 +293,7 @@ export default function UserPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <CalendarIcon className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-900">Log Food</span>
+                    <span className="font-medium text-blue-900">Étel naplózása</span>
                   </div>
                 </button>
                 <button 
@@ -302,13 +302,13 @@ export default function UserPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <PlusIcon className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-purple-900">Create Custom Food</span>
+                    <span className="font-medium text-purple-900">Egyedi étel létrehozása</span>
                   </div>
                 </button>
                 <button className="w-full p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
                   <div className="flex items-center space-x-3">
                     <PlayIcon className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-green-900">Start Workout</span>
+                    <span className="font-medium text-green-900">Edzés kezdése</span>
                   </div>
                 </button>
                 <button 
@@ -317,7 +317,7 @@ export default function UserPage() {
                 >
                   <div className="flex items-center space-x-3">
                     <ChartBarIcon className="h-5 w-5 text-orange-600" />
-                    <span className="font-medium text-orange-900">View Progress</span>
+                    <span className="font-medium text-orange-900">Előrehaladás megtekintése</span>
                   </div>
                 </button>
               </div>
@@ -325,22 +325,22 @@ export default function UserPage() {
 
             {/* Weekly Summary */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">This Week</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Ezen a héten</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Total Workouts</span>
+                  <span className="text-sm text-gray-600">Összes edzés</span>
                   <span className="font-semibold text-gray-900">{stats.totalWorkouts}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Avg. Calories/Day (7d)</span>
+                  <span className="text-sm text-gray-600">Átl. kalória/nap (7n)</span>
                   <span className="font-semibold text-gray-900">
-                    {stats.avgCaloriesPerDay ? stats.avgCaloriesPerDay.toLocaleString() : 'No data'}
+                    {stats.avgCaloriesPerDay ? stats.avgCaloriesPerDay.toLocaleString() : 'Nincs adat'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Goals Met</span>
+                  <span className="text-sm text-gray-600">Elért célok</span>
                   <span className="font-semibold text-green-600">
-                    {stats.goalsMetPercentage !== undefined ? `${stats.goalsMetPercentage}%` : 'No data'}
+                    {stats.goalsMetPercentage !== undefined ? `${stats.goalsMetPercentage}%` : 'Nincs adat'}
                   </span>
                 </div>
               </div>

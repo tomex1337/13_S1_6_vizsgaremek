@@ -26,6 +26,18 @@ import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/
 export default function Header() {
 
 const products = [
+  { name: 'Analitika', description: 'Értsd meg jobban a forgalmadat', href: '#', icon: ChartPieIcon },
+  { name: 'Elköteleződés', description: 'Beszélj közvetlenül az ügyfeleidhez', href: '#', icon: CursorArrowRaysIcon },
+  { name: 'Biztonság', description: 'Az ügyfeleid adatai biztonságban lesznek', href: '#', icon: FingerPrintIcon },
+  { name: 'Integrációk', description: 'Csatlakozz harmadik fél eszközeihez', href: '#', icon: SquaresPlusIcon },
+  { name: 'Automatizálás', description: 'Építs stratégiai tölcséreket', href: '#', icon: ArrowPathIcon },
+]
+const callsToAction = [
+  { name: 'Demó megtekintése', href: '#', icon: PlayCircleIcon },
+  { name: 'Kapcsolatfelvétel', href: '#', icon: PhoneIcon },
+]
+
+const products = [
   { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
   { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
   { name: 'Security', description: 'Your customers’ data will be safe and secure', href: '#', icon: FingerPrintIcon },
@@ -60,14 +72,14 @@ const { data: session } = useSession();
             onClick={() => setMobileMenuOpen(true)}
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
           >
-            <span className="sr-only">Open main menu</span>
+            <span className="sr-only">Főmenü megnyitása</span>
             <Bars3Icon aria-hidden="true" className="size-6" />
           </button>
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           <Popover className="relative">
             <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
-              Product
+              Termék
               <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-400" />
             </PopoverButton>
 
@@ -110,13 +122,13 @@ const { data: session } = useSession();
           </Popover>
 
           <a href="#" className="text-sm/6 font-semibold text-gray-900">
-            Features
+            Funkciók
           </a>
           <a href="#" className="text-sm/6 font-semibold text-gray-900">
-            Marketplace
+            Piac
           </a>
           <a href="#" className="text-sm/6 font-semibold text-gray-900">
-            Company
+            Cég
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
@@ -148,7 +160,7 @@ const { data: session } = useSession();
               onClick={() => setMobileMenuOpen(false)}
               className="-m-2.5 rounded-md p-2.5 text-gray-700"
             >
-              <span className="sr-only">Close menu</span>
+              <span className="sr-only">Menü bezárása</span>
               <XMarkIcon aria-hidden="true" className="size-6" />
             </button>
           </div>
@@ -157,7 +169,7 @@ const { data: session } = useSession();
               <div className="space-y-2 py-6">
                 <Disclosure as="div" className="-mx-3">
                   <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
-                    Product
+                    Termék
                     <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
                   </DisclosureButton>
                   <DisclosurePanel className="mt-2 space-y-2">
@@ -177,19 +189,19 @@ const { data: session } = useSession();
                   href="#"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                 >
-                  Features
+                  Funkciók
                 </a>
                 <a
                   href="#"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                 >
-                  Marketplace
+                  Piac
                 </a>
                 <a
                   href="#"
                   className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
                 >
-                  Company
+                  Cég
                 </a>
               </div>
               <div className="py-6">
@@ -199,7 +211,7 @@ const { data: session } = useSession();
           </a>
           ) : (
           <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
-            Log in <span aria-hidden="true">&rarr;</span>
+            Bejelentkezés <span aria-hidden="true">&rarr;</span>
           </a>
           )}
               </div>

@@ -11,28 +11,28 @@ export default function Footer() {
                     <div>
                         <h3 className="text-lg font-semibold mb-4">Corelytics</h3>
                         <p className="text-gray-400">
-                            Your personal fitness and nutrition tracking companion. Stay healthy,
-                            stay motivated.
+                            Személyes fitness és táplálkozás követő társad. Maradj egészséges,
+                            maradj motivált.
                         </p>
                     </div>
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+                        <h3 className="text-lg font-semibold mb-4">Gyors linkek</h3>
                         <ul className="space-y-2">
                             <li>
                                 <a href="#" className="text-gray-400 hover:text-white transition">
-                                    Features
+                                    Funkciók
                                 </a>
                             </li>
                             <li>
                                 <a href="#" className="text-gray-400 hover:text-white transition">
-                                    Marketplace
+                                    Piac
                                 </a>
                             </li>
                             <li>
                                 <a href="#" className="text-gray-400 hover:text-white transition">
-                                    Company
+                                    Cég
                                 </a>
                             </li>
                         </ul>
@@ -40,17 +40,17 @@ export default function Footer() {
 
                     {/* Contact Info */}
                     <div>
-                        <h3 className="text-lg font-semibold mb-4">Contact</h3>
+                        <h3 className="text-lg font-semibold mb-4">Kapcsolat</h3>
                         <ul className="space-y-2 text-gray-400">
                             <li>Email: support@corelytics.com</li>
-                            <li>Follow us on social media</li>
+                            <li>Kövess minket a közösségi médiában</li>
                         </ul>
                     </div>
                 </div>
 
                 {/* Copyright */}
                 <div className="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
-                    <p>&copy; {currentYear} Corelytics. All rights reserved.</p>
+                    <p>&copy; {currentYear} Corelytics. Minden jog fenntartva.</p>
                 </div>
             </div>
         </footer>
