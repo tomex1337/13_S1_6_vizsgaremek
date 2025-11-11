@@ -40,8 +40,8 @@ const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 const { data: session } = useSession();
 
   return (
-    <header className="bg-white">
-      <nav aria-label="Global" className="mx-auto flex items-center justify-between m-3 p-2 lg:mx-24">
+    <header className="bg-transparent">
+      <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white rounded-xl shadow-lg">
         <div className="flex lg:flex-1">
           <a href="#" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
