@@ -210,9 +210,9 @@ export default function FoodLogPage() {
                 <FireIconSolid className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Food Diary</h1>
+                <h1 className="text-3xl font-bold">Étkezési Napló</h1>
                 <p className="text-green-100 mt-1">
-                  Track your nutrition and reach your goals
+                  Kövesd nyomon a táplálkozásodat és érdd el a céljaidat
                 </p>
               </div>
             </div>
@@ -228,7 +228,7 @@ export default function FoodLogPage() {
                 className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span>Add Food</span>
+                <span>Étel hozzáadása</span>
               </button>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function FoodLogPage() {
                 <FireIconSolid className="h-6 w-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Calories</p>
+                <p className="text-sm font-medium text-gray-600">Kalória</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Math.round(totals.calories)}
                 </p>
@@ -258,7 +258,7 @@ export default function FoodLogPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`}
+              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}
             </p>
           </div>
 
@@ -269,7 +269,7 @@ export default function FoodLogPage() {
                 <BeakerIcon className="h-6 w-6 text-red-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Protein</p>
+                <p className="text-sm font-medium text-gray-600">Fehérje</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Math.round(totals.protein)}g
                 </p>
@@ -282,7 +282,7 @@ export default function FoodLogPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {proteinRemaining > 0 ? `${Math.round(proteinRemaining)}g remaining` : 'Goal reached! 🎉'}
+              {proteinRemaining > 0 ? `${Math.round(proteinRemaining)}g maradt` : 'Cél elérve! 🎉'}
             </p>
           </div>
 
@@ -293,7 +293,7 @@ export default function FoodLogPage() {
                 <ScaleIcon className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Fat</p>
+                <p className="text-sm font-medium text-gray-600">Zsír</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Math.round(totals.fat)}g
                 </p>
@@ -306,7 +306,7 @@ export default function FoodLogPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {fatRemaining > 0 ? `${Math.round(fatRemaining)}g remaining` : 'Goal reached! 🎉'}
+              {fatRemaining > 0 ? `${Math.round(fatRemaining)}g maradt` : 'Cél elérve! 🎉'}
             </p>
           </div>
 
@@ -317,7 +317,7 @@ export default function FoodLogPage() {
                 <BeakerIcon className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Carbs</p>
+                <p className="text-sm font-medium text-gray-600">Szénhidrát</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {Math.round(totals.carbs)}g
                 </p>
@@ -330,7 +330,7 @@ export default function FoodLogPage() {
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {carbsRemaining > 0 ? `${Math.round(carbsRemaining)}g remaining` : 'Goal reached! 🎉'}
+              {carbsRemaining > 0 ? `${Math.round(carbsRemaining)}g maradt` : 'Cél elérve! 🎉'}
             </p>
           </div>
         </div>
@@ -350,7 +350,7 @@ export default function FoodLogPage() {
                     <div className="flex items-center space-x-3">
                       <h2 className="text-xl font-semibold text-gray-900">{mealType.name}</h2>
                       <span className="text-sm text-gray-500">
-                        {Math.round(mealCalories)} calories
+                        {Math.round(mealCalories)} kalória
                       </span>
                     </div>
                     <button
@@ -373,7 +373,7 @@ export default function FoodLogPage() {
                             <div className="flex items-center space-x-3">
                               <div>
                                 <p className="font-medium text-gray-900">
-                                  {log.foodItem?.name || 'Unknown Food'}
+                                  {log.foodItem?.name || 'Ismeretlen Étel'}
                                   {log.foodItem?.brand && (
                                     <span className="text-gray-500 ml-2">- {log.foodItem.brand}</span>
                                   )}
@@ -389,7 +389,7 @@ export default function FoodLogPage() {
                                       className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                     <span className="text-sm text-gray-500">
-                                      serving{editQuantity !== 1 ? 's' : ''}
+                                      adag{editQuantity !== 1 ? 'ok' : ''}
                                       {log.foodItem?.servingSizeGrams && (
                                         <span> ({Math.round(Number(log.foodItem.servingSizeGrams) * editQuantity)}g)</span>
                                       )}
@@ -397,7 +397,7 @@ export default function FoodLogPage() {
                                   </div>
                                 ) : (
                                   <p className="text-sm text-gray-500">
-                                    {Number(log.quantity || 0)} serving{Number(log.quantity || 0) !== 1 ? 's' : ''} 
+                                    {Number(log.quantity || 0)} adag{Number(log.quantity || 0) !== 1 ? 'ok' : ''} 
                                     {log.foodItem?.servingSizeGrams && (
                                       <span> ({Math.round(Number(log.foodItem.servingSizeGrams) * Number(log.quantity || 0))}g)</span>
                                     )}
@@ -469,7 +469,7 @@ export default function FoodLogPage() {
                     </div>
                   ) : (
                     <div className="text-center py-8 text-gray-500">
-                      <p>No foods logged for {mealType.name.toLowerCase()}</p>
+                      <p>Nincs étel naplózva ehhez: {mealType.name.toLowerCase()}</p>
                       <button
                         onClick={() => {
                           setSelectedMealType(mealType.id);
@@ -477,7 +477,7 @@ export default function FoodLogPage() {
                         }}
                         className="text-blue-600 hover:text-blue-700 font-medium mt-2"
                       >
-                        Add your first food
+                        Első étel hozzáadása
                       </button>
                     </div>
                   )}
@@ -495,7 +495,7 @@ export default function FoodLogPage() {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Choose Meal Category
+                  Étkezés Kategória Kiválasztása
                 </h3>
                 <button
                   onClick={() => setShowMealSelector(false)}
@@ -507,7 +507,7 @@ export default function FoodLogPage() {
             </div>
             
             <div className="p-6">
-              <p className="text-gray-600 mb-4">Select which meal you want to add food to:</p>
+              <p className="text-gray-600 mb-4">Válaszd ki, melyik étkezéshez szeretnél ételt hozzáadni:</p>
               <div className="space-y-3">
                 {mealTypes.map((mealType) => (
                   <button
@@ -524,7 +524,7 @@ export default function FoodLogPage() {
                       <div className="text-sm text-gray-500">
                         {(dailyLogs as unknown as DailyLog[]).filter((log: DailyLog) => log.mealType?.id === mealType.id).reduce((sum: number, log: DailyLog) => 
                           sum + (Number(log.foodItem?.calories) || 0) * Number(log.quantity), 0
-                        )} cal logged
+                        )} kal naplózva
                       </div>
                     </div>
                   </button>
@@ -542,7 +542,7 @@ export default function FoodLogPage() {
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  Add Food to {mealTypes.find(m => m.id === selectedMealType)?.name}
+                  Étel hozzáadása: {mealTypes.find(m => m.id === selectedMealType)?.name}
                 </h3>
                 <button
                   onClick={() => {
@@ -565,7 +565,7 @@ export default function FoodLogPage() {
                     <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                     <input
                       type="text"
-                      placeholder="Search for a food..."
+                      placeholder="Keress egy ételt..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -577,7 +577,7 @@ export default function FoodLogPage() {
                     {isSearching ? (
                       <div className="text-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="text-gray-500 mt-2">Searching...</p>
+                        <p className="text-gray-500 mt-2">Keresés...</p>
                       </div>
                     ) : searchResults.length > 0 ? (
                       <div className="space-y-2">
@@ -594,7 +594,7 @@ export default function FoodLogPage() {
                                   <p className="text-sm text-gray-500">{food.brand}</p>
                                 )}
                                 <p className="text-sm text-gray-500">
-                                  {food.servingSizeGrams}g serving
+                                  {food.servingSizeGrams}g adag
                                 </p>
                               </div>
                               <div className="text-right">
@@ -609,14 +609,17 @@ export default function FoodLogPage() {
                       </div>
                     ) : searchQuery.length > 2 ? (
                       <div className="text-center py-8 text-gray-500">
-                        <p>No foods found for &quot;{searchQuery}&quot;</p>
-                        <button className="text-blue-600 hover:text-blue-700 font-medium mt-2">
-                          Create custom food
+                        <p>Nem található étel erre: &quot;{searchQuery}&quot;</p>
+                        <button 
+                          onClick={() => router.push('/food/create')}
+                          className="text-blue-600 hover:text-blue-700 font-medium mt-2"
+                        >
+                          Egyedi étel létrehozása
                         </button>
                       </div>
                     ) : (
                       <div className="text-center py-8 text-gray-500">
-                        <p>Start typing to search for foods</p>
+                        <p>Kezdj el gépelni az ételek kereséséhez</p>
                       </div>
                     )}
                   </div>
@@ -642,19 +645,19 @@ export default function FoodLogPage() {
                     
                     {/* Nutrition Info */}
                     <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-gray-600 mb-2">Per {Number(selectedFood.servingSizeGrams || 0)}g serving:</p>
+                      <p className="text-sm text-gray-600 mb-2">{Number(selectedFood.servingSizeGrams || 0)}g adagonként:</p>
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>Calories: <span className="font-semibold">{Number(selectedFood.calories || 0)}</span></div>
-                        <div>Protein: <span className="font-semibold">{Number(selectedFood.protein || 0)}g</span></div>
-                        <div>Fat: <span className="font-semibold">{Number(selectedFood.fat || 0)}g</span></div>
-                        <div>Carbs: <span className="font-semibold">{Number(selectedFood.carbs || 0)}g</span></div>
+                        <div>Kalória: <span className="font-semibold">{Number(selectedFood.calories || 0)}</span></div>
+                        <div>Fehérje: <span className="font-semibold">{Number(selectedFood.protein || 0)}g</span></div>
+                        <div>Zsír: <span className="font-semibold">{Number(selectedFood.fat || 0)}g</span></div>
+                        <div>Szénhidrát: <span className="font-semibold">{Number(selectedFood.carbs || 0)}g</span></div>
                       </div>
                     </div>
 
                     {/* Quantity Input */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Number of servings:
+                        Adagok száma:
                       </label>
                       <input
                         type="number"
@@ -673,7 +676,7 @@ export default function FoodLogPage() {
                       onClick={() => setSelectedFood(null)}
                       className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                     >
-                      Back to Search
+                      Vissza a kereséshez
                     </button>
                     <button
                       onClick={handleAddFood}
@@ -683,12 +686,12 @@ export default function FoodLogPage() {
                       {logFoodMutation.isPending ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Adding...</span>
+                          <span>Hozzáadás...</span>
                         </>
                       ) : (
                         <>
                           <CheckIcon className="h-4 w-4" />
-                          <span>Add Food</span>
+                          <span>Étel hozzáadása</span>
                         </>
                       )}
                     </button>

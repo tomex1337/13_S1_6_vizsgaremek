@@ -127,7 +127,7 @@ const { data: session } = useSession();
           </a>
           ) : (
           <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
-            Log in <span aria-hidden="true">&rarr;</span>
+            Bejelentkezés <span aria-hidden="true">&rarr;</span>
           </a>
           )}
         </div>

@@ -32,7 +32,7 @@ export default function ForgotPassword() {
         email: data.email,
       })
 
-      setMessage("If an account with that email exists, we sent a reset link.")
+      setMessage("Ha létezik fiók ezzel az email címmel, elküldtük a visszaállító linket.")
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Valami hiba történt")
