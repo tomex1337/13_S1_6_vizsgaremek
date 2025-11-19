@@ -379,9 +379,9 @@ export const appRouter = router({
           caloriesConsumed: Math.round(caloriesConsumed),
           caloriesTarget: dailyGoal?.caloriesGoal || 2000,
           proteinConsumed: Math.round(proteinConsumed),
-          proteinTarget: dailyGoal?.proteinGoal || 150, // Default protein goal
-          fatTarget: dailyGoal?.fatGoal || 65, // Default fat goal
-          carbsTarget: dailyGoal?.carbsGoal || 250, // Default carbs goal
+          proteinTarget: dailyGoal?.proteinGoal ? Number(dailyGoal.proteinGoal) : 150,
+          fatTarget: dailyGoal?.fatGoal ? Number(dailyGoal.fatGoal) : 65,
+          carbsTarget: dailyGoal?.carbsGoal ? Number(dailyGoal.carbsGoal) : 250,
           workoutsCompleted: weekExerciseLogs.length,
           weeklyGoal: 5, // Default weekly goal
           currentStreak,
