@@ -72,10 +72,10 @@ function calculateDailyGoals(
   // 3: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
   let caloriesGoal: number;
   
-  if (goalId === 1) {
+  if (goalId === 3) {
     // Weight loss
     caloriesGoal = tdee - 500;
-  } else if (goalId === 3) {
+  } else if (goalId === 1) {
     // Weight gain
     caloriesGoal = tdee + 500;
   } else {
