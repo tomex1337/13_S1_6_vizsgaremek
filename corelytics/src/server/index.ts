@@ -61,7 +61,25 @@ function calculateDailyGoals(
   caloriesGoal = Math.max(caloriesGoal, minCalories);
 
   // Calculate macros
-  const proteinGoal = weightKg * 1.8;
+  let proteinMultiplier = 0.8; // Base for sedentary
+  
+  // Adjust for activity level
+  if (activityLevelId === 4) {
+    proteinMultiplier += 0.4; // Lightly active
+  } else if (activityLevelId === 3) {
+    proteinMultiplier += 0.6; // Moderately active
+  } else if (activityLevelId === 1) {
+    proteinMultiplier += 1.0; // Very active
+  }
+  
+  // Adjust for goal
+  if (goalId === 3) {
+    proteinMultiplier += 0.2; // Weight loss - preserve muscle
+  } else if (goalId === 1) {
+    proteinMultiplier += 0.4; // Weight gain - build muscle
+  }
+  
+  const proteinGoal = weightKg * proteinMultiplier;
   const fatCalories = caloriesGoal * 0.30;
   const fatGoal = fatCalories / 9;
   const proteinCalories = proteinGoal * 4;

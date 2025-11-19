@@ -88,8 +88,30 @@ function calculateDailyGoals(
   caloriesGoal = Math.max(caloriesGoal, minCalories);
 
   // Calculate macronutrient goals
-  // Protein: 1.6-2.2g per kg body weight (use 1.8g average for active individuals)
-  const proteinGoal = weightKg * 1.8;
+  // Protein: Dynamic based on activity level and goal
+  // Base: 0.8g/kg (sedentary maintenance)
+  // Increase for activity: +0.4g/kg (lightly active), +0.6g/kg (moderately active), +1.0g/kg (very active)
+  // Increase for goals: +0.2g/kg (weight loss to preserve muscle), +0.4g/kg (weight gain to build muscle)
+  
+  let proteinMultiplier = 0.8; // Base for sedentary
+  
+  // Adjust for activity level
+  if (activityLevelId === 4) {
+    proteinMultiplier += 0.4; // Lightly active
+  } else if (activityLevelId === 3) {
+    proteinMultiplier += 0.6; // Moderately active
+  } else if (activityLevelId === 1) {
+    proteinMultiplier += 1.0; // Very active
+  }
+  
+  // Adjust for goal
+  if (goalId === 3) {
+    proteinMultiplier += 0.2; // Weight loss - preserve muscle
+  } else if (goalId === 1) {
+    proteinMultiplier += 0.4; // Weight gain - build muscle
+  }
+  
+  const proteinGoal = weightKg * proteinMultiplier;
   
   // Fat: 25-30% of total calories (use 30%)
   const fatCalories = caloriesGoal * 0.30;
