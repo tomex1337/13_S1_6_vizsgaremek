@@ -570,11 +570,22 @@ export const appRouter = router({
     
     getMealTypes: publicProcedure
       .query(async ({ ctx }) => {
-        const mealTypes = await ctx.prisma.mealType.findMany({
-          orderBy: { id: 'asc' }
-        });
+        const mealTypes = await ctx.prisma.mealType.findMany();
         
-        return mealTypes;
+        // Define the correct daily order: Breakfast, Lunch, Dinner, Snack
+        const orderMap: { [key: string]: number } = {
+          'Reggeli': 1,  // Breakfast
+          'Ebéd': 2,     // Lunch
+          'Vacsora': 3,  // Dinner
+          'Snack': 4     // Snack (last)
+        };
+        
+        // Sort meal types according to the daily order
+        return mealTypes.sort((a, b) => {
+          const orderA = orderMap[a.name] || 999;
+          const orderB = orderMap[b.name] || 999;
+          return orderA - orderB;
+        });
       }),
     
     createCustomFood: protectedProcedure
