@@ -67,17 +67,17 @@ function calculateDailyGoals(
   const tdee = bmr * activityMultiplier; // Total Daily Energy Expenditure
 
   // Adjust based on goal
-  // 1: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
+  // 1: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
   // 2: Maintain weight (Súlytartás) - no change
-  // 3: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
+  // 3: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
   let caloriesGoal: number;
   
-  if (goalId === 3) {
-    // Weight loss
-    caloriesGoal = tdee - 500;
-  } else if (goalId === 1) {
+  if (goalId === 1) {
     // Weight gain
     caloriesGoal = tdee + 500;
+  } else if (goalId === 3) {
+    // Weight loss
+    caloriesGoal = tdee - 500;
   } else {
     // Maintain
     caloriesGoal = tdee;

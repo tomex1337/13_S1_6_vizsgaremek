@@ -48,9 +48,9 @@ function calculateDailyGoals(
 
   // Adjust based on goal
   let caloriesGoal: number;
-  if (goalId === 1) {
+  if (goalId === 3) {
     caloriesGoal = tdee - 500; // Weight loss
-  } else if (goalId === 3) {
+  } else if (goalId === 1) {
     caloriesGoal = tdee + 500; // Weight gain
   } else {
     caloriesGoal = tdee; // Maintain
