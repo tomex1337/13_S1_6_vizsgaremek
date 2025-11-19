@@ -38,8 +38,7 @@ const profileSchema = z.object({
       const date = new Date(val);
       const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       return age <= 120;
-    }, { message: "Érvénytelen születési dátum" })
-    .transform((val) => new Date(val)),
+    }, { message: "Érvénytelen születési dátum" }),
   
   gender: z.string()
     .refine((val) => val !== "", { message: "A nem megadása kötelező" })

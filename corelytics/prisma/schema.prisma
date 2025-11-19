@@ -34,7 +34,7 @@ model User {
 
 model UserProfile {
   user_id         String   @id @db.Uuid
-  birthDate      DateTime? @db.Date @map("birth_date")
+  birthDate      DateTime? @db.Date @map("birthDate")
   gender         String?  @db.VarChar(10)
   heightCm       Int?     @map("height_cm")
   weightKg       Decimal? @db.Decimal(5, 2) @map("weight_kg")

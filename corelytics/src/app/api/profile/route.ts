@@ -7,7 +7,9 @@ import { Decimal } from '@prisma/client/runtime/library'
 
 const profileSchema = z.object({
   userId: z.string(),
-  birthDate: z.date().optional(),
+  birthDate: z.string()
+    .optional()
+    .transform(val => val ? new Date(val) : undefined),
   gender: z.enum(["male", "female", "other"]).optional(),
   heightCm: z.number().min(50).max(300).optional(),
   weightKg: z.number().min(20).max(500).optional(),
