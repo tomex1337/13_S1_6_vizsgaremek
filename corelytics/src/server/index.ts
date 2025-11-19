@@ -37,10 +37,10 @@ function calculateDailyGoals(
 
   // Activity level multipliers
   const activityMultipliers: { [key: number]: number } = {
-    1: 1.2,    // Sedentary
-    2: 1.375,  // Lightly active
+    2: 1.2,    // Sedentary
+    4: 1.375,  // Lightly active
     3: 1.55,   // Moderately active
-    4: 1.725,  // Very active
+    1: 1.725,  // Very active
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
