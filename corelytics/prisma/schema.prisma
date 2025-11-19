@@ -33,19 +33,19 @@ model User {
 }
 
 model UserProfile {
-  userId         String   @id @db.Uuid
-  age            Int?
+  user_id         String   @id @db.Uuid
+  birthDate      DateTime? @db.Date @map("birth_date")
   gender         String?  @db.VarChar(10)
   heightCm       Int?     @map("height_cm")
   weightKg       Decimal? @db.Decimal(5, 2) @map("weight_kg")
 
-  activityLevel  ActivityLevel? @relation(fields: [activityLevelId], references: [id])
-  activityLevelId Int?
+  activityLevel  ActivityLevel? @relation(fields: [activityLevel_id], references: [id])
+  activityLevel_id Int?
 
-  goal           Goal? @relation(fields: [goalId], references: [id])
-  goalId         Int?
+  goal           Goal? @relation(fields: [goal_id], references: [id])
+  goal_id         Int?
 
-  user           User    @relation(fields: [userId], references: [id])
+  user           User    @relation(fields: [user_id], references: [id])
 }
 
 model FoodItem {
@@ -69,16 +69,16 @@ model FoodItem {
 
 model UserFoodLog {
   id          String     @id @db.Uuid
-  userId      String     @db.Uuid
-  foodItemId  String     @db.Uuid
+  user_id      String     @db.Uuid
+  foodItem_id  String     @db.Uuid
   logDate     DateTime?  @db.Date
-  mealTypeId  Int?
+  mealType_id  Int?
   quantity    Decimal?
   createdAt   DateTime?  @map("created_at")
 
-  user        User       @relation(fields: [userId], references: [id])
-  foodItem    FoodItem   @relation(fields: [foodItemId], references: [id])
-  mealType    MealType?  @relation(fields: [mealTypeId], references: [id])
+  user        User       @relation(fields: [user_id], references: [id])
+  foodItem    FoodItem   @relation(fields: [foodItem_id], references: [id])
+  mealType    MealType?  @relation(fields: [mealType_id], references: [id])
 }
 
 model Exercise {
@@ -93,37 +93,37 @@ model Exercise {
 
 model UserExerciseLog {
   id             String    @id @db.Uuid
-  userId         String    @db.Uuid
-  exerciseId     String    @db.Uuid
+  user_id         String    @db.Uuid
+  exercise_id     String    @db.Uuid
   durationMinutes Int?     @map("duration_minutes")
   caloriesBurned  Decimal? @map("calories_burned")
   logDate         DateTime? @db.Date
   createdAt       DateTime? @map("created_at")
 
-  user            User     @relation(fields: [userId], references: [id])
-  exercise        Exercise @relation(fields: [exerciseId], references: [id])
+  user            User     @relation(fields: [user_id], references: [id])
+  exercise        Exercise @relation(fields: [exercise_id], references: [id])
 }
 
 model DailyGoal {
-  userId       String   @db.Uuid
+  user_id       String   @db.Uuid
   date         DateTime @db.Date
   caloriesGoal Int?     @map("calories_goal")
   proteinGoal  Decimal? @map("protein_goal")
   fatGoal      Decimal? @map("fat_goal")
   carbsGoal    Decimal? @map("carbs_goal")
 
-  user         User     @relation(fields: [userId], references: [id])
+  user         User     @relation(fields: [user_id], references: [id])
 
-  @@id([userId, date])
+  @@id([user_id, date])
 }
 
 model WeightLog {
   id        String   @id @db.Uuid
-  userId    String   @db.Uuid
+  user_id    String   @db.Uuid
   weightKg  Decimal? @map("weight_kg")
   loggedAt  DateTime @db.Date @map("logged_at")
 
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [user_id], references: [id])
 }
 
 model MealType {
