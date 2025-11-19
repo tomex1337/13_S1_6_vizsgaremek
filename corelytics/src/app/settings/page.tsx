@@ -12,41 +12,51 @@ import { UserIcon, ArrowLeftIcon } from "@heroicons/react/24/outline"
 
 // Form validation schema
 const profileSchema = z.object({
-  age: z.string()
-    .refine((val) => val !== "", { message: "Age is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Age must be a valid number" })
-    .transform((val) => Number(val))
-    .refine((val) => val >= 13, { message: "Age must be at least 13" })
-    .refine((val) => val <= 120, { message: "Age must be less than 120" }),
+  birthDate: z.string()
+    .refine((val) => val !== "", { message: "A születési dátum megadása kötelező" })
+    .refine((val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    }, { message: "Érvényes születési dátumot adj meg" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age >= 13;
+    }, { message: "Legalább 13 évesnek kell lenned" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age <= 120;
+    }, { message: "Érvénytelen születési dátum" }),
   
   gender: z.string()
-    .refine((val) => val !== "", { message: "Gender is required" })
+    .refine((val) => val !== "", { message: "A nem megadása kötelező" })
     .refine((val) => ["male", "female", "other"].includes(val), {
-      message: "Please select a valid gender"
+      message: "Kérlek válassz érvényes nemet"
     }),
   
   heightCm: z.string()
-    .refine((val) => val !== "", { message: "Height is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Height must be a valid number" })
+    .refine((val) => val !== "", { message: "A magasság megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A magasságnak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 50, { message: "Height must be at least 50cm" })
-    .refine((val) => val <= 300, { message: "Height must be less than 300cm" }),
+    .refine((val) => val >= 50, { message: "A magasságnak legalább 50 cm-nek kell lennie" })
+    .refine((val) => val <= 300, { message: "A magasságnak kevesebb mint 300 cm-nek kell lennie" }),
   
   weightKg: z.string()
-    .refine((val) => val !== "", { message: "Weight is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Weight must be a valid number" })
+    .refine((val) => val !== "", { message: "A súly megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A súlynak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 20, { message: "Weight must be at least 20kg" })
-    .refine((val) => val <= 500, { message: "Weight must be less than 500kg" }),
+    .refine((val) => val >= 20, { message: "A súlynak legalább 20 kg-nak kell lennie" })
+    .refine((val) => val <= 500, { message: "A súlynak kevesebb mint 500 kg-nak kell lennie" }),
   
   activityLevelId: z.string()
-    .refine((val) => val !== "", { message: "Activity level is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid activity level" })
+    .refine((val) => val !== "", { message: "Az aktivitási szint megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes aktivitási szintet" })
     .transform((val) => Number(val)),
   
   goalId: z.string()
-    .refine((val) => val !== "", { message: "Fitness goal is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid fitness goal" })
+    .refine((val) => val !== "", { message: "A fitness cél megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes fitness célt" })
     .transform((val) => Number(val)),
 })
 
@@ -105,19 +115,26 @@ export default function SettingsPage() {
         setGoals(goalsResponse.data)
         
         if (profileResponse.data) {
+          // Convert birthDate to YYYY-MM-DD format for date input
+          let birthDateValue = '';
+          if (profileResponse.data.birthDate) {
+            const date = new Date(profileResponse.data.birthDate);
+            birthDateValue = date.toISOString().split('T')[0];
+          }
+          
           // Reset form with current profile data
           reset({
-            age: profileResponse.data.age?.toString() || '',
+            birthDate: birthDateValue,
             gender: profileResponse.data.gender || '',
             heightCm: profileResponse.data.heightCm?.toString() || '',
             weightKg: profileResponse.data.weightKg?.toString() || '',
-            activityLevelId: profileResponse.data.activityLevelId?.toString() || '',
-            goalId: profileResponse.data.goalId?.toString() || '',
+            activityLevelId: profileResponse.data.activityLevel_id?.toString() || '',
+            goalId: profileResponse.data.goal_id?.toString() || '',
           })
         }
       } catch (error) {
         console.error('Error fetching data:', error)
-        setSubmitError('Failed to load profile data')
+        setSubmitError('Nem sikerült betölteni a profil adatokat')
       } finally {
         setIsLoadingProfile(false)
       }
@@ -130,7 +147,7 @@ export default function SettingsPage() {
 
   const onSubmit = async (data: Record<string, string>) => {
     if (!session?.user?.id) {
-      setSubmitError("You must be logged in to update your profile")
+      setSubmitError("Be kell jelentkezned a profil frissítéséhez")
       return
     }
 
@@ -145,7 +162,7 @@ export default function SettingsPage() {
       // Make API request
       await axios.post('/api/profile', {
         userId: session.user.id,
-        age: validatedData.age,
+        birthDate: validatedData.birthDate,
         gender: validatedData.gender,
         heightCm: validatedData.heightCm,
         weightKg: validatedData.weightKg,
@@ -153,7 +170,7 @@ export default function SettingsPage() {
         goalId: validatedData.goalId,
       })
 
-      setSubmitSuccess("Profile updated successfully!")
+      setSubmitSuccess("Profil sikeresen frissítve!")
       
       // Redirect to user page after a short delay
       setTimeout(() => {
@@ -165,9 +182,9 @@ export default function SettingsPage() {
         const firstError = error.issues[0]
         setSubmitError(firstError.message)
       } else if (axios.isAxiosError(error)) {
-        setSubmitError(error.response?.data?.error || 'Failed to update profile')
+        setSubmitError(error.response?.data?.error || 'Nem sikerült frissíteni a profilt')
       } else {
-        setSubmitError('An unexpected error occurred')
+        setSubmitError('Váratlan hiba történt')
       }
     } finally {
       setIsLoading(false)
@@ -220,20 +237,20 @@ export default function SettingsPage() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Személyes adatok</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Age */}
+                  {/* Birth Date */}
                   <div>
-                    <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
-                      Életkor *
+                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+                      Születési dátum *
                     </label>
                     <input
-                      type="number"
-                      id="age"
-                      {...register("age")}
+                      type="date"
+                      id="birthDate"
+                      {...register("birthDate")}
+                      max={new Date().toISOString().split('T')[0]}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="pl. 25"
                     />
-                    {errors.age && (
-                      <p className="mt-1 text-sm text-red-600">{errors.age.message as string}</p>
+                    {errors.birthDate && (
+                      <p className="mt-1 text-sm text-red-600">{errors.birthDate.message as string}</p>
                     )}
                   </div>
 
