@@ -23,41 +23,52 @@ declare module "next-auth" {
 
 // Form validation schema
 const profileSchema = z.object({
-  age: z.string()
-    .refine((val) => val !== "", { message: "Age is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Age must be a valid number" })
-    .transform((val) => Number(val))
-    .refine((val) => val >= 13, { message: "Age must be at least 13" })
-    .refine((val) => val <= 120, { message: "Age must be less than 120" }),
+  birthDate: z.string()
+    .refine((val) => val !== "", { message: "A születési dátum megadása kötelező" })
+    .refine((val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    }, { message: "Érvényes születési dátumot adj meg" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age >= 13;
+    }, { message: "Legalább 13 évesnek kell lenned" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age <= 120;
+    }, { message: "Érvénytelen születési dátum" })
+    .transform((val) => new Date(val)),
   
   gender: z.string()
-    .refine((val) => val !== "", { message: "Gender is required" })
+    .refine((val) => val !== "", { message: "A nem megadása kötelező" })
     .refine((val) => ["male", "female", "other"].includes(val), {
-      message: "Please select a valid gender"
+      message: "Kérlek válassz érvényes nemet"
     }),
   
   heightCm: z.string()
-    .refine((val) => val !== "", { message: "Height is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Height must be a valid number" })
+    .refine((val) => val !== "", { message: "A magasság megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A magasságnak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 50, { message: "Height must be at least 50cm" })
-    .refine((val) => val <= 300, { message: "Height must be less than 300cm" }),
+    .refine((val) => val >= 50, { message: "A magasságnak legalább 50 cm-nek kell lennie" })
+    .refine((val) => val <= 300, { message: "A magasságnak kevesebb mint 300 cm-nek kell lennie" }),
   
   weightKg: z.string()
-    .refine((val) => val !== "", { message: "Weight is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Weight must be a valid number" })
+    .refine((val) => val !== "", { message: "A súly megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A súlynak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 20, { message: "Weight must be at least 20kg" })
-    .refine((val) => val <= 500, { message: "Weight must be less than 500kg" }),
+    .refine((val) => val >= 20, { message: "A súlynak legalább 20 kg-nak kell lennie" })
+    .refine((val) => val <= 500, { message: "A súlynak kevesebb mint 500 kg-nak kell lennie" }),
   
   activityLevelId: z.string()
-    .refine((val) => val !== "", { message: "Activity level is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid activity level" })
+    .refine((val) => val !== "", { message: "Az aktivitási szint megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes aktivitási szintet" })
     .transform((val) => Number(val)),
   
   goalId: z.string()
-    .refine((val) => val !== "", { message: "Fitness goal is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid fitness goal" })
+    .refine((val) => val !== "", { message: "A fitness cél megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes fitness célt" })
     .transform((val) => Number(val)),
 })
 
@@ -107,7 +118,7 @@ export default function CompleteProfile() {
 
   const onSubmit = async (data: Record<string, unknown>) => {
     if (!session?.user?.id) {
-      setSubmitError("Session expired. Please sign in again.")
+      setSubmitError("A munkamenet lejárt. Kérlek jelentkezz be újra.")
       return
     }
 
@@ -121,7 +132,7 @@ export default function CompleteProfile() {
       if (!validationResult.success) {
         // Extract and format validation errors for user display
         const errorMessages = validationResult.error.issues.map((err: { message: string }) => err.message)
-        setSubmitError(`Please fix the following errors: ${errorMessages.join(', ')}`)
+        setSubmitError(`Kérlek javítsd a következő hibákat: ${errorMessages.join(', ')}`)
         setIsLoading(false)
         return
       }
@@ -136,9 +147,9 @@ export default function CompleteProfile() {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message
-        setSubmitError(`Error creating profile: ${errorMessage}`)
+        setSubmitError(`Hiba a profil létrehozása során: ${errorMessage}`)
       } else {
-        setSubmitError("An unexpected error occurred. Please try again.")
+        setSubmitError("Váratlan hiba történt. Kérlek próbáld újra.")
       }
     } finally {
       setIsLoading(false)
@@ -172,18 +183,18 @@ export default function CompleteProfile() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg px-6 py-8 space-y-6">
-          {/* Age */}
+          {/* Birth Date */}
           <div>
-            <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-              Életkor *
+            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+              Születési dátum *
             </label>
             <input
-              type="number"
-              id="age"
-              {...register("age")}
+              type="date"
+              id="birthDate"
+              {...register("birthDate")}
               required
+              max={new Date().toISOString().split('T')[0]}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Add meg az életkorod"
             />
           </div>
 

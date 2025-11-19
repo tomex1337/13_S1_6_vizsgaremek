@@ -7,13 +7,26 @@ import { Decimal } from '@prisma/client/runtime/library'
 
 const profileSchema = z.object({
   userId: z.string(),
-  age: z.number().min(13).max(120).optional(),
+  birthDate: z.date().optional(),
   gender: z.enum(["male", "female", "other"]).optional(),
   heightCm: z.number().min(50).max(300).optional(),
   weightKg: z.number().min(20).max(500).optional(),
   activityLevelId: z.number().optional(),
   goalId: z.number().optional(),
 })
+
+// Helper function to calculate age from birth date
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+}
 
 // Helper function to calculate daily nutritional goals
 function calculateDailyGoals(
@@ -117,41 +130,41 @@ export async function POST(request: NextRequest) {
 
     // Check if profile already exists
     const existingProfile = await prisma.userProfile.findUnique({
-      where: { userId: validatedData.userId }
+      where: { user_id: validatedData.userId }
     })
 
     let profile
     if (existingProfile) {
       // Update existing profile
       profile = await prisma.userProfile.update({
-        where: { userId: validatedData.userId },
+        where: { user_id: validatedData.userId },
         data: {
-          age: validatedData.age,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     } else {
       // Create new profile
       profile = await prisma.userProfile.create({
         data: {
-          userId: validatedData.userId,
-          age: validatedData.age,
+          user_id: validatedData.userId,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     }
 
     // Check if profile is complete and calculate daily goals
     const isComplete = !!(
-      validatedData.age &&
+      validatedData.birthDate &&
       validatedData.gender &&
       validatedData.heightCm &&
       validatedData.weightKg &&
@@ -160,9 +173,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (isComplete) {
+      // Calculate age from birth date
+      const age = calculateAge(validatedData.birthDate!);
+      
       // Calculate daily nutritional goals
       const goals = calculateDailyGoals(
-        validatedData.age!,
+        age,
         validatedData.gender!,
         validatedData.heightCm!,
         validatedData.weightKg!,
@@ -176,8 +192,8 @@ export async function POST(request: NextRequest) {
 
       await prisma.dailyGoal.upsert({
         where: {
-          userId_date: {
-            userId: validatedData.userId,
+          user_id_date: {
+            user_id: validatedData.userId,
             date: today,
           },
         },
@@ -188,7 +204,7 @@ export async function POST(request: NextRequest) {
           carbsGoal: new Decimal(goals.carbsGoal),
         },
         create: {
-          userId: validatedData.userId,
+          user_id: validatedData.userId,
           date: today,
           caloriesGoal: goals.caloriesGoal,
           proteinGoal: new Decimal(goals.proteinGoal),
@@ -234,7 +250,7 @@ export async function GET(request: NextRequest) {
     }
 
     const profile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { user_id: session.user.id },
       include: {
         activityLevel: true,
         goal: true,
