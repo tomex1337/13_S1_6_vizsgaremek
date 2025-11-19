@@ -2,6 +2,19 @@ import { router, publicProcedure, protectedProcedure } from './trpc';
 import { z } from 'zod';
 import { Decimal } from '@prisma/client/runtime/library';
 
+// Helper function to calculate age from birth date
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+}
+
 // Helper function to calculate daily nutritional goals
 function calculateDailyGoals(
   age: number,
@@ -79,7 +92,7 @@ export const appRouter = router({
         const userId = ctx.session.user.id;
         
         const profile = await ctx.prisma.userProfile.findUnique({
-          where: { userId },
+          where: { user_id: userId },
           include: {
             activityLevel: true,
             goal: true,
@@ -96,12 +109,12 @@ export const appRouter = router({
 
         // Check if profile is complete - all required fields should be filled
         const isComplete = !!(
-          profile.age &&
+          profile.birthDate &&
           profile.gender &&
           profile.heightCm &&
           profile.weightKg &&
-          profile.activityLevelId &&
-          profile.goalId
+          profile.activityLevel_id &&
+          profile.goal_id
         );
 
         return {
@@ -131,7 +144,7 @@ export const appRouter = router({
         
         const todayFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             logDate: {
               gte: startOfDay,
               lte: endOfDay
@@ -144,14 +157,14 @@ export const appRouter = router({
 
         // Get user profile to check if it's complete
         const userProfile = await ctx.prisma.userProfile.findUnique({
-          where: { userId },
+          where: { user_id: userId },
         });
 
         // Get today's daily goal
         let dailyGoal = await ctx.prisma.dailyGoal.findUnique({
           where: {
-            userId_date: {
-              userId,
+            user_id_date: {
+              user_id: userId,
               date: today,
             },
           },
@@ -160,27 +173,29 @@ export const appRouter = router({
         // If no daily goal exists and profile is complete, create one
         if (!dailyGoal && userProfile) {
           const isProfileComplete = !!(
-            userProfile.age &&
+            userProfile.birthDate &&
             userProfile.gender &&
             userProfile.heightCm &&
             userProfile.weightKg &&
-            userProfile.activityLevelId &&
-            userProfile.goalId
+            userProfile.activityLevel_id &&
+            userProfile.goal_id
           );
 
           if (isProfileComplete) {
+            const age = calculateAge(userProfile.birthDate!);
+            
             const goals = calculateDailyGoals(
-              userProfile.age!,
+              age,
               userProfile.gender!,
               userProfile.heightCm!,
               Number(userProfile.weightKg!),
-              userProfile.activityLevelId!,
-              userProfile.goalId!
+              userProfile.activityLevel_id!,
+              userProfile.goal_id!
             );
 
             dailyGoal = await ctx.prisma.dailyGoal.create({
               data: {
-                userId,
+                user_id: userId,
                 date: today,
                 caloriesGoal: goals.caloriesGoal,
                 proteinGoal: new Decimal(goals.proteinGoal),
@@ -194,7 +209,7 @@ export const appRouter = router({
         // Get this week's exercise logs
         const weekExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             logDate: {
               gte: startOfWeek,
               lt: tomorrow,
@@ -208,7 +223,7 @@ export const appRouter = router({
 
         const recentFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
@@ -226,7 +241,7 @@ export const appRouter = router({
 
         const recentExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
@@ -261,7 +276,7 @@ export const appRouter = router({
 
           const hasActivity = await ctx.prisma.userFoodLog.findFirst({
             where: {
-              userId,
+              user_id: userId,
               logDate: {
                 gte: dayStart,
                 lte: dayEnd,
@@ -287,7 +302,7 @@ export const appRouter = router({
         
         const weeklyFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             logDate: {
               gte: last7Days,
               lte: today,
@@ -326,7 +341,7 @@ export const appRouter = router({
         // Get daily goals for the last 7 days
         const last7DaysGoals = await ctx.prisma.dailyGoal.findMany({
           where: {
-            userId,
+            user_id: userId,
             date: {
               gte: last7Days,
               lte: today,
@@ -443,9 +458,9 @@ export const appRouter = router({
         const foodLog = await ctx.prisma.userFoodLog.create({
           data: {
             id: crypto.randomUUID(),
-            userId,
-            foodItemId: input.foodItemId,
-            mealTypeId: input.mealTypeId,
+            user_id: userId,
+            foodItem_id: input.foodItemId,
+            mealType_id: input.mealTypeId,
             quantity: input.quantity,
             logDate,
             createdAt: new Date()
@@ -476,7 +491,7 @@ export const appRouter = router({
         
         const logs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            userId,
+            user_id: userId,
             logDate: {
               gte: startOfDay,
               lte: endOfDay
@@ -487,7 +502,7 @@ export const appRouter = router({
             mealType: true
           },
           orderBy: [
-            { mealTypeId: 'asc' },
+            { mealType_id: 'asc' },
             { createdAt: 'asc' }
           ]
         });
@@ -506,7 +521,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
-            userId
+            user_id: userId
           }
         });
         
@@ -533,7 +548,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
-            userId
+            user_id: userId
           }
         });
         
