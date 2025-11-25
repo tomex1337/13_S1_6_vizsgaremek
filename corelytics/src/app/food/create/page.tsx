@@ -135,10 +135,10 @@ export default function CreateFoodPage() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold">
-                    Create Custom Food
+                    Egyedi Étel Létrehozása
                   </h1>
                   <p className="text-purple-100 mt-1">
-                    Add your own food items to the database
+                    Adja hozzá saját ételeit az adatbázishoz
                   </p>
                 </div>
               </div>
@@ -152,8 +152,8 @@ export default function CreateFoodPage() {
             <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center space-x-3">
               <CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0" />
               <div>
-                <p className="text-green-900 font-medium">Food item created successfully!</p>
-                <p className="text-green-700 text-sm">Redirecting to food log...</p>
+                <p className="text-green-900 font-medium">Étel sikeresen létrehozva!</p>
+                <p className="text-green-700 text-sm">Átirányítás az étkezési naplóhoz...</p>
               </div>
             </div>
           </div>
@@ -166,24 +166,24 @@ export default function CreateFoodPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <BeakerIcon className="h-6 w-6 text-purple-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Alapvető Információk</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Food Name */}
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                    Food Name <span className="text-red-500">*</span>
+                    Étel Neve <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     id="name"
                     {...register('name', { 
-                      required: 'Food name is required',
-                      minLength: { value: 2, message: 'Name must be at least 2 characters' }
+                      required: 'Az étel neve kötelező',
+                      minLength: { value: 2, message: 'A névnek legalább 2 karakter hosszúnak kell lennie' }
                     })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="e.g., Homemade Pasta"
+                    placeholder="pl. Házi Tészta"
                   />
                   {errors.name && (
                     <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
@@ -193,21 +193,21 @@ export default function CreateFoodPage() {
                 {/* Brand */}
                 <div>
                   <label htmlFor="brand" className="block text-sm font-medium text-gray-700 mb-1">
-                    Brand (Optional)
+                    Márka (Opcionális)
                   </label>
                   <input
                     type="text"
                     id="brand"
                     {...register('brand')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    placeholder="e.g., Generic, Homemade"
+                    placeholder="pl. Általános, Házi"
                   />
                 </div>
 
                 {/* Serving Size */}
                 <div>
                   <label htmlFor="servingSizeGrams" className="block text-sm font-medium text-gray-700 mb-1">
-                    Serving Size (grams) <span className="text-red-500">*</span>
+                    Adag Mérete (gramm) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -215,8 +215,8 @@ export default function CreateFoodPage() {
                       id="servingSizeGrams"
                       step="0.1"
                       {...register('servingSizeGrams', { 
-                        required: 'Serving size is required',
-                        min: { value: 0.1, message: 'Must be greater than 0' }
+                        required: 'Az adag mérete kötelező',
+                        min: { value: 0.1, message: 'Nullánál nagyobbnak kell lennie' }
                       })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="100"
@@ -234,22 +234,22 @@ export default function CreateFoodPage() {
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
               <div className="flex items-center space-x-3 mb-6">
                 <FireIcon className="h-6 w-6 text-orange-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Nutrition Facts</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Tápértékek</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Calories */}
                 <div>
                   <label htmlFor="calories" className="block text-sm font-medium text-gray-700 mb-1">
-                    Calories <span className="text-red-500">*</span>
+                    Kalória <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
                     id="calories"
                     step="0.1"
                     {...register('calories', { 
-                      required: 'Calories is required',
-                      min: { value: 0, message: 'Cannot be negative' }
+                      required: 'A kalória megadása kötelező',
+                      min: { value: 0, message: 'Nem lehet negatív' }
                     })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="0"
@@ -259,7 +259,7 @@ export default function CreateFoodPage() {
                   )}
                   {calculatedCalories > 0 && (
                     <p className="mt-1 text-sm text-gray-500">
-                      Calculated from macros: ~{Math.round(calculatedCalories)} kcal
+                      Makrókból számítva: ~{Math.round(calculatedCalories)} kcal
                     </p>
                   )}
                 </div>
@@ -269,15 +269,15 @@ export default function CreateFoodPage() {
                   {/* Protein */}
                   <div>
                     <label htmlFor="protein" className="block text-sm font-medium text-gray-700 mb-1">
-                      Protein (g) <span className="text-red-500">*</span>
+                      Fehérje (g) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       id="protein"
                       step="0.1"
                       {...register('protein', { 
-                        required: 'Protein is required',
-                        min: { value: 0, message: 'Cannot be negative' }
+                        required: 'A fehérje megadása kötelező',
+                        min: { value: 0, message: 'Nem lehet negatív' }
                       })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="0"
@@ -290,15 +290,15 @@ export default function CreateFoodPage() {
                   {/* Carbs */}
                   <div>
                     <label htmlFor="carbs" className="block text-sm font-medium text-gray-700 mb-1">
-                      Carbs (g) <span className="text-red-500">*</span>
+                      Szénhidrát (g) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       id="carbs"
                       step="0.1"
                       {...register('carbs', { 
-                        required: 'Carbs is required',
-                        min: { value: 0, message: 'Cannot be negative' }
+                        required: 'A szénhidrát megadása kötelező',
+                        min: { value: 0, message: 'Nem lehet negatív' }
                       })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="0"
@@ -311,15 +311,15 @@ export default function CreateFoodPage() {
                   {/* Fat */}
                   <div>
                     <label htmlFor="fat" className="block text-sm font-medium text-gray-700 mb-1">
-                      Fat (g) <span className="text-red-500">*</span>
+                      Zsír (g) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       id="fat"
                       step="0.1"
                       {...register('fat', { 
-                        required: 'Fat is required',
-                        min: { value: 0, message: 'Cannot be negative' }
+                        required: 'A zsír megadása kötelező',
+                        min: { value: 0, message: 'Nem lehet negatív' }
                       })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="0"
@@ -334,13 +334,13 @@ export default function CreateFoodPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="fiber" className="block text-sm font-medium text-gray-700 mb-1">
-                      Fiber (g)
+                      Rost (g)
                     </label>
                     <input
                       type="number"
                       id="fiber"
                       step="0.1"
-                      {...register('fiber', { min: { value: 0, message: 'Cannot be negative' } })}
+                      {...register('fiber', { min: { value: 0, message: 'Nem lehet negatív' } })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -348,13 +348,13 @@ export default function CreateFoodPage() {
 
                   <div>
                     <label htmlFor="sugar" className="block text-sm font-medium text-gray-700 mb-1">
-                      Sugar (g)
+                      Cukor (g)
                     </label>
                     <input
                       type="number"
                       id="sugar"
                       step="0.1"
-                      {...register('sugar', { min: { value: 0, message: 'Cannot be negative' } })}
+                      {...register('sugar', { min: { value: 0, message: 'Nem lehet negatív' } })}
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       placeholder="0"
                     />
@@ -364,13 +364,13 @@ export default function CreateFoodPage() {
                 {/* Sodium */}
                 <div>
                   <label htmlFor="sodium" className="block text-sm font-medium text-gray-700 mb-1">
-                    Sodium (mg)
+                    Nátrium (mg)
                   </label>
                   <input
                     type="number"
                     id="sodium"
                     step="0.1"
-                    {...register('sodium', { min: { value: 0, message: 'Cannot be negative' } })}
+                    {...register('sodium', { min: { value: 0, message: 'Nem lehet negatív' } })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="0"
                   />
@@ -385,7 +385,7 @@ export default function CreateFoodPage() {
                 onClick={() => router.back()}
                 className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium"
               >
-                Cancel
+                Mégse
               </button>
               <button
                 type="submit"
@@ -395,12 +395,12 @@ export default function CreateFoodPage() {
                 {isSubmitting ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>Creating...</span>
+                    <span>Létrehozás...</span>
                   </>
                 ) : (
                   <>
                     <PlusCircleIcon className="h-5 w-5" />
-                    <span>Create Food Item</span>
+                    <span>Étel Létrehozása</span>
                   </>
                 )}
               </button>
@@ -409,13 +409,13 @@ export default function CreateFoodPage() {
 
           {/* Info Box */}
           <div className="mt-8 bg-blue-50 border border-blue-200 rounded-xl p-6">
-            <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 Tips for Creating Food Items</h3>
+            <h3 className="text-sm font-semibold text-blue-900 mb-2">💡 Tippek Étel Létrehozásához</h3>
             <ul className="space-y-2 text-sm text-blue-800">
-              <li>• All values should be per serving size specified</li>
-              <li>• Use the nutrition label on the package as reference</li>
-              <li>• The calculator shows estimated calories from macros (Protein: 4 kcal/g, Carbs: 4 kcal/g, Fat: 9 kcal/g)</li>
-              <li>• You can always edit your custom foods later</li>
-              <li>• Custom foods are private and only visible to you</li>
+              <li>• Minden értéknek a megadott adagmérethez kell tartoznia</li>
+              <li>• Használja a csomagoláson található tápértéktáblázatot referenciaként</li>
+              <li>• A kalkulátor becsült kalóriát mutat a makrókból (Fehérje: 4 kcal/g, Szénhidrát: 4 kcal/g, Zsír: 9 kcal/g)</li>
+              <li>• Később bármikor szerkesztheti egyedi ételeit</li>
+              <li>• Az egyedi ételek privátak és csak Ön számára láthatók</li>
             </ul>
           </div>
         </div>

@@ -88,17 +88,20 @@ async function main() {
   });
 
   // Create user profile
+  const birthDate = new Date();
+  birthDate.setFullYear(birthDate.getFullYear() - 25); // 25 éves
+  
   await prisma.userProfile.upsert({
-    where: { userId: testUser.id },
+    where: { user_id: testUser.id },
     update: {},
     create: {
-      userId: testUser.id,
-      age: 25,
+      user_id: testUser.id,
+      birthDate: birthDate,
       gender: 'male',
       heightCm: 175,
       weightKg: 70.5,
-      activityLevelId: activityLevels[1].id, // Enyhén aktív
-      goalId: goals[1].id, // Súlytartás
+      activityLevel_id: activityLevels[1].id, // Enyhén aktív
+      goal_id: goals[1].id, // Súlytartás
     },
   });
 
@@ -197,14 +200,14 @@ async function main() {
   
   await prisma.dailyGoal.upsert({
     where: {
-      userId_date: {
-        userId: testUser.id,
+      user_id_date: {
+        user_id: testUser.id,
         date: today,
       },
     },
     update: {},
     create: {
-      userId: testUser.id,
+      user_id: testUser.id,
       date: today,
       caloriesGoal: 2000,
       proteinGoal: 150,
@@ -218,10 +221,10 @@ async function main() {
     prisma.userFoodLog.create({
       data: {
         id: '850e8400-e29b-41d4-a716-446655440001',
-        userId: testUser.id,
-        foodItemId: foodItems[0].id, // Banán
+        user_id: testUser.id,
+        foodItem_id: foodItems[0].id, // Banán
         logDate: today,
-        mealTypeId: mealTypes[0].id, // Reggeli
+        mealType_id: mealTypes[0].id, // Reggeli
         quantity: 2,
         createdAt: new Date(today.getTime() + 8 * 60 * 60 * 1000), // 8 AM
       },
@@ -229,10 +232,10 @@ async function main() {
     prisma.userFoodLog.create({
       data: {
         id: '850e8400-e29b-41d4-a716-446655440002',
-        userId: testUser.id,
-        foodItemId: foodItems[1].id, // Csirkemell
+        user_id: testUser.id,
+        foodItem_id: foodItems[1].id, // Csirkemell
         logDate: today,
-        mealTypeId: mealTypes[1].id, // Ebéd
+        mealType_id: mealTypes[1].id, // Ebéd
         quantity: 1.5,
         createdAt: new Date(today.getTime() + 12 * 60 * 60 * 1000), // 12 PM
       },
@@ -240,10 +243,10 @@ async function main() {
     prisma.userFoodLog.create({
       data: {
         id: '850e8400-e29b-41d4-a716-446655440003',
-        userId: testUser.id,
-        foodItemId: foodItems[2].id, // Barna rizs
+        user_id: testUser.id,
+        foodItem_id: foodItems[2].id, // Barna rizs
         logDate: today,
-        mealTypeId: mealTypes[2].id, // Vacsora
+        mealType_id: mealTypes[2].id, // Vacsora
         quantity: 1,
         createdAt: new Date(today.getTime() + 18 * 60 * 60 * 1000), // 6 PM
       },
@@ -255,8 +258,8 @@ async function main() {
     prisma.userExerciseLog.create({
       data: {
         id: '950e8400-e29b-41d4-a716-446655440001',
-        userId: testUser.id,
-        exerciseId: exercises[0].id, // Futás
+        user_id: testUser.id,
+        exercise_id: exercises[0].id, // Futás
         durationMinutes: 30,
         caloriesBurned: 300,
         logDate: today,
@@ -266,8 +269,8 @@ async function main() {
     prisma.userExerciseLog.create({
       data: {
         id: '950e8400-e29b-41d4-a716-446655440002',
-        userId: testUser.id,
-        exerciseId: exercises[1].id, // Fekvőtámasz
+        user_id: testUser.id,
+        exercise_id: exercises[1].id, // Fekvőtámasz
         durationMinutes: 15,
         caloriesBurned: 50,
         logDate: today,

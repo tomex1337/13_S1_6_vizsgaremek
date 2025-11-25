@@ -7,13 +7,28 @@ import { Decimal } from '@prisma/client/runtime/library'
 
 const profileSchema = z.object({
   userId: z.string(),
-  age: z.number().min(13).max(120).optional(),
+  birthDate: z.string()
+    .optional()
+    .transform(val => val ? new Date(val) : undefined),
   gender: z.enum(["male", "female", "other"]).optional(),
   heightCm: z.number().min(50).max(300).optional(),
   weightKg: z.number().min(20).max(500).optional(),
   activityLevelId: z.number().optional(),
   goalId: z.number().optional(),
 })
+
+// Helper function to calculate age from birth date
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+}
 
 // Helper function to calculate daily nutritional goals
 function calculateDailyGoals(
@@ -42,27 +57,27 @@ function calculateDailyGoals(
   // 3: Moderately active (exercise 3-5 days/week) - 1.55
   // 4: Very active (exercise 6-7 days/week) - 1.725
   const activityMultipliers: { [key: number]: number } = {
-    1: 1.2,
-    2: 1.375,
-    3: 1.55,
-    4: 1.725,
+    2: 1.2,    // Sedentary
+    4: 1.375,  // Lightly active
+    3: 1.55,   // Moderately active
+    1: 1.725,  // Very active
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
   const tdee = bmr * activityMultiplier; // Total Daily Energy Expenditure
 
   // Adjust based on goal
-  // 1: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
+  // 1: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
   // 2: Maintain weight (Súlytartás) - no change
-  // 3: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
+  // 3: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
   let caloriesGoal: number;
   
   if (goalId === 1) {
-    // Weight loss
-    caloriesGoal = tdee - 500;
-  } else if (goalId === 3) {
     // Weight gain
     caloriesGoal = tdee + 500;
+  } else if (goalId === 3) {
+    // Weight loss
+    caloriesGoal = tdee - 500;
   } else {
     // Maintain
     caloriesGoal = tdee;
@@ -73,8 +88,30 @@ function calculateDailyGoals(
   caloriesGoal = Math.max(caloriesGoal, minCalories);
 
   // Calculate macronutrient goals
-  // Protein: 1.6-2.2g per kg body weight (use 1.8g average for active individuals)
-  const proteinGoal = weightKg * 1.8;
+  // Protein: Dynamic based on activity level and goal
+  // Base: 0.8g/kg (sedentary maintenance)
+  // Increase for activity: +0.4g/kg (lightly active), +0.6g/kg (moderately active), +1.0g/kg (very active)
+  // Increase for goals: +0.2g/kg (weight loss to preserve muscle), +0.4g/kg (weight gain to build muscle)
+  
+  let proteinMultiplier = 0.8; // Base for sedentary
+  
+  // Adjust for activity level
+  if (activityLevelId === 4) {
+    proteinMultiplier += 0.4; // Lightly active
+  } else if (activityLevelId === 3) {
+    proteinMultiplier += 0.6; // Moderately active
+  } else if (activityLevelId === 1) {
+    proteinMultiplier += 1.0; // Very active
+  }
+  
+  // Adjust for goal
+  if (goalId === 3) {
+    proteinMultiplier += 0.2; // Weight loss - preserve muscle
+  } else if (goalId === 1) {
+    proteinMultiplier += 0.4; // Weight gain - build muscle
+  }
+  
+  const proteinGoal = weightKg * proteinMultiplier;
   
   // Fat: 25-30% of total calories (use 30%)
   const fatCalories = caloriesGoal * 0.30;
@@ -117,41 +154,41 @@ export async function POST(request: NextRequest) {
 
     // Check if profile already exists
     const existingProfile = await prisma.userProfile.findUnique({
-      where: { userId: validatedData.userId }
+      where: { user_id: validatedData.userId }
     })
 
     let profile
     if (existingProfile) {
       // Update existing profile
       profile = await prisma.userProfile.update({
-        where: { userId: validatedData.userId },
+        where: { user_id: validatedData.userId },
         data: {
-          age: validatedData.age,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     } else {
       // Create new profile
       profile = await prisma.userProfile.create({
         data: {
-          userId: validatedData.userId,
-          age: validatedData.age,
+          user_id: validatedData.userId,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     }
 
     // Check if profile is complete and calculate daily goals
     const isComplete = !!(
-      validatedData.age &&
+      validatedData.birthDate &&
       validatedData.gender &&
       validatedData.heightCm &&
       validatedData.weightKg &&
@@ -160,9 +197,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (isComplete) {
+      // Calculate age from birth date
+      const age = calculateAge(validatedData.birthDate!);
+      
       // Calculate daily nutritional goals
       const goals = calculateDailyGoals(
-        validatedData.age!,
+        age,
         validatedData.gender!,
         validatedData.heightCm!,
         validatedData.weightKg!,
@@ -176,8 +216,8 @@ export async function POST(request: NextRequest) {
 
       await prisma.dailyGoal.upsert({
         where: {
-          userId_date: {
-            userId: validatedData.userId,
+          user_id_date: {
+            user_id: validatedData.userId,
             date: today,
           },
         },
@@ -188,7 +228,7 @@ export async function POST(request: NextRequest) {
           carbsGoal: new Decimal(goals.carbsGoal),
         },
         create: {
-          userId: validatedData.userId,
+          user_id: validatedData.userId,
           date: today,
           caloriesGoal: goals.caloriesGoal,
           proteinGoal: new Decimal(goals.proteinGoal),
@@ -234,7 +274,7 @@ export async function GET(request: NextRequest) {
     }
 
     const profile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { user_id: session.user.id },
       include: {
         activityLevel: true,
         goal: true,
