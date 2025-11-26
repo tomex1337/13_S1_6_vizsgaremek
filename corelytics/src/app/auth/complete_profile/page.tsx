@@ -181,7 +181,7 @@ export default function CompleteProfile() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg px-6 py-8 space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-gray-800 shadow rounded-lg px-6 py-8 space-y-6">
           {/* Birth Date */}
           <div>
             <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">

@@ -225,7 +225,7 @@ export default function SettingsPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Profil beállítások</h1>
-                <p className="text-gray-600 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
+                <p className="text-gray-600 dark:text-gray-200 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
               </div>
             </div>
           </div>
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                     {errors.activityLevelId && (
                       <p className="mt-1 text-sm text-red-600">{errors.activityLevelId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
                       Válaszd ki a tipikus napi aktivitási szintedet a kalóriaszükséglet számításához
                     </p>
                   </div>
@@ -360,7 +360,7 @@ export default function SettingsPage() {
                     {errors.goalId && (
                       <p className="mt-1 text-sm text-red-600">{errors.goalId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
                       A célod segít nekünk személyre szabni a kalória- és tápanyagcélokat
                     </p>
                   </div>
@@ -393,7 +393,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => router.push('/user')}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Mégse
                 </button>
