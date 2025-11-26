@@ -206,19 +206,19 @@ export default function SettingsPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => router.push('/user')}
-            className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="mb-6 flex items-center not-dark:text-indigo-700 hover:text-indigo-900 dark:hover:text-indigo-400 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Vissza a vezérlőpultra
           </button>
 
           {/* Header */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
             <div className="flex items-center space-x-4 mb-2">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <UserIcon className="h-8 w-8 text-blue-600" />
@@ -231,7 +231,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Profile Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information Section */}
               <div>

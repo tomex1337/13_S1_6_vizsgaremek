@@ -172,11 +172,11 @@ export default function CompleteProfile() {
   return (
     <>
     <Header />
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Profil kiegészítése</h1>
-          <p className="mt-2 text-gray-600">
+          <h1 className="text-3xl font-bold">Profil kiegészítése</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             Segíts nekünk személyre szabni a fitness utadat
           </p>
         </div>
@@ -193,7 +193,7 @@ export default function CompleteProfile() {
               {...register("birthDate")}
               required
               max={new Date().toISOString().split('T')[0]}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             />
           </div>
 
@@ -206,7 +206,7 @@ export default function CompleteProfile() {
               id="gender"
               {...register("gender")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
               <option value="">Válassz nemet</option>
               <option value="male">Férfi</option>
@@ -225,7 +225,7 @@ export default function CompleteProfile() {
               id="heightCm"
               {...register("heightCm")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
               placeholder="Add meg a magasságod cm-ben"
             />
           </div>
@@ -241,21 +241,21 @@ export default function CompleteProfile() {
               id="weightKg"
               {...register("weightKg")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
               placeholder="Add meg a súlyod kg-ban"
             />
           </div>
 
           {/* Activity Level */}
           <div>
-            <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="activityLevelId" className="text-sm font-medium text-gray-700">
               Aktivitási szint *
             </label>
             <select
               id="activityLevelId"
               {...register("activityLevelId")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
               <option value="">Válassz aktivitási szintet</option>
               {activityLevels.map((level) => (
@@ -268,14 +268,14 @@ export default function CompleteProfile() {
 
           {/* Goal */}
           <div>
-            <label htmlFor="goalId" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="goalId" className="text-sm font-medium text-gray-700">
               Fitness cél *
             </label>
             <select
               id="goalId"
               {...register("goalId")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
               <option value="">Válaszd ki a célodat</option>
               {goals.map((goal) => (
