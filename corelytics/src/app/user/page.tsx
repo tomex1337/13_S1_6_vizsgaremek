@@ -89,7 +89,7 @@ export default function UserPage() {
                 <UserIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">
+                <h1 className="!text-gray-100 text-3xl font-bold">
                   Üdvözlünk vissza, {session?.user?.name || 'Felhasználó'}!
                 </h1>
                 <p className="text-blue-100 mt-1">
