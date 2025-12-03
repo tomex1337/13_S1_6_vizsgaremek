@@ -242,7 +242,7 @@ export default function UserPage() {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Legutóbbi tevékenységek</h2>
+                <h2 className="text-xl font-semibold !dark:text-gray-800 !text-gray-800">Legutóbbi tevékenységek</h2>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
