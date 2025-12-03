@@ -13,8 +13,7 @@ import {
   BeakerIcon,
   ScaleIcon,
   FireIcon,
-  CheckCircleIcon,
-  XCircleIcon
+  CheckCircleIcon
 } from '@heroicons/react/24/outline';
 import {
   SparklesIcon

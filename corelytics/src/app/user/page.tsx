@@ -9,13 +9,10 @@ import Footer from "@/components/footer";
 import {
   CalendarIcon,
   ChartBarIcon,
-  FireIcon,
-  HeartIcon,
   TrophyIcon,
   UserIcon,
   CogIcon,
   ArrowTrendingUpIcon,
-  ClockIcon,
   PlayIcon,
   PlusIcon,
   ExclamationTriangleIcon
