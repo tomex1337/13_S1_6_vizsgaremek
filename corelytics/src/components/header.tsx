@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSession } from "next-auth/react";
+import Link from 'next/link'
 
 import {
   Dialog,
@@ -44,7 +45,7 @@ const { data: session } = useSession();
     <header className="bg-transparent">
       <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="flex lg:flex-1">
-          <a href="/" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Corelytics Logo</span>
             <img
               alt="Corelytics Logo"
@@ -53,7 +54,7 @@ const { data: session } = useSession();
               height={32}
               className="h-8 w-auto"
             />
-          </a>
+          </Link>
         </div>
         <div className="flex lg:hidden dark:invert">
           <button
