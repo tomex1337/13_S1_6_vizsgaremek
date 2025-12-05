@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import Link from 'next/link'
+import Image from 'next/image'
 
 import {
   Dialog,
@@ -11,6 +13,10 @@ import {
   PopoverButton,
   PopoverGroup,
   PopoverPanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
 } from '@headlessui/react'
 import {
   ArrowPathIcon,
@@ -20,6 +26,8 @@ import {
   FingerPrintIcon,
   SquaresPlusIcon,
   XMarkIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
@@ -44,16 +52,16 @@ const { data: session } = useSession();
     <header className="bg-transparent">
       <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="flex lg:flex-1">
-          <a href="/" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Corelytics Logo</span>
-            <img
+            <Image
               alt="Corelytics Logo"
               src="/logo.svg"
               width={32}
               height={32}
               className="h-8 w-auto"
             />
-          </a>
+          </Link>
         </div>
         <div className="flex lg:hidden dark:invert">
           <button
@@ -122,9 +130,50 @@ const { data: session } = useSession();
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             {session?.user ? (
-          <a href="/user" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
-            <span aria-hidden="true">{session?.user?.name}</span>
-          </a>
+              <Menu as="div" className="relative">
+                <MenuButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
+                  {session?.user?.name}
+                  <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-400" />
+                </MenuButton>
+                <MenuItems
+                  transition
+                  className="absolute right-0 z-10 mt-3 w-56 origin-top-right overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+                >
+                  <MenuItem>
+                    <Link
+                      href="/user"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <UserCircleIcon className="size-5" />
+                        <span>Profil</span>
+                      </div>
+                    </Link>
+                  </MenuItem>
+                  <MenuItem>
+                    <Link
+                      href="/food/log"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <ChartPieIcon className="size-5" />
+                        <span>Étel Naplózása</span>
+                      </div>
+                    </Link>
+                  </MenuItem>
+                  <MenuItem>
+                    <button
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <ArrowRightOnRectangleIcon className="size-5" />
+                        <span>Kijelentkezés</span>
+                      </div>
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </Menu>
           ) : (
           <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Bejelentkezés <span aria-hidden="true">&rarr;</span>
@@ -137,11 +186,13 @@ const { data: session } = useSession();
         <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:bg-gray-800">
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                alt=""
+              <span className="sr-only">Corelytics Logo</span>
+              <Image
+                alt="Corelytics Logo"
                 src="/logo.svg"
                 className="h-8 w-auto"
+              width={32}
+              height={32}
               />
             </a>
             <button
@@ -195,9 +246,32 @@ const { data: session } = useSession();
               </div>
               <div className="py-6">
             {session?.user ? (
-          <a href="/user" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
-            <span aria-hidden="true">{session?.user?.name}</span>
-          </a>
+              <div className="space-y-2">
+                <div className="text-base font-semibold text-gray-900 dark:text-gray-100 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                  {session?.user?.name}
+                </div>
+                <a
+                  href="/user"
+                  className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <UserCircleIcon className="size-5" />
+                  <span>Profil</span>
+                </a>
+                <a
+                  href="/food/log"
+                  className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <ChartPieIcon className="size-5" />
+                  <span>Étel Naplózása</span>
+                </a>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="-mx-3 flex w-full items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <ArrowRightOnRectangleIcon className="size-5" />
+                  <span>Kijelentkezés</span>
+                </button>
+              </div>
           ) : (
           <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Bejelentkezés <span aria-hidden="true">&rarr;</span>
