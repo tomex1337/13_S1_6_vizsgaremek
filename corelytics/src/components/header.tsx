@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
+import Link from 'next/link'
+import Image from 'next/image'
 
 import {
   Dialog,
@@ -11,6 +13,10 @@ import {
   PopoverButton,
   PopoverGroup,
   PopoverPanel,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
 } from '@headlessui/react'
 import {
   ArrowPathIcon,
@@ -20,6 +26,8 @@ import {
   FingerPrintIcon,
   SquaresPlusIcon,
   XMarkIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon,
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
@@ -42,20 +50,20 @@ const { data: session } = useSession();
 
   return (
     <header className="bg-transparent">
-      <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white rounded-xl shadow-lg">
+      <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="flex lg:flex-1">
-          <a href="#" className="-m-1.5 p-1.5">
-            <span className="sr-only">Your Company</span>
-            <img
+          <Link href="/" className="-m-1.5 p-1.5">
+            <span className="sr-only">Corelytics Logo</span>
+            <Image
               alt="Corelytics Logo"
               src="/logo.svg"
               width={32}
               height={32}
               className="h-8 w-auto"
             />
-          </a>
+          </Link>
         </div>
-        <div className="flex lg:hidden">
+        <div className="flex lg:hidden dark:invert">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(true)}
@@ -67,40 +75,40 @@ const { data: session } = useSession();
         </div>
         <PopoverGroup className="hidden lg:flex lg:gap-x-12">
           <Popover className="relative">
-            <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
+            <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
               Termék
               <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-400" />
             </PopoverButton>
 
             <PopoverPanel
               transition
-              className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white shadow-lg outline-1 outline-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+              className="absolute left-1/2 z-10 mt-3 w-screen max-w-md -translate-x-1/2 overflow-hidden rounded-3xl bg-white dark:bg-gray-800 shadow-lg outline-1 outline-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
             >
               <div className="p-4">
                 {products.map((item) => (
                   <div
                     key={item.name}
-                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
+                    className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50 dark:hover:bg-gray-700"
                   >
                     <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
                       <item.icon aria-hidden="true" className="size-6 text-gray-600 group-hover:text-indigo-600" />
                     </div>
                     <div className="flex-auto">
-                      <a href={item.href} className="block font-semibold text-gray-900">
+                      <a href={item.href} className="block font-semibold text-gray-900 dark:text-gray-100">
                         {item.name}
                         <span className="absolute inset-0" />
                       </a>
-                      <p className="mt-1 text-gray-600">{item.description}</p>
+                      <p className="mt-1 text-gray-600 dark:text-gray-400">{item.description}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
+              <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50 dark:bg-gray-700">
                 {callsToAction.map((item) => (
                   <a
                     key={item.name}
                     href={item.href}
-                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-100"
+                    className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-600"
                   >
                     <item.icon aria-hidden="true" className="size-5 flex-none text-gray-400" />
                     {item.name}
@@ -110,23 +118,64 @@ const { data: session } = useSession();
             </PopoverPanel>
           </Popover>
 
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
+          <a href="#" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Funkciók
           </a>
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
+          <a href="#" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Piac
           </a>
-          <a href="#" className="text-sm/6 font-semibold text-gray-900">
+          <a href="#" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Cég
           </a>
         </PopoverGroup>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             {session?.user ? (
-          <a href="/user" className="text-sm/6 font-semibold text-gray-900">
-            <span aria-hidden="true">{session?.user?.name}</span>
-          </a>
+              <Menu as="div" className="relative">
+                <MenuButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
+                  {session?.user?.name}
+                  <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-400" />
+                </MenuButton>
+                <MenuItems
+                  transition
+                  className="absolute right-0 z-10 mt-3 w-56 origin-top-right overflow-hidden rounded-xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
+                >
+                  <MenuItem>
+                    <Link
+                      href="/user"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <UserCircleIcon className="size-5" />
+                        <span>Profil</span>
+                      </div>
+                    </Link>
+                  </MenuItem>
+                  <MenuItem>
+                    <Link
+                      href="/food/log"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <ChartPieIcon className="size-5" />
+                        <span>Étel Naplózása</span>
+                      </div>
+                    </Link>
+                  </MenuItem>
+                  <MenuItem>
+                    <button
+                      onClick={() => signOut({ callbackUrl: '/' })}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <ArrowRightOnRectangleIcon className="size-5" />
+                        <span>Kijelentkezés</span>
+                      </div>
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </Menu>
           ) : (
-          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
+          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Bejelentkezés <span aria-hidden="true">&rarr;</span>
           </a>
           )}
@@ -134,20 +183,22 @@ const { data: session } = useSession();
       </nav>
       <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
         <div className="fixed inset-0 z-50" />
-        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+        <DialogPanel className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10 dark:bg-gray-800">
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
-              <span className="sr-only">Your Company</span>
-              <img
-                alt=""
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
+              <span className="sr-only">Corelytics Logo</span>
+              <Image
+                alt="Corelytics Logo"
+                src="/logo.svg"
                 className="h-8 w-auto"
+              width={32}
+              height={32}
               />
             </a>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="-m-2.5 rounded-md p-2.5 text-gray-700"
+              className="-m-2.5 rounded-md p-2.5 text-gray-700 dark:text-gray-300"
             >
               <span className="sr-only">Menü bezárása</span>
               <XMarkIcon aria-hidden="true" className="size-6" />
@@ -157,7 +208,7 @@ const { data: session } = useSession();
             <div className="-my-6 divide-y divide-gray-500/10">
               <div className="space-y-2 py-6">
                 <Disclosure as="div" className="-mx-3">
-                  <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
+                  <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700">
                     Termék
                     <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
                   </DisclosureButton>
@@ -167,7 +218,7 @@ const { data: session } = useSession();
                         key={item.name}
                         as="a"
                         href={item.href}
-                        className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-gray-900 hover:bg-gray-50"
+                        className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
                       >
                         {item.name}
                       </DisclosureButton>
@@ -176,30 +227,53 @@ const { data: session } = useSession();
                 </Disclosure>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
                   Funkciók
                 </a>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
                   Piac
                 </a>
                 <a
                   href="#"
-                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
+                  className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
                 >
                   Cég
                 </a>
               </div>
               <div className="py-6">
             {session?.user ? (
-          <a href="/user" className="text-sm/6 font-semibold text-gray-900">
-            <span aria-hidden="true">{session?.user?.name}</span>
-          </a>
+              <div className="space-y-2">
+                <div className="text-base font-semibold text-gray-900 dark:text-gray-100 px-3 py-2 border-b border-gray-200 dark:border-gray-700">
+                  {session?.user?.name}
+                </div>
+                <a
+                  href="/user"
+                  className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <UserCircleIcon className="size-5" />
+                  <span>Profil</span>
+                </a>
+                <a
+                  href="/food/log"
+                  className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <ChartPieIcon className="size-5" />
+                  <span>Étel Naplózása</span>
+                </a>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="-mx-3 flex w-full items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <ArrowRightOnRectangleIcon className="size-5" />
+                  <span>Kijelentkezés</span>
+                </button>
+              </div>
           ) : (
-          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900">
+          <a href="/auth/signin" className="text-sm/6 font-semibold text-gray-900 dark:text-gray-100">
             Bejelentkezés <span aria-hidden="true">&rarr;</span>
           </a>
           )}

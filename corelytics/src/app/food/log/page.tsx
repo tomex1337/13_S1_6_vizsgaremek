@@ -144,7 +144,7 @@ export default function FoodLogPage() {
 
   const handleEditLog = (log: DailyLog) => {
     setEditingLog(log.id);
-    setEditQuantity(Number(log.quantity));
+    setEditQuantity(Number(log.quantity) || 1);
   };
 
   const handleUpdateLog = async (logId: string) => {
@@ -202,7 +202,7 @@ export default function FoodLogPage() {
     <div className="min-h-screen bg-gray-50">
       <Header />
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-700 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-blue-700 dark:from-green-800 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -210,8 +210,8 @@ export default function FoodLogPage() {
                 <FireIconSolid className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Étkezési Napló</h1>
-                <p className="text-green-100 mt-1">
+                <h1 className="text-3xl font-bold !text-white">Étkezési Napló</h1>
+                <p className="!text-green-100 mt-1">
                   Kövesd nyomon a táplálkozásodat és érdd el a céljaidat
                 </p>
               </div>
@@ -385,7 +385,7 @@ export default function FoodLogPage() {
                                       min="0.1"
                                       step="0.1"
                                       value={editQuantity}
-                                      onChange={(e) => setEditQuantity(parseFloat(e.target.value) || 1)}
+                                      onChange={(e) => setQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
                                       className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                     <span className="text-sm text-gray-500">
@@ -657,15 +657,16 @@ export default function FoodLogPage() {
                     {/* Quantity Input */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Adagok száma:
+                      Adagok száma:
                       </label>
                       <input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseFloat(e.target.value) || 1)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="number"
+                      min="0.1"
+                      max="100"
+                      step="0.1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>

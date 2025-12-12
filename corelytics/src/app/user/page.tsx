@@ -9,13 +9,10 @@ import Footer from "@/components/footer";
 import {
   CalendarIcon,
   ChartBarIcon,
-  FireIcon,
-  HeartIcon,
   TrophyIcon,
   UserIcon,
   CogIcon,
   ArrowTrendingUpIcon,
-  ClockIcon,
   PlayIcon,
   PlusIcon,
   ExclamationTriangleIcon
@@ -79,9 +76,9 @@ export default function UserPage() {
   return (
     <>
     <Header />
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 ">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-700 text-white">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-800 dark:to-purple-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -89,10 +86,10 @@ export default function UserPage() {
                 <UserIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">
+                <h1 className="!text-gray-100 text-3xl font-bold">
                   Üdvözlünk vissza, {session?.user?.name || 'Felhasználó'}!
                 </h1>
-                <p className="text-blue-100 mt-1">
+                <p className="!text-blue-100 mt-1">
                   Folytasd a nagyszerű munkát a fitness utadon
                 </p>
               </div>
@@ -137,11 +134,11 @@ export default function UserPage() {
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Calories Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <FireIconSolid className="h-6 w-6 text-orange-600" />
+                <div className="p-2 bg-orange-100 dark:bg-orange-700 rounded-lg">
+                  <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-300" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Mai kalóriák</p>
@@ -163,11 +160,11 @@ export default function UserPage() {
           </div>
 
           {/* Workouts Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <ChartBarIcon className="h-6 w-6 text-blue-600" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-700 rounded-lg">
+                  <ChartBarIcon className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Edzések ezen a héten</p>
@@ -189,11 +186,11 @@ export default function UserPage() {
           </div>
 
           {/* Protein Intake Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <HeartIconSolid className="h-6 w-6 text-green-600" />
+                <div className="p-2 bg-green-100 dark:bg-green-700 rounded-lg">
+                  <HeartIconSolid className="h-6 w-6 text-green-600 dark:text-green-300" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Mai fehérje</p>
@@ -215,11 +212,11 @@ export default function UserPage() {
           </div>
 
           {/* Streak Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <TrophyIcon className="h-6 w-6 text-yellow-600" />
+                <div className="p-2 bg-yellow-100 dark:bg-yellow-700 rounded-lg">
+                  <TrophyIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-gray-600">Jelenlegi sorozat</p>
@@ -240,16 +237,16 @@ export default function UserPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activities */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
               <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900">Legutóbbi tevékenységek</h2>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Legutóbbi tevékenységek</h2>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
                   {stats.recentActivities.length > 0 ? (
                     stats.recentActivities.map((activity, index) => (
                       <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-                        <div className={`p-2 bg-white rounded-lg ${
+                        <div className={`p-2 bg-white dark:bg-gray-800 rounded-lg ${
                           activity.type === 'exercise' ? 'text-green-600' : 
                           activity.name.toLowerCase().includes('breakfast') ? 'text-blue-600' :
                           activity.name.toLowerCase().includes('lunch') ? 'text-orange-600' :
@@ -284,61 +281,61 @@ export default function UserPage() {
           {/* Quick Actions */}
           <div className="space-y-6">
             {/* Quick Log */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Gyors műveletek</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">Gyors műveletek</h3>
               <div className="space-y-3">
                 <button 
                   onClick={() => router.push('/food/log')}
-                  className="w-full p-4 bg-blue-50 hover:bg-blue-100 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-blue-50 hover:bg-blue-100 dark:bg-blue-800 dark:hover:bg-blue-700 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <CalendarIcon className="h-5 w-5 text-blue-600" />
-                    <span className="font-medium text-blue-900">Étel naplózása</span>
+                    <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <span className="font-medium text-blue-900 dark:text-blue-200">Étel naplózása</span>
                   </div>
                 </button>
                 <button 
                   onClick={() => router.push('/food/create')}
-                  className="w-full p-4 bg-purple-50 hover:bg-purple-100 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-purple-50 hover:bg-purple-100 dark:bg-purple-800 dark:hover:bg-purple-700 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <PlusIcon className="h-5 w-5 text-purple-600" />
-                    <span className="font-medium text-purple-900">Egyedi étel létrehozása</span>
+                    <PlusIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    <span className="font-medium text-purple-900 dark:text-purple-200">Egyedi étel létrehozása</span>
                   </div>
                 </button>
-                <button className="w-full p-4 bg-green-50 hover:bg-green-100 rounded-lg text-left transition-colors">
+                <button className="w-full p-4 bg-green-50 hover:bg-green-100 dark:bg-green-800 dark:bg-hover-700 rounded-lg text-left transition-colors">
                   <div className="flex items-center space-x-3">
-                    <PlayIcon className="h-5 w-5 text-green-600" />
-                    <span className="font-medium text-green-900">Edzés kezdése</span>
+                    <PlayIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
+                    <span className="font-medium text-green-900 dark:text-green-200">Edzés kezdése</span>
                   </div>
                 </button>
                 <button 
                   onClick={() => router.push('/progress/view')}
-                  className="w-full p-4 bg-orange-50 hover:bg-orange-100 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-orange-50 hover:bg-orange-100 dark:bg-orange-800 dark:hover:bg-orange-700 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
-                    <ChartBarIcon className="h-5 w-5 text-orange-600" />
-                    <span className="font-medium text-orange-900">Előrehaladás megtekintése</span>
+                    <ChartBarIcon className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                    <span className="font-medium text-orange-900 dark:text-orange-200">Előrehaladás megtekintése</span>
                   </div>
                 </button>
               </div>
             </div>
 
             {/* Weekly Summary */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Ezen a héten</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">Ezen a héten</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Összes edzés</span>
-                  <span className="font-semibold text-gray-900">{stats.totalWorkouts}</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Összes edzés</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.totalWorkouts}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Átl. kalória/nap (7n)</span>
-                  <span className="font-semibold text-gray-900">
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Átl. kalória/nap (7n)</span>
+                  <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {stats.avgCaloriesPerDay ? stats.avgCaloriesPerDay.toLocaleString() : 'Nincs adat'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Elért célok</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Elért célok</span>
                   <span className="font-semibold text-green-600">
                     {stats.goalsMetPercentage !== undefined ? `${stats.goalsMetPercentage}%` : 'Nincs adat'}
                   </span>

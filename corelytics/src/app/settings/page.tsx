@@ -206,32 +206,32 @@ export default function SettingsPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 py-12">
+      <div className="min-h-screen py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Back Button */}
           <button
             onClick={() => router.push('/user')}
-            className="mb-6 flex items-center text-gray-600 hover:text-gray-900 transition-colors"
+            className="mb-6 flex items-center not-dark:text-indigo-700 hover:text-indigo-900 dark:hover:text-indigo-400 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Vissza a vezérlőpultra
           </button>
 
           {/* Header */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
             <div className="flex items-center space-x-4 mb-2">
               <div className="p-3 bg-blue-100 rounded-lg">
                 <UserIcon className="h-8 w-8 text-blue-600" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">Profil beállítások</h1>
-                <p className="text-gray-600 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
+                <p className="text-gray-600 dark:text-gray-200 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
               </div>
             </div>
           </div>
 
           {/* Profile Form */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information Section */}
               <div>
@@ -335,7 +335,7 @@ export default function SettingsPage() {
                     {errors.activityLevelId && (
                       <p className="mt-1 text-sm text-red-600">{errors.activityLevelId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
                       Válaszd ki a tipikus napi aktivitási szintedet a kalóriaszükséglet számításához
                     </p>
                   </div>
@@ -360,7 +360,7 @@ export default function SettingsPage() {
                     {errors.goalId && (
                       <p className="mt-1 text-sm text-red-600">{errors.goalId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
                       A célod segít nekünk személyre szabni a kalória- és tápanyagcélokat
                     </p>
                   </div>
@@ -393,7 +393,7 @@ export default function SettingsPage() {
                 <button
                   type="button"
                   onClick={() => router.push('/user')}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
                 >
                   Mégse
                 </button>

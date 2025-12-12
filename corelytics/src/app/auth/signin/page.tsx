@@ -62,14 +62,14 @@ export default function SignIn() {
     <>
     <Header />
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 bg-gray-100 dark:bg-gray-900 p-10 rounded-lg shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
             Jelentkezz be a fiókodba
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="-space-y-px rounded-md shadow-sm">
+          <div className="space-y-4">
             <div>
               <label htmlFor="email" className="sr-only">
                 Email cím
@@ -84,7 +84,7 @@ export default function SignIn() {
                   },
                 })}
                 type="email"
-                className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 placeholder="Email cím"
               />
               {errors.email && (
@@ -101,7 +101,7 @@ export default function SignIn() {
                 id="password"
                 {...register("password", { required: "A jelszó megadása kötelező" })}
                 type="password"
-                className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 placeholder="Jelszó"
               />
               {errors.password && (
@@ -130,7 +130,7 @@ export default function SignIn() {
           <div>
             <Link
               href="/auth/forgot-password"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-indigo-700 hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-400"
             >
               Elfelejtetted a jelszavad?
             </Link>
@@ -139,7 +139,7 @@ export default function SignIn() {
             Még nincs fiókod?{" "}
             <Link
               href="/auth/signup"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-indigo-700 hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-400"
             >
               Regisztrálj
             </Link>
