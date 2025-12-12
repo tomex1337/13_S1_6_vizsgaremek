@@ -211,7 +211,7 @@ export default function FoodLogPage() {
               </div>
               <div>
                 <h1 className="text-3xl font-bold !text-white">Étkezési Napló</h1>
-                <p className="text-green-100 mt-1">
+                <p className="!text-green-100 mt-1">
                   Kövesd nyomon a táplálkozásodat és érdd el a céljaidat
                 </p>
               </div>

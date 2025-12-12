@@ -8,13 +8,26 @@ export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json()
 
-    const existingUser = await prisma.user.findUnique({
+    // Check if user with this email already exists
+    const existingUserByEmail = await prisma.user.findUnique({
       where: { email },
     })
 
-    if (existingUser) {
+    if (existingUserByEmail) {
       return NextResponse.json(
         { message: "User with this email already exists" },
+        { status: 400 }
+      )
+    }
+
+    // Check if user with this username already exists
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username: name },
+    })
+
+    if (existingUserByUsername) {
+      return NextResponse.json(
+        { message: "Username already taken" },
         { status: 400 }
       )
     }
@@ -47,6 +60,15 @@ export async function POST(req: Request) {
     )
   } catch (error) {
     console.error("Registration error:", error)
+    
+    // Handle specific Prisma errors
+    if (error instanceof Error && error.message.includes("Unique constraint failed")) {
+      return NextResponse.json(
+        { message: "Username or email already exists" },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
       { message: "Error creating user" },
       { status: 500 }
