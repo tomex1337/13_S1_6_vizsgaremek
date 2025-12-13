@@ -384,8 +384,9 @@ export default function FoodLogPage() {
                                       type="number"
                                       min="0.1"
                                       step="0.1"
+                                      max="100.0"
                                       value={editQuantity}
-                                      onChange={(e) => setQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
+                                      onChange={(e) => setEditQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
                                       className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
                                     <span className="text-sm text-gray-500">
