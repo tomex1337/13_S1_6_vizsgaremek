@@ -150,8 +150,12 @@ export const appRouter = router({
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         
+        // Calculate start of week (Monday)
         const startOfWeek = new Date(today);
-        startOfWeek.setDate(today.getDate() - today.getDay());
+        const dayOfWeek = today.getDay();
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 0 days back
+        startOfWeek.setDate(today.getDate() - daysToSubtract);
+        startOfWeek.setHours(0, 0, 0, 0);
         
         // Get today's food logs for calories
         const startOfDay = new Date(today);
@@ -230,10 +234,19 @@ export const appRouter = router({
             user_id: userId,
             logDate: {
               gte: startOfWeek,
-              lt: tomorrow,
+              lte: endOfDay,
             },
           },
         });
+
+        // Calculate weekly totals from database
+        const weeklyCaloriesBurned = weekExerciseLogs.reduce((total, log) => {
+          return total + Number(log.caloriesBurned || 0);
+        }, 0);
+
+        const weeklyWorkoutMinutes = weekExerciseLogs.reduce((total, log) => {
+          return total + (log.durationMinutes || 0);
+        }, 0);
 
         // Get recent activities (last 7 days)
         const sevenDaysAgo = new Date(today);
@@ -280,6 +293,21 @@ export const appRouter = router({
           const quantity = log.quantity || 1;
           const logCalories = Number(calories) * Number(quantity);
           return total + logCalories;
+        }, 0);
+
+        // Calculate calories burned today from workouts
+        const todayWorkoutLogs = await ctx.prisma.userExerciseLog.findMany({
+          where: {
+            user_id: userId,
+            logDate: {
+              gte: startOfDay,
+              lte: endOfDay
+            }
+          }
+        });
+        
+        const caloriesBurned = todayWorkoutLogs.reduce((total, log) => {
+          return total + Number(log.caloriesBurned || 0);
         }, 0);
         
         // Calculate streak (consecutive days with logged activities)
@@ -395,13 +423,17 @@ export const appRouter = router({
 
         return {
           caloriesConsumed: Math.round(caloriesConsumed),
+          caloriesBurned: Math.round(caloriesBurned),
+          netCalories: Math.round(caloriesConsumed - caloriesBurned),
           caloriesTarget: dailyGoal?.caloriesGoal || 2000,
           proteinConsumed: Math.round(proteinConsumed),
           proteinTarget: dailyGoal?.proteinGoal ? Number(dailyGoal.proteinGoal) : 150,
           fatTarget: dailyGoal?.fatGoal ? Number(dailyGoal.fatGoal) : 65,
           carbsTarget: dailyGoal?.carbsGoal ? Number(dailyGoal.carbsGoal) : 250,
           workoutsCompleted: weekExerciseLogs.length,
-          weeklyGoal: 5, // Default weekly goal
+          todayWorkouts: todayWorkoutLogs.length,
+          weeklyCaloriesBurned: Math.round(weeklyCaloriesBurned),
+          weeklyWorkoutMinutes,
           currentStreak,
           totalWorkouts,
           avgCaloriesPerDay,
@@ -641,6 +673,322 @@ export const appRouter = router({
         });
         
         return customFood;
+      })
+  }),
+  workout: router({
+    // Get all exercise categories
+    getCategories: protectedProcedure
+      .query(async ({ ctx }) => {
+        const exercises = await ctx.prisma.exercise.findMany({
+          select: { category: true },
+          distinct: ['category'],
+          where: {
+            category: { not: null }
+          }
+        });
+        
+        return exercises.map(e => e.category).filter(Boolean) as string[];
+      }),
+    
+    // Search exercises
+    search: protectedProcedure
+      .input(z.object({
+        query: z.string().optional(),
+        category: z.string().optional(),
+        limit: z.number().optional().default(50)
+      }))
+      .query(async ({ input, ctx }) => {
+        const whereClause: {
+          AND?: Array<{
+            OR?: Array<{ name?: { contains: string; mode: 'insensitive' }; category?: { contains: string; mode: 'insensitive' } }>;
+            category?: string;
+          }>;
+        } = {};
+        
+        if (input.query || input.category) {
+          whereClause.AND = [];
+          
+          if (input.query && input.query.length > 0) {
+            whereClause.AND.push({
+              OR: [
+                { name: { contains: input.query, mode: 'insensitive' } },
+                { category: { contains: input.query, mode: 'insensitive' } }
+              ]
+            });
+          }
+          
+          if (input.category) {
+            whereClause.AND.push({ category: input.category });
+          }
+        }
+        
+        const exercises = await ctx.prisma.exercise.findMany({
+          where: whereClause.AND?.length ? whereClause : undefined,
+          take: input.limit,
+          orderBy: [
+            { category: 'asc' },
+            { name: 'asc' }
+          ]
+        });
+        
+        return exercises;
+      }),
+    
+    // Log a workout
+    logWorkout: protectedProcedure
+      .input(z.object({
+        exerciseId: z.string(),
+        durationMinutes: z.number().positive(),
+        logDate: z.string().optional()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const logDate = input.logDate ? new Date(input.logDate) : new Date();
+        
+        // Get the exercise to calculate calories burned
+        const exercise = await ctx.prisma.exercise.findUnique({
+          where: { id: input.exerciseId }
+        });
+        
+        if (!exercise) {
+          throw new Error('Exercise not found');
+        }
+        
+        // Get user profile for weight-based calorie calculation
+        const userProfile = await ctx.prisma.userProfile.findUnique({
+          where: { user_id: userId }
+        });
+        
+        // Calculate calories burned using MET formula: Calories = MET × weight (kg) × duration (hours)
+        const weight = userProfile?.weightKg ? Number(userProfile.weightKg) : 70; // Default 70kg
+        const met = exercise.metValue ? Number(exercise.metValue) : 5; // Default MET of 5
+        const durationHours = input.durationMinutes / 60;
+        const caloriesBurned = Math.round(met * weight * durationHours);
+        
+        const workoutLog = await ctx.prisma.userExerciseLog.create({
+          data: {
+            id: crypto.randomUUID(),
+            user_id: userId,
+            exercise_id: input.exerciseId,
+            durationMinutes: input.durationMinutes,
+            caloriesBurned,
+            logDate,
+            createdAt: new Date()
+          },
+          include: {
+            exercise: true
+          }
+        });
+        
+        return workoutLog;
+      }),
+    
+    // Get daily workout logs
+    getDailyLogs: protectedProcedure
+      .input(z.object({
+        date: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const targetDate = input.date ? new Date(input.date) : new Date();
+        
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        const logs = await ctx.prisma.userExerciseLog.findMany({
+          where: {
+            user_id: userId,
+            logDate: {
+              gte: startOfDay,
+              lte: endOfDay
+            }
+          },
+          include: {
+            exercise: true
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        });
+        
+        return logs;
+      }),
+    
+    // Delete a workout log
+    deleteLog: protectedProcedure
+      .input(z.object({
+        logId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const log = await ctx.prisma.userExerciseLog.findFirst({
+          where: {
+            id: input.logId,
+            user_id: userId
+          }
+        });
+        
+        if (!log) {
+          throw new Error('Workout log not found or access denied');
+        }
+        
+        await ctx.prisma.userExerciseLog.delete({
+          where: { id: input.logId }
+        });
+        
+        return { success: true };
+      }),
+    
+    // Update workout log duration
+    updateLog: protectedProcedure
+      .input(z.object({
+        logId: z.string(),
+        durationMinutes: z.number().positive()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const log = await ctx.prisma.userExerciseLog.findFirst({
+          where: {
+            id: input.logId,
+            user_id: userId
+          },
+          include: {
+            exercise: true
+          }
+        });
+        
+        if (!log) {
+          throw new Error('Workout log not found or access denied');
+        }
+        
+        // Recalculate calories burned
+        const userProfile = await ctx.prisma.userProfile.findUnique({
+          where: { user_id: userId }
+        });
+        
+        const weight = userProfile?.weightKg ? Number(userProfile.weightKg) : 70;
+        const met = log.exercise?.metValue ? Number(log.exercise.metValue) : 5;
+        const durationHours = input.durationMinutes / 60;
+        const caloriesBurned = Math.round(met * weight * durationHours);
+        
+        const updatedLog = await ctx.prisma.userExerciseLog.update({
+          where: { id: input.logId },
+          data: { 
+            durationMinutes: input.durationMinutes,
+            caloriesBurned
+          },
+          include: {
+            exercise: true
+          }
+        });
+        
+        return updatedLog;
+      }),
+    
+    // Get workout stats for a date range
+    getStats: protectedProcedure
+      .input(z.object({
+        startDate: z.string().optional(),
+        endDate: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const startDate = input.startDate ? new Date(input.startDate) : new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const endDate = input.endDate ? new Date(input.endDate) : new Date(today);
+        endDate.setHours(23, 59, 59, 999);
+        
+        const logs = await ctx.prisma.userExerciseLog.findMany({
+          where: {
+            user_id: userId,
+            logDate: {
+              gte: startDate,
+              lte: endDate
+            }
+          },
+          include: {
+            exercise: true
+          }
+        });
+        
+        const totalWorkouts = logs.length;
+        const totalMinutes = logs.reduce((sum, log) => sum + (log.durationMinutes || 0), 0);
+        const totalCaloriesBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
+        
+        // Group by category
+        const byCategory: { [key: string]: { count: number; minutes: number; calories: number } } = {};
+        logs.forEach(log => {
+          const category = log.exercise?.category || 'Other';
+          if (!byCategory[category]) {
+            byCategory[category] = { count: 0, minutes: 0, calories: 0 };
+          }
+          byCategory[category].count++;
+          byCategory[category].minutes += log.durationMinutes || 0;
+          byCategory[category].calories += Number(log.caloriesBurned || 0);
+        });
+        
+        return {
+          totalWorkouts,
+          totalMinutes,
+          totalCaloriesBurned,
+          byCategory,
+          averageMinutesPerWorkout: totalWorkouts > 0 ? Math.round(totalMinutes / totalWorkouts) : 0,
+          averageCaloriesPerWorkout: totalWorkouts > 0 ? Math.round(totalCaloriesBurned / totalWorkouts) : 0
+        };
+      }),
+    
+    // Get today's burned calories
+    getTodayBurnedCalories: protectedProcedure
+      .query(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        const endOfDay = new Date(today);
+        endOfDay.setHours(23, 59, 59, 999);
+        
+        const logs = await ctx.prisma.userExerciseLog.findMany({
+          where: {
+            user_id: userId,
+            logDate: {
+              gte: today,
+              lte: endOfDay
+            }
+          }
+        });
+        
+        const totalBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
+        
+        return { caloriesBurned: totalBurned };
+      }),
+    
+    // Create custom exercise
+    createCustomExercise: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        category: z.string().optional(),
+        metValue: z.number().positive().optional().default(5),
+        defaultDurationMinutes: z.number().positive().optional().default(30)
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const exercise = await ctx.prisma.exercise.create({
+          data: {
+            id: crypto.randomUUID(),
+            name: input.name,
+            category: input.category || 'Custom',
+            metValue: input.metValue,
+            defaultDurationMinutes: input.defaultDurationMinutes
+          }
+        });
+        
+        return exercise;
       })
   }),
 });

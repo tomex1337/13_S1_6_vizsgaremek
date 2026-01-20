@@ -66,12 +66,14 @@ export default function UserPage() {
     );
   }
 
-  const caloriesProgress = (stats.caloriesConsumed / stats.caloriesTarget) * 100;
-  const workoutProgress = (stats.workoutsCompleted / stats.weeklyGoal) * 100;
+  const caloriesBurned = stats.caloriesBurned || 0;
+  const netCalories = stats.caloriesConsumed - caloriesBurned;
+  const caloriesProgress = (netCalories / stats.caloriesTarget) * 100;
+  const weeklyWorkoutMinutes = stats.weeklyWorkoutMinutes || 0;
   const proteinConsumed = Number(stats.proteinConsumed) || 0;
   const proteinTarget = Number(stats.proteinTarget) || 150;
   const proteinProgress = (proteinConsumed / proteinTarget) * 100;
-  const caloriesRemaining = stats.caloriesTarget - stats.caloriesConsumed;
+  const caloriesRemaining = stats.caloriesTarget - netCalories;
 
   return (
     <>
@@ -141,9 +143,9 @@ export default function UserPage() {
                   <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-300" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Mai kalóriák</p>
+                  <p className="text-sm font-medium text-gray-600">Nettó kalória</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    {stats.caloriesConsumed}
+                    {Math.round(netCalories)}
                   </p>
                 </div>
               </div>
@@ -151,11 +153,14 @@ export default function UserPage() {
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(caloriesProgress, 100)}%` }}
+                style={{ width: `${Math.min(Math.max(caloriesProgress, 0), 100)}%` }}
               ></div>
             </div>
             <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`} 
+              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}
+            </p>
+            <p className="text-xs text-gray-400 mt-1">
+              {stats.caloriesConsumed} bevitt - {Math.round(caloriesBurned)} égetett
             </p>
           </div>
 
@@ -174,14 +179,8 @@ export default function UserPage() {
                 </div>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min(workoutProgress, 100)}%` }}
-              ></div>
-            </div>
             <p className="text-sm text-gray-500 mt-2">
-              {stats.weeklyGoal - stats.workoutsCompleted} maradt a cél eléréséhez
+              {weeklyWorkoutMinutes} perc • {stats.weeklyCaloriesBurned || 0} kcal égetve
             </p>
           </div>
 
