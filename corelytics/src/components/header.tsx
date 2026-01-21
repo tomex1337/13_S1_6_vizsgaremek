@@ -162,6 +162,17 @@ const { data: session } = useSession();
                     </Link>
                   </MenuItem>
                   <MenuItem>
+                    <Link
+                      href="/workout"
+                      className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                    >
+                      <div className="flex items-center gap-x-2">
+                        <CursorArrowRaysIcon className="size-5" />
+                        <span>Edzés Naplózása</span>
+                      </div>
+                    </Link>
+                  </MenuItem>
+                  <MenuItem>
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
@@ -263,6 +274,13 @@ const { data: session } = useSession();
                 >
                   <ChartPieIcon className="size-5" />
                   <span>Étel Naplózása</span>
+                </a>
+                <a
+                  href="/workout"
+                  className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                >
+                  <CursorArrowRaysIcon className="size-5" />
+                  <span>Edzés Naplózása</span>
                 </a>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
