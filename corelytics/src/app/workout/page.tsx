@@ -16,7 +16,8 @@ import {
   TrashIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  SparklesIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -230,6 +231,13 @@ export default function WorkoutLogPage() {
               >
                 <ChartBarIcon className="h-5 w-5" />
                 <span>Statisztikák</span>
+              </button>
+              <button
+                onClick={() => router.push('/workout/create')}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+              >
+                <SparklesIcon className="h-5 w-5" />
+                <span>Egyéni edzés</span>
               </button>
               <button
                 onClick={() => setShowAddWorkout(true)}
@@ -656,9 +664,21 @@ export default function WorkoutLogPage() {
                     ) : (
                       <div className="text-center py-8">
                         <BoltIcon className="h-12 w-12 text-gray-300 mx-auto mb-2" />
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 mb-4">
                           {searchQuery ? 'Nincs találat' : 'Kezdj el írni a kereséshez'}
                         </p>
+                        {searchQuery && (
+                          <button
+                            onClick={() => {
+                              setShowAddWorkout(false);
+                              router.push('/workout/create');
+                            }}
+                            className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                          >
+                            <SparklesIcon className="h-5 w-5 mr-2" />
+                            Egyéni edzés létrehozása
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>

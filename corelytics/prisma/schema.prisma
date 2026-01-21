@@ -26,6 +26,7 @@ model User {
 
   profile      UserProfile?
   foodItems    FoodItem[]    @relation("CreatedFoods")
+  exercises    Exercise[]    @relation("CreatedExercises")
   foodLogs     UserFoodLog[]
   exerciseLogs UserExerciseLog[]
   weightLogs   WeightLog[]
@@ -87,7 +88,10 @@ model Exercise {
   category               String?
   metValue               Decimal?   @map("met_value")
   defaultDurationMinutes Int?       @map("default_duration_minutes")
+  isCustom               Boolean    @default(false) @map("is_custom")
+  createdBy              String?    @db.Uuid @map("created_by")
 
+  createdByUser          User?      @relation("CreatedExercises", fields: [createdBy], references: [id])
   exerciseLogs           UserExerciseLog[]
 }
 

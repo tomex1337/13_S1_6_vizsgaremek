@@ -105,7 +105,7 @@ async function main() {
     },
   });
 
-  // Create some food items
+  // Create some food items (system-wide, not custom)
   const foodItems = await Promise.all([
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440001' },
@@ -121,6 +121,7 @@ async function main() {
         fiber: 2.6,
         sugar: 12.2,
         sodium: 1,
+        isCustom: false,
       },
     }),
     prisma.foodItem.upsert({
@@ -137,6 +138,7 @@ async function main() {
         fiber: 0,
         sugar: 0,
         sodium: 74,
+        isCustom: false,
       },
     }),
     prisma.foodItem.upsert({
@@ -153,11 +155,12 @@ async function main() {
         fiber: 1.6,
         sugar: 0.7,
         sodium: 1,
+        isCustom: false,
       },
     }),
   ]);
 
-  // Create some exercises
+  // Create some exercises (system-wide, not custom)
   const exercises = await Promise.all([
     // Cardio exercises
     prisma.exercise.upsert({
@@ -169,6 +172,7 @@ async function main() {
         category: 'Kardió',
         metValue: 8.0,
         defaultDurationMinutes: 30,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -180,6 +184,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 3.8,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -191,6 +196,7 @@ async function main() {
         category: 'Kardió',
         metValue: 6.8,
         defaultDurationMinutes: 45,
+        isCustom: false,
       },
     }),
     // More cardio exercises
@@ -203,6 +209,7 @@ async function main() {
         category: 'Kardió',
         metValue: 3.5,
         defaultDurationMinutes: 30,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -214,6 +221,7 @@ async function main() {
         category: 'Kardió',
         metValue: 7.0,
         defaultDurationMinutes: 45,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -225,6 +233,7 @@ async function main() {
         category: 'Kardió',
         metValue: 11.0,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -236,6 +245,7 @@ async function main() {
         category: 'Kardió',
         metValue: 12.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -247,6 +257,7 @@ async function main() {
         category: 'Kardió',
         metValue: 5.0,
         defaultDurationMinutes: 30,
+        isCustom: false,
       },
     }),
     // Strength training exercises
@@ -259,6 +270,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 5.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -270,6 +282,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 8.0,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -281,6 +294,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 6.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -292,6 +306,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 6.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -303,6 +318,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 3.5,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -314,6 +330,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 3.0,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -325,6 +342,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 3.0,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -336,6 +354,7 @@ async function main() {
         category: 'Erősítés',
         metValue: 4.0,
         defaultDurationMinutes: 10,
+        isCustom: false,
       },
     }),
     // Flexibility & Mind-body
@@ -348,6 +367,7 @@ async function main() {
         category: 'Rugalmasság',
         metValue: 2.5,
         defaultDurationMinutes: 60,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -359,6 +379,7 @@ async function main() {
         category: 'Rugalmasság',
         metValue: 3.0,
         defaultDurationMinutes: 45,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -370,6 +391,7 @@ async function main() {
         category: 'Rugalmasság',
         metValue: 2.3,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     // Sports
@@ -382,6 +404,7 @@ async function main() {
         category: 'Sport',
         metValue: 7.3,
         defaultDurationMinutes: 60,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -393,6 +416,7 @@ async function main() {
         category: 'Sport',
         metValue: 6.5,
         defaultDurationMinutes: 60,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -404,6 +428,7 @@ async function main() {
         category: 'Sport',
         metValue: 7.0,
         defaultDurationMinutes: 90,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -415,6 +440,7 @@ async function main() {
         category: 'Sport',
         metValue: 4.0,
         defaultDurationMinutes: 60,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -426,6 +452,7 @@ async function main() {
         category: 'Sport',
         metValue: 4.0,
         defaultDurationMinutes: 30,
+        isCustom: false,
       },
     }),
     // Gym activities
@@ -438,6 +465,7 @@ async function main() {
         category: 'Edzőterem',
         metValue: 6.0,
         defaultDurationMinutes: 45,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -449,6 +477,7 @@ async function main() {
         category: 'Edzőterem',
         metValue: 9.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -460,6 +489,7 @@ async function main() {
         category: 'Edzőterem',
         metValue: 7.0,
         defaultDurationMinutes: 20,
+        isCustom: false,
       },
     }),
     // Home workout
@@ -472,6 +502,7 @@ async function main() {
         category: 'Otthoni edzés',
         metValue: 8.0,
         defaultDurationMinutes: 10,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -483,6 +514,7 @@ async function main() {
         category: 'Otthoni edzés',
         metValue: 8.0,
         defaultDurationMinutes: 10,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -494,6 +526,7 @@ async function main() {
         category: 'Otthoni edzés',
         metValue: 8.0,
         defaultDurationMinutes: 10,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -505,6 +538,7 @@ async function main() {
         category: 'Otthoni edzés',
         metValue: 4.0,
         defaultDurationMinutes: 15,
+        isCustom: false,
       },
     }),
     prisma.exercise.upsert({
@@ -516,6 +550,7 @@ async function main() {
         category: 'Otthoni edzés',
         metValue: 3.8,
         defaultDurationMinutes: 10,
+        isCustom: false,
       },
     }),
   ]);

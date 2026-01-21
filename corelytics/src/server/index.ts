@@ -679,18 +679,23 @@ export const appRouter = router({
     // Get all exercise categories
     getCategories: protectedProcedure
       .query(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
         const exercises = await ctx.prisma.exercise.findMany({
           select: { category: true },
           distinct: ['category'],
           where: {
-            category: { not: null }
+            category: { not: null },
+            OR: [
+              { isCustom: false },
+              { createdBy: userId }
+            ]
           }
         });
         
         return exercises.map(e => e.category).filter(Boolean) as string[];
       }),
     
-    // Search exercises
+    // Search exercises (global + user's custom)
     search: protectedProcedure
       .input(z.object({
         query: z.string().optional(),
@@ -698,32 +703,29 @@ export const appRouter = router({
         limit: z.number().optional().default(50)
       }))
       .query(async ({ input, ctx }) => {
-        const whereClause: {
-          AND?: Array<{
-            OR?: Array<{ name?: { contains: string; mode: 'insensitive' }; category?: { contains: string; mode: 'insensitive' } }>;
-            category?: string;
-          }>;
-        } = {};
+        const userId = ctx.session.user.id;
         
-        if (input.query || input.category) {
-          whereClause.AND = [];
-          
-          if (input.query && input.query.length > 0) {
-            whereClause.AND.push({
-              OR: [
-                { name: { contains: input.query, mode: 'insensitive' } },
-                { category: { contains: input.query, mode: 'insensitive' } }
-              ]
-            });
-          }
-          
-          if (input.category) {
-            whereClause.AND.push({ category: input.category });
-          }
+        // Base condition: show global exercises OR user's own custom exercises
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const conditions: any[] = [
+          { OR: [{ isCustom: false }, { createdBy: userId }] }
+        ];
+        
+        if (input.query && input.query.length > 0) {
+          conditions.push({
+            OR: [
+              { name: { contains: input.query, mode: 'insensitive' } },
+              { category: { contains: input.query, mode: 'insensitive' } }
+            ]
+          });
+        }
+        
+        if (input.category) {
+          conditions.push({ category: input.category });
         }
         
         const exercises = await ctx.prisma.exercise.findMany({
-          where: whereClause.AND?.length ? whereClause : undefined,
+          where: { AND: conditions },
           take: input.limit,
           orderBy: [
             { category: 'asc' },
@@ -732,6 +734,65 @@ export const appRouter = router({
         });
         
         return exercises;
+      }),
+    
+    // Create custom exercise
+    createCustomExercise: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        category: z.string().optional(),
+        metValue: z.number().positive().optional(),
+        defaultDurationMinutes: z.number().int().positive().optional()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const exercise = await ctx.prisma.exercise.create({
+          data: {
+            id: crypto.randomUUID(),
+            name: input.name,
+            category: input.category || 'Egyéni',
+            metValue: input.metValue,
+            defaultDurationMinutes: input.defaultDurationMinutes,
+            isCustom: true,
+            createdBy: userId
+          }
+        });
+        
+        return exercise;
+      }),
+
+    // Delete custom exercise
+    deleteCustomExercise: protectedProcedure
+      .input(z.object({
+        exerciseId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        // Only allow deleting own custom exercises
+        const exercise = await ctx.prisma.exercise.findFirst({
+          where: {
+            id: input.exerciseId,
+            isCustom: true,
+            createdBy: userId
+          }
+        });
+        
+        if (!exercise) {
+          throw new Error('Az edzés nem található vagy nincs jogosultságod törölni');
+        }
+        
+        // Delete related logs first
+        await ctx.prisma.userExerciseLog.deleteMany({
+          where: { exercise_id: input.exerciseId }
+        });
+        
+        await ctx.prisma.exercise.delete({
+          where: { id: input.exerciseId }
+        });
+        
+        return { success: true };
       }),
     
     // Log a workout
@@ -967,28 +1028,6 @@ export const appRouter = router({
         const totalBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
         
         return { caloriesBurned: totalBurned };
-      }),
-    
-    // Create custom exercise
-    createCustomExercise: protectedProcedure
-      .input(z.object({
-        name: z.string().min(1),
-        category: z.string().optional(),
-        metValue: z.number().positive().optional().default(5),
-        defaultDurationMinutes: z.number().positive().optional().default(30)
-      }))
-      .mutation(async ({ input, ctx }) => {
-        const exercise = await ctx.prisma.exercise.create({
-          data: {
-            id: crypto.randomUUID(),
-            name: input.name,
-            category: input.category || 'Custom',
-            metValue: input.metValue,
-            defaultDurationMinutes: input.defaultDurationMinutes
-          }
-        });
-        
-        return exercise;
       })
   }),
 });
