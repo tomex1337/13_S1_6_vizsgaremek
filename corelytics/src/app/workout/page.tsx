@@ -169,7 +169,7 @@ export default function WorkoutLogPage() {
     return acc;
   }, {} as Record<string, typeof searchResults>);
 
-  // Calculate today's totals
+  // Calculate today's totals from selected date's logs
   const todayTotals = (dailyLogs as unknown as WorkoutLog[]).reduce(
     (totals, log) => ({
       workouts: totals.workouts + 1,
@@ -179,10 +179,12 @@ export default function WorkoutLogPage() {
     { workouts: 0, minutes: 0, calories: 0 }
   );
 
-  // Calculate net calories (consumed - burned)
+  // Calculate net calories - use todayTotals.calories for selected date's burned calories
   const calorieGoal = userStats?.caloriesTarget || 2000;
-  const caloriesConsumed = userStats?.caloriesConsumed || 0;
-  const caloriesBurnedToday = userStats?.caloriesBurned || todayTotals.calories;
+  // Only use userStats values if selected date is today, otherwise use 0 for consumed (would need food.getDailyLogs query)
+  const isToday = selectedDate.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
+  const caloriesConsumed = isToday ? (userStats?.caloriesConsumed || 0) : 0;
+  const caloriesBurnedToday = todayTotals.calories;
   const netCalories = caloriesConsumed - caloriesBurnedToday;
   const caloriesRemaining = calorieGoal - netCalories;
 
