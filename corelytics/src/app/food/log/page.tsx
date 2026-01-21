@@ -178,10 +178,12 @@ export default function FoodLogPage() {
 
   const totals = calculateTotals();
   const calorieGoal = userStats?.caloriesTarget || 2000;
+  const caloriesBurned = userStats?.caloriesBurned || 0;
+  const netCalories = totals.calories - caloriesBurned;
   const proteinGoal = Number(userStats?.proteinTarget) || 150;
   const fatGoal = Number(userStats?.fatTarget) || 65;
   const carbsGoal = Number(userStats?.carbsTarget) || 250;
-  const caloriesRemaining = calorieGoal - totals.calories;
+  const caloriesRemaining = calorieGoal - netCalories;
   const proteinRemaining = proteinGoal - totals.protein;
   const fatRemaining = fatGoal - totals.fat;
   const carbsRemaining = carbsGoal - totals.carbs;
@@ -246,21 +248,24 @@ export default function FoodLogPage() {
                 <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-100" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Kalória</p>
+                <p className="text-sm font-medium text-gray-600">Nettó kalória</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(totals.calories)}
+                  {Math.round(netCalories)} / {Math.round(calorieGoal)}
                 </p>
               </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min((totals.calories / calorieGoal) * 100, 100)}%` }}
+                style={{ width: `${Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}
-            </p>
+            <div className="text-sm text-gray-500 mt-2 space-y-1">
+              <p>{caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}</p>
+              <p className="text-xs text-gray-400">
+                {Math.round(totals.calories)} bevitt - {Math.round(caloriesBurned)} égetett
+              </p>
+            </div>
           </div>
 
           {/* Protein Card */}
