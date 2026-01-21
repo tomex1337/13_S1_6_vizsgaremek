@@ -804,7 +804,10 @@ export const appRouter = router({
       }))
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
-        const logDate = input.logDate ? new Date(input.logDate) : new Date();
+        
+        // Create a UTC date at midnight for consistent date-only storage
+        const dateString = input.logDate || new Date().toISOString().split('T')[0];
+        const logDate = new Date(dateString + 'T00:00:00.000Z');
         
         // Get the exercise to calculate calories burned
         const exercise = await ctx.prisma.exercise.findUnique({
@@ -851,21 +854,16 @@ export const appRouter = router({
       }))
       .query(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
-        const targetDate = input.date ? new Date(input.date) : new Date();
         
-        const startOfDay = new Date(targetDate);
-        startOfDay.setHours(0, 0, 0, 0);
-        
-        const endOfDay = new Date(targetDate);
-        endOfDay.setHours(23, 59, 59, 999);
+        // Parse the date string and create a date-only comparison
+        // For PostgreSQL DATE type, we need to compare with the exact date
+        const dateString = input.date || new Date().toISOString().split('T')[0];
+        const targetDate = new Date(dateString + 'T00:00:00.000Z');
         
         const logs = await ctx.prisma.userExerciseLog.findMany({
           where: {
             user_id: userId,
-            logDate: {
-              gte: startOfDay,
-              lte: endOfDay
-            }
+            logDate: targetDate
           },
           include: {
             exercise: true
