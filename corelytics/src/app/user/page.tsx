@@ -301,14 +301,15 @@ export default function UserPage() {
                     <span className="font-medium text-purple-900 dark:text-purple-200">Egyedi étel létrehozása</span>
                   </div>
                 </button>
-                <button className="w-full p-4 bg-green-50 hover:bg-green-100 dark:bg-green-800 dark:bg-hover-700 rounded-lg text-left transition-colors">
+                <button onClick={() => router.push('/workout')} 
+                className="w-full p-4 bg-green-50 hover:bg-green-100 dark:bg-green-800 dark:bg-hover-700 rounded-lg text-left transition-colors">
                   <div className="flex items-center space-x-3">
                     <PlayIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <span className="font-medium text-green-900 dark:text-green-200">Edzés kezdése</span>
                   </div>
                 </button>
                 <button 
-                  onClick={() => router.push('/progress/view')}
+                  onClick={() => router.push('/workout/history')}
                   className="w-full p-4 bg-orange-50 hover:bg-orange-100 dark:bg-orange-800 dark:hover:bg-orange-700 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
