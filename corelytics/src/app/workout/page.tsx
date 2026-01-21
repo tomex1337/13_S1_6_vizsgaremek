@@ -503,7 +503,7 @@ export default function WorkoutLogPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Időtartam (perc)
                     </label>
-                    <div className="flex items-center space-x-4">
+                    <div className="space-y-3">
                       <input
                         type="range"
                         min="5"
@@ -511,7 +511,7 @@ export default function WorkoutLogPage() {
                         step="5"
                         value={duration}
                         onChange={(e) => setDuration(parseInt(e.target.value))}
-                        className="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
                       />
                       <input
                         type="number"
@@ -519,11 +519,11 @@ export default function WorkoutLogPage() {
                         max="480"
                         value={duration}
                         onChange={(e) => setDuration(Math.min(parseInt(e.target.value) || 1, 480))}
-                        className="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                       />
                     </div>
                     <div className="flex justify-between mt-2">
-                      {[15, 30, 45, 60, 90].map((mins) => (
+                      {[15, 30, 45, 60, 90, 120, 145, 180].map((mins) => (
                         <button
                           key={mins}
                           onClick={() => setDuration(mins)}
