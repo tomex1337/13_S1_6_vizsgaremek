@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-// Redirect to the main workout page
+// Átirányítás a fő edzés oldalra
 export default function WorkoutLogRedirect() {
   const router = useRouter();
 

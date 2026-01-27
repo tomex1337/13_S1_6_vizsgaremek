@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Validation schemas for food logging
+// Validációs schéma étel a napi étkezési naplóhoz
 const logFoodSchema = z.object({
   foodItemId: z.string(),
   mealTypeId: z.number(),

@@ -9,7 +9,7 @@ import axios from "axios"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
-// Extend the session type to include user id
+// Session típus kiterjesztése a felhasználói azonosítóval
 declare module "next-auth" {
   interface Session {
     user: {
@@ -21,7 +21,7 @@ declare module "next-auth" {
   }
 }
 
-// Form validation schema
+// Űrlap validációs séma
 const profileSchema = z.object({
   birthDate: z.string()
     .refine((val) => val !== "", { message: "A születési dátum megadása kötelező" })
@@ -93,10 +93,10 @@ export default function CompleteProfile() {
     register,
     handleSubmit,
   } = useForm({
-    mode: "onSubmit", // Only validate on submit to avoid initial validation errors
+    mode: "onSubmit", // Csak beküldéskor validáljon, hogy elkerüljük a kezdeti validációs hibákat
   })
 
-  // Fetch activity levels and goals
+  // Aktivitási szintek és célok lekérése
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -125,11 +125,11 @@ export default function CompleteProfile() {
     setSubmitError(null)
     
     try {
-      // Validate the data locally before sending
+      // Adatok helyi validálása beküldés előtt
       const validationResult = profileSchema.safeParse(data)
       
       if (!validationResult.success) {
-        // Extract and format validation errors for user display
+        // Validációs hibák kinyerése és formázása a felhasználói megjelenítéshez
         const errorMessages = validationResult.error.issues.map((err: { message: string }) => err.message)
         setSubmitError(`Kérlek javítsd a következő hibákat: ${errorMessages.join(', ')}`)
         setIsLoading(false)
@@ -141,7 +141,7 @@ export default function CompleteProfile() {
         ...validationResult.data,
       })
 
-      // Navigate to home page - Prisma cache tags will handle cache invalidation
+      // Navigálj a főoldalra - Prisma cache tagek kezelik a cache invalidálást
       router.push('/')
     } catch (error) {
       if (axios.isAxiosError(error)) {

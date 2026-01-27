@@ -87,10 +87,10 @@ export default function CreateWorkoutPage() {
     }
   };
 
-  // Watch MET value for calorie estimation
+  // MET érték figyelése kalóriabecsléshez
   const metValue = watch('metValue') || 5;
   const durationMinutes = watch('defaultDurationMinutes') || 30;
-  // Estimate calories for a 70kg person
+  // Becsült kalóriák egy 70 kg-os személyre
   const estimatedCalories = Math.round(Number(metValue) * 70 * (Number(durationMinutes) / 60));
 
   if (status === "loading") {
@@ -179,7 +179,7 @@ export default function CreateWorkoutPage() {
         {/* Main Form */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <form onSubmit={handleSubmit(onSubmit, (errors) => {
-            // Handle validation errors
+            // Validációs hibák kezelése
             const firstError = Object.values(errors)[0];
             if (firstError) {
               setErrorMessage(firstError.message || 'Kérjük, töltse ki az összes kötelező mezőt');

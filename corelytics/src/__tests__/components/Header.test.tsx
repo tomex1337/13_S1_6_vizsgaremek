@@ -5,11 +5,11 @@ import { render } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
 import Header from '@/components/header'
 
-// Mock next-auth
+// next-auth mockolása
 jest.mock('next-auth/react')
 const mockUseSession = useSession as jest.MockedFunction<typeof useSession>
 
-// Mock next/navigation
+// next/navigation mockolása
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -37,7 +37,7 @@ describe('Header Component', () => {
 
     render(<Header />)
     
-    // Should render the header div
+    // A header div renderelése kell
     expect(document.querySelector('div')).toBeInTheDocument()
   })
 
@@ -57,7 +57,7 @@ describe('Header Component', () => {
 
     const { container } = render(<Header />)
     
-    // Should render without errors
+    // Hibák nélkül kell renderelnie
     expect(container.firstChild).toBeInTheDocument()
   })
 })

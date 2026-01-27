@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Test the profile validation schema
+// Teszteljük a profil validációs sémáját
 const profileSchema = z.object({
   age: z.string()
     .refine((val) => val !== "", { message: "Age is required" })
