@@ -23,6 +23,7 @@ model User {
   updatedAt    DateTime?     @map("updated_at")
   resetToken   String?       @map("reset_token")
   resetTokenExpiry DateTime? @map("reset_token_expiry")
+  permissionLevel Int        @default(0) @map("permission_level")
 
   profile      UserProfile?
   foodItems    FoodItem[]    @relation("CreatedFoods")
