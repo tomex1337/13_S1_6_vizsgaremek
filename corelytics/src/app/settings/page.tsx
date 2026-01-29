@@ -402,7 +402,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Additional Information */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="mt-6 bg-blue-50 dark:bg-blue-700 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
               <strong>Megjegyzés:</strong> Az összes *-gal jelölt mező kötelező. A profil információid segítenek nekünk személyre szabott kalória- és tápanyag-ajánlásokat nyújtani a céljaid és aktivitási szinted alapján.
             </p>
