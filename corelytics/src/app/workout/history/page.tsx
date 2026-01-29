@@ -110,7 +110,7 @@ export default function WorkoutHistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col">
       <Header />
       
       {/* Header Section */}
@@ -141,32 +141,32 @@ export default function WorkoutHistoryPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Date Range Selector */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center space-x-4">
-              <CalendarIcon className="h-6 w-6 text-gray-400" />
-              <span className="text-gray-700 font-medium">
+              <CalendarIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
+              <span className="text-gray-700 dark:text-gray-300 font-medium">
                 {formatDate(startDate)} - {formatDate(endDate)}
               </span>
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={goToPreviousWeek}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
+                <ArrowLeftIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
               <button
                 onClick={goToCurrentWeek}
-                className="px-4 py-2 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors"
+                className="px-4 py-2 text-sm bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
               >
                 Ez a hét
               </button>
               <button
                 onClick={goToNextWeek}
-                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
               >
-                <ArrowRightIcon className="h-5 w-5 text-gray-600" />
+                <ArrowRightIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
             </div>
           </div>
@@ -174,57 +174,57 @@ export default function WorkoutHistoryPage() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <BoltIcon className="h-6 w-6 text-purple-600" />
+              <div className="p-2 bg-purple-100 dark:bg-purple-600 rounded-lg">
+                <BoltIcon className="h-6 w-6 text-purple-600 dark:text-purple-100" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Összes edzés</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Összes edzés</span>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{workoutStats?.totalWorkouts || 0}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{workoutStats?.totalWorkouts || 0}</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <ClockIcon className="h-6 w-6 text-blue-600" />
+              <div className="p-2 bg-blue-100 dark:bg-blue-600 rounded-lg">
+                <ClockIcon className="h-6 w-6 text-blue-600 dark:text-blue-100" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Összes idő</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Összes idő</span>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{workoutStats?.totalMinutes || 0} perc</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{workoutStats?.totalMinutes || 0} perc</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               {Math.floor((workoutStats?.totalMinutes || 0) / 60)} óra {(workoutStats?.totalMinutes || 0) % 60} perc
             </p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <FireIconSolid className="h-6 w-6 text-orange-600" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-600 rounded-lg">
+                <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-100" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Elégetett kalória</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Elégetett kalória</span>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{Math.round(workoutStats?.totalCaloriesBurned || 0)}</p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{Math.round(workoutStats?.totalCaloriesBurned || 0)}</p>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-2">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <ChartBarIcon className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-green-100 dark:bg-green-600 rounded-lg">
+                <ChartBarIcon className="h-6 w-6 text-green-600 dark:text-green-100" />
               </div>
-              <span className="text-sm font-medium text-gray-600">Átlag / edzés</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Átlag / edzés</span>
             </div>
-            <p className="text-3xl font-bold text-gray-900">{workoutStats?.averageMinutesPerWorkout || 0} perc</p>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{workoutStats?.averageMinutesPerWorkout || 0} perc</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               ~{workoutStats?.averageCaloriesPerWorkout || 0} kcal
             </p>
           </div>
         </div>
 
         {/* Category Breakdown */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Kategória szerinti bontás</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Kategória szerinti bontás</h2>
           </div>
           <div className="p-6">
             {workoutStats?.byCategory && Object.keys(workoutStats.byCategory).length > 0 ? (
@@ -234,24 +234,24 @@ export default function WorkoutHistoryPage() {
                   const percentage = Math.round((stats.count / totalWorkouts) * 100);
                   
                   return (
-                    <div key={category} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div key={category} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                       <div className="flex items-center space-x-4">
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${categoryColors[category] || 'bg-gray-100 text-gray-800'}`}>
                           {category}
                         </span>
                         <div>
-                          <p className="font-medium text-gray-900">{stats.count} edzés</p>
-                          <p className="text-sm text-gray-500">{stats.minutes} perc • {Math.round(stats.calories)} kcal</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{stats.count} edzés</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{stats.minutes} perc • {Math.round(stats.calories)} kcal</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-4">
-                        <div className="w-32 bg-gray-200 rounded-full h-2">
+                        <div className="w-32 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                           <div 
                             className="bg-purple-600 h-2 rounded-full transition-all duration-300"
                             style={{ width: `${percentage}%` }}
                           ></div>
                         </div>
-                        <span className="text-sm font-medium text-gray-700 w-12 text-right">{percentage}%</span>
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-12 text-right">{percentage}%</span>
                       </div>
                     </div>
                   );
@@ -259,8 +259,8 @@ export default function WorkoutHistoryPage() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <BoltIcon className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">Nincs edzés ebben az időszakban</p>
+                <BoltIcon className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                <p className="text-gray-500 dark:text-gray-400">Nincs edzés ebben az időszakban</p>
               </div>
             )}
           </div>
