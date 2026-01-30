@@ -24,6 +24,7 @@ model User {
   resetToken   String?       @map("reset_token")
   resetTokenExpiry DateTime? @map("reset_token_expiry")
   permissionLevel Int        @default(0) @map("permission_level")
+  canCreateCustomFood Boolean @default(true) @map("can_create_custom_food")
 
   profile      UserProfile?
   foodItems    FoodItem[]    @relation("CreatedFoods")

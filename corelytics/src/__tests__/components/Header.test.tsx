@@ -23,6 +23,21 @@ jest.mock('next/navigation', () => ({
   },
 }))
 
+// tRPC mockolása
+jest.mock('@/lib/trpc', () => ({
+  trpc: {
+    admin: {
+      getPermissionLevel: {
+        useQuery: jest.fn(() => ({
+          data: { permissionLevel: 0 },
+          isLoading: false,
+          error: null,
+        })),
+      },
+    },
+  },
+}))
+
 describe('Header Component', () => {
   beforeEach(() => {
     jest.clearAllMocks()

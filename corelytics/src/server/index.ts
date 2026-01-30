@@ -654,6 +654,16 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
+        // Ellenőrizd, hogy a felhasználónak van-e jogosultsága egyedi étel létrehozásához
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { canCreateCustomFood: true }
+        });
+        
+        if (!user?.canCreateCustomFood) {
+          throw new Error('Nincs jogosultságod egyedi étel létrehozásához');
+        }
+        
         const customFood = await ctx.prisma.foodItem.create({
           data: {
             id: crypto.randomUUID(),
@@ -1137,6 +1147,7 @@ export const appRouter = router({
               username: true,
               email: true,
               permissionLevel: true,
+              canCreateCustomFood: true,
               createdAt: true
             },
             take: input.limit,
@@ -1180,7 +1191,40 @@ export const appRouter = router({
             id: true,
             username: true,
             email: true,
-            permissionLevel: true
+            permissionLevel: true,
+            canCreateCustomFood: true
+          }
+        });
+        
+        return updatedUser;
+      }),
+    
+    // Felhasználó egyedi étel létrehozási jogának módosítása (admin)
+    toggleCustomFoodPermission: adminProcedure
+      .input(z.object({
+        userId: z.string(),
+        canCreateCustomFood: z.boolean()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Ellenőrizd, hogy a felhasználó létezik-e
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        // Frissítsd az egyedi étel létrehozási jogot
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { canCreateCustomFood: input.canCreateCustomFood },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            permissionLevel: true,
+            canCreateCustomFood: true
           }
         });
         
