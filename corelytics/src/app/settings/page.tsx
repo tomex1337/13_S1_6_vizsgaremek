@@ -10,7 +10,7 @@ import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { UserIcon, ArrowLeftIcon } from "@heroicons/react/24/outline"
 
-// Form validation schema
+// Űrlap validációs séma
 const profileSchema = z.object({
   birthDate: z.string()
     .refine((val) => val !== "", { message: "A születési dátum megadása kötelező" })
@@ -89,14 +89,14 @@ export default function SettingsPage() {
     mode: "onChange",
   })
 
-  // Redirect if not authenticated
+  // Átirányítás, ha nincs hitelesítve
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin")
     }
   }, [status, router])
 
-  // Fetch user profile and form data
+  // Felhasználói profil és űrlap adatok lekérése
   useEffect(() => {
     const fetchData = async () => {
       if (!session?.user?.id) return
@@ -104,7 +104,7 @@ export default function SettingsPage() {
       try {
         setIsLoadingProfile(true)
         
-        // Fetch activity levels and goals
+        // Aktivitási szintek és célok lekérése
         const [activityResponse, goalsResponse, profileResponse] = await Promise.all([
           axios.get('/api/activity-levels'),
           axios.get('/api/goals'),
@@ -115,14 +115,14 @@ export default function SettingsPage() {
         setGoals(goalsResponse.data)
         
         if (profileResponse.data) {
-          // Convert birthDate to YYYY-MM-DD format for date input
+          // Születési dátum átalakítása YYYY-MM-DD formátumra a dátum beviteli mezőhöz
           let birthDateValue = '';
           if (profileResponse.data.birthDate) {
             const date = new Date(profileResponse.data.birthDate);
             birthDateValue = date.toISOString().split('T')[0];
           }
           
-          // Reset form with current profile data
+          // Űrlap visszaállítása a jelenlegi profil adataival
           reset({
             birthDate: birthDateValue,
             gender: profileResponse.data.gender || '',
@@ -156,10 +156,10 @@ export default function SettingsPage() {
       setSubmitError(null)
       setSubmitSuccess(null)
 
-      // Validate data with Zod
+      // Adatok validálása Zod-dal
       const validatedData = profileSchema.parse(data)
 
-      // Make API request
+      // API kérés végrehajtása
       await axios.post('/api/profile', {
         userId: session.user.id,
         birthDate: validatedData.birthDate,
@@ -172,7 +172,7 @@ export default function SettingsPage() {
 
       setSubmitSuccess("Profil sikeresen frissítve!")
       
-      // Redirect to user page after a short delay
+      // Átirányítás a felhasználói oldalra rövid késleltetés után
       setTimeout(() => {
         router.push('/user')
       }, 1500)
@@ -402,7 +402,7 @@ export default function SettingsPage() {
           </div>
 
           {/* Additional Information */}
-          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="mt-6 bg-blue-50 dark:bg-blue-700 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
               <strong>Megjegyzés:</strong> Az összes *-gal jelölt mező kötelező. A profil információid segítenek nekünk személyre szabott kalória- és tápanyag-ajánlásokat nyújtani a céljaid és aktivitási szinted alapján.
             </p>

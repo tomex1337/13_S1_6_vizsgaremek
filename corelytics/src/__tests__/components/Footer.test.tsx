@@ -8,7 +8,7 @@ describe('Footer Component', () => {
   it('renders footer component', () => {
     const { container } = render(<Footer />)
     
-    // Should render a div element (since Footer currently just returns an empty div)
+    // Egy div elemet kell renderelnie (mivel a Footer jelenleg csak egy üres div-et ad vissza)
     expect(container.firstChild).toBeInTheDocument()
     expect(container.firstChild?.nodeName).toBe('FOOTER')
   })

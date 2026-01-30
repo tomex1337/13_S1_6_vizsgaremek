@@ -36,7 +36,7 @@ export default function ResetPassword() {
     setError(null)
 
     if (data.password !== data.confirmPassword) {
-      setError("Passwords do not match")
+      setError("A jelszavak nem egyeznek")
       setIsLoading(false)
       return
     }
@@ -53,9 +53,9 @@ export default function ResetPassword() {
       }, 3000)
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Something went wrong")
+        setError(error.response?.data?.message || "Valami hiba történt")
       } else {
-        setError("Something went wrong")
+        setError("Valami hiba történt")
       }
     } finally {
       setIsLoading(false)
@@ -68,13 +68,13 @@ export default function ResetPassword() {
       <Header />
       <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600">Invalid Reset Link</h2>
-          <p className="mt-2 text-gray-600">This password reset link is invalid.</p>
+          <h2 className="text-2xl font-bold text-red-600">Érvénytelen visszaállító link</h2>
+          <p className="mt-2 text-gray-600">Ez a jelszó visszaállító link érvénytelen.</p>
           <Link
             href="/auth/forgot-password"
             className="mt-4 inline-block text-indigo-600 hover:text-indigo-500"
           >
-            Request a new reset link
+            Új visszaállító link kérése
           </Link>
         </div>
       </div>
@@ -90,14 +90,14 @@ export default function ResetPassword() {
       <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4">
         <div className="w-full max-w-md text-center">
           <div className="p-6 bg-green-50 border border-green-200 rounded-md">
-            <h2 className="text-2xl font-bold text-green-800 mb-2">Password Reset Successfully!</h2>
-            <p className="text-green-700">Your password has been updated. You&apos;ll be redirected to sign in shortly.</p>
+            <h2 className="text-2xl font-bold text-green-800 mb-2">Jelszó sikeresen visszaállítva!</h2>
+            <p className="text-green-700">A jelszavad frissítve lett. Hamarosan átirányítunk a bejelentkezéshez.</p>
           </div>
           <Link
             href="/auth/signin"
             className="mt-4 inline-block text-indigo-600 hover:text-indigo-500"
           >
-            Go to sign in now
+            Ugrás a bejelentkezéshez
           </Link>
         </div>
       </div>

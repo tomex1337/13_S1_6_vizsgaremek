@@ -36,17 +36,17 @@ export default function SignIn() {
         return
       }
       
-      // Check if user has completed their profile
+      // Ellenőrizd, hogy a felhasználó befejezte-e a profilját
       try {
         await axios.get('/api/profile')
-        // Profile exists, go to home
+        // A profil létezik, menj a főoldalra
         router.push("/")
       } catch (profileError) {
         if (axios.isAxiosError(profileError) && profileError.response?.status === 404) {
-          // Profile doesn't exist, redirect to complete profile
+          // A profil nem létezik, irányítsd át a profil befejezéséhez
           router.push("/auth/complete_profile")
         } else {
-          // Some other error, still go to home but user can complete profile later
+          // Valami más hiba, menj mégis a főoldalra, de a felhasználó később befejezheti a profilját
           router.push("/")
         }
       }
