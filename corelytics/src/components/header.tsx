@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useSession, signOut } from "next-auth/react";
 import Link from 'next/link'
 import Image from 'next/image'
+import { trpc } from "@/lib/trpc";
 
 import {
   Dialog,
@@ -28,6 +29,7 @@ import {
   XMarkIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
 
@@ -46,7 +48,15 @@ const callsToAction = [
 ]
 
 const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-const { data: session } = useSession();
+const { data: session, status } = useSession();
+
+// Jogosultsági szint lekérése (csak bejelentkezett felhasználóknál)
+const { data: permissionData } = trpc.admin.getPermissionLevel.useQuery(undefined, {
+  enabled: status === "authenticated",
+});
+
+// Moderátor vagy admin-e a felhasználó
+const isModerator = (permissionData?.permissionLevel ?? 0) >= 1;
 
   return (
     <header className="bg-transparent">
@@ -172,6 +182,19 @@ const { data: session } = useSession();
                       </div>
                     </Link>
                   </MenuItem>
+                  {isModerator && (
+                    <MenuItem>
+                      <Link
+                        href="/admin_panel"
+                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 data-focus:bg-gray-50 dark:data-focus:bg-gray-700"
+                      >
+                        <div className="flex items-center gap-x-2">
+                          <ShieldCheckIcon className="size-5" />
+                          <span>Admin Panel</span>
+                        </div>
+                      </Link>
+                    </MenuItem>
+                  )}
                   <MenuItem>
                     <button
                       onClick={() => signOut({ callbackUrl: '/' })}
@@ -282,6 +305,15 @@ const { data: session } = useSession();
                   <CursorArrowRaysIcon className="size-5" />
                   <span>Edzés Naplózása</span>
                 </a>
+                {isModerator && (
+                  <a
+                    href="/admin_panel"
+                    className="-mx-3 flex items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <ShieldCheckIcon className="size-5" />
+                    <span>Admin Panel</span>
+                  </a>
+                )}
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="-mx-3 flex w-full items-center gap-x-2 rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"

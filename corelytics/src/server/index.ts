@@ -1,4 +1,4 @@
-import { router, publicProcedure, protectedProcedure } from './trpc';
+import { router, publicProcedure, protectedProcedure, moderatorProcedure, adminProcedure } from './trpc';
 import { z } from 'zod';
 import { Decimal } from '@prisma/client/runtime/library';
 
@@ -1026,6 +1026,165 @@ export const appRouter = router({
         const totalBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
         
         return { caloriesBurned: totalBurned };
+      })
+  }),
+  // Admin panel router - moderátoroknak és adminoknak
+  admin: router({
+    // Jelenlegi felhasználó jogosultsági szintjének lekérése
+    getPermissionLevel: protectedProcedure
+      .query(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { permissionLevel: true }
+        });
+        
+        return { permissionLevel: user?.permissionLevel || 0 };
+      }),
+    
+    // Összes egyedi étel lekérése (moderátor+)
+    getCustomFoods: moderatorProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+        search: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const whereClause = {
+          isCustom: true,
+          ...(input.search && {
+            OR: [
+              { name: { contains: input.search, mode: 'insensitive' as const } },
+              { brand: { contains: input.search, mode: 'insensitive' as const } }
+            ]
+          })
+        };
+        
+        const [foods, total] = await Promise.all([
+          ctx.prisma.foodItem.findMany({
+            where: whereClause,
+            include: {
+              createdByUser: {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true
+                }
+              }
+            },
+            take: input.limit,
+            skip: input.offset,
+            orderBy: { name: 'asc' }
+          }),
+          ctx.prisma.foodItem.count({ where: whereClause })
+        ]);
+        
+        return { foods, total };
+      }),
+    
+    // Egyedi étel törlése (moderátor+)
+    deleteCustomFood: moderatorProcedure
+      .input(z.object({
+        foodId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Ellenőrizd, hogy az étel létezik és egyedi
+        const food = await ctx.prisma.foodItem.findFirst({
+          where: {
+            id: input.foodId,
+            isCustom: true
+          }
+        });
+        
+        if (!food) {
+          throw new Error('Az étel nem található vagy nem egyedi étel');
+        }
+        
+        // Töröld a kapcsolódó naplókat először
+        await ctx.prisma.userFoodLog.deleteMany({
+          where: { foodItem_id: input.foodId }
+        });
+        
+        // Töröld az ételt
+        await ctx.prisma.foodItem.delete({
+          where: { id: input.foodId }
+        });
+        
+        return { success: true };
+      }),
+    
+    // Összes felhasználó lekérése (admin)
+    getUsers: adminProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+        search: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const whereClause = input.search ? {
+          OR: [
+            { username: { contains: input.search, mode: 'insensitive' as const } },
+            { email: { contains: input.search, mode: 'insensitive' as const } }
+          ]
+        } : {};
+        
+        const [users, total] = await Promise.all([
+          ctx.prisma.user.findMany({
+            where: whereClause,
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              permissionLevel: true,
+              createdAt: true
+            },
+            take: input.limit,
+            skip: input.offset,
+            orderBy: { username: 'asc' }
+          }),
+          ctx.prisma.user.count({ where: whereClause })
+        ]);
+        
+        return { users, total };
+      }),
+    
+    // Felhasználó jogosultsági szintjének módosítása (admin)
+    updateUserPermission: adminProcedure
+      .input(z.object({
+        userId: z.string(),
+        permissionLevel: z.number().min(0).max(2)
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const currentUserId = ctx.session.user.id;
+        
+        // Ne lehessen saját magát módosítani
+        if (input.userId === currentUserId) {
+          throw new Error('Nem módosíthatod a saját jogosultsági szintedet');
+        }
+        
+        // Ellenőrizd, hogy a felhasználó létezik-e
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        // Frissítsd a jogosultsági szintet
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { permissionLevel: input.permissionLevel },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            permissionLevel: true
+          }
+        });
+        
+        return updatedUser;
       })
   }),
 });
