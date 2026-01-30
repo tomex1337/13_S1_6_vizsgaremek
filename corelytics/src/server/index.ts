@@ -1,8 +1,8 @@
-import { router, publicProcedure, protectedProcedure } from './trpc';
+import { router, publicProcedure, protectedProcedure, moderatorProcedure, adminProcedure } from './trpc';
 import { z } from 'zod';
 import { Decimal } from '@prisma/client/runtime/library';
 
-// Helper function to calculate age from birth date
+// Segédfüggvény az életkor kiszámításához a születési dátumból
 function calculateAge(birthDate: Date): number {
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
@@ -15,7 +15,7 @@ function calculateAge(birthDate: Date): number {
   return age;
 }
 
-// Helper function to calculate daily nutritional goals
+// Segédfüggvény a napi táplálkozási célok kiszámításához
 function calculateDailyGoals(
   age: number,
   gender: string,
@@ -24,7 +24,7 @@ function calculateDailyGoals(
   activityLevelId: number,
   goalId: number
 ) {
-  // Calculate BMR (Basal Metabolic Rate) using Mifflin-St Jeor Equation
+  // BMR (Alapanyagcsere) számítása a Mifflin-St Jeor egyenlet alapján
   let bmr: number;
   
   if (gender === 'male') {
@@ -35,48 +35,48 @@ function calculateDailyGoals(
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
   }
 
-  // Activity level multipliers
+  // Aktivitási szint szorzók
   const activityMultipliers: { [key: number]: number } = {
-    2: 1.2,    // Sedentary
-    4: 1.375,  // Lightly active
-    3: 1.55,   // Moderately active
-    1: 1.725,  // Very active
+    2: 1.2,    // Ülő életmód
+    4: 1.375,  // Enyhén aktív
+    3: 1.55,   // Mérsékelten aktív
+    1: 1.725,  // Nagyon aktív
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
   const tdee = bmr * activityMultiplier;
 
-  // Adjust based on goal
+  // Cél alapján módosítás
   let caloriesGoal: number;
   if (goalId === 3) {
-    caloriesGoal = tdee - 500; // Weight loss
+    caloriesGoal = tdee - 500; // Fogyás
   } else if (goalId === 1) {
-    caloriesGoal = tdee + 500; // Weight gain
+    caloriesGoal = tdee + 500; // Hízás
   } else {
-    caloriesGoal = tdee; // Maintain
+    caloriesGoal = tdee; // Súlytartás
   }
 
-  // Ensure minimum calories
+  // Minimális kalória biztosítása
   const minCalories = gender === 'female' ? 1200 : gender === 'male' ? 1500 : 1350;
   caloriesGoal = Math.max(caloriesGoal, minCalories);
 
-  // Calculate macros
-  let proteinMultiplier = 0.8; // Base for sedentary
+  // Makrók számítása
+  let proteinMultiplier = 0.8; // Alap ülő életmódhoz
   
-  // Adjust for activity level
+  // Aktivitási szint alapján módosítás
   if (activityLevelId === 4) {
-    proteinMultiplier += 0.4; // Lightly active
+    proteinMultiplier += 0.4; // Enyhén aktív
   } else if (activityLevelId === 3) {
-    proteinMultiplier += 0.6; // Moderately active
+    proteinMultiplier += 0.6; // Mérsékelten aktív
   } else if (activityLevelId === 1) {
-    proteinMultiplier += 1.0; // Very active
+    proteinMultiplier += 1.0; // Nagyon aktív
   }
   
-  // Adjust for goal
+  // Cél alapján módosítás
   if (goalId === 3) {
-    proteinMultiplier += 0.2; // Weight loss - preserve muscle
+    proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
   } else if (goalId === 1) {
-    proteinMultiplier += 0.4; // Weight gain - build muscle
+    proteinMultiplier += 0.4; // Hízás - izomépítés
   }
   
   const proteinGoal = weightKg * proteinMultiplier;
@@ -125,7 +125,7 @@ export const appRouter = router({
           };
         }
 
-        // Check if profile is complete - all required fields should be filled
+        // Profil teljesség ellenőrzése - minden kötelező mező legyen kitöltve
         const isComplete = !!(
           profile.birthDate &&
           profile.gender &&
@@ -150,14 +150,14 @@ export const appRouter = router({
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
         
-        // Calculate start of week (Monday)
+        // Hét kezdetének számítása (hétfő)
         const startOfWeek = new Date(today);
         const dayOfWeek = today.getDay();
-        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday = 0 days back
+        const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Hétfő = 0 nap vissza
         startOfWeek.setDate(today.getDate() - daysToSubtract);
         startOfWeek.setHours(0, 0, 0, 0);
         
-        // Get today's food logs for calories
+        // Mai napi étel naplók kalóriáihoz
         const startOfDay = new Date(today);
         startOfDay.setHours(0, 0, 0, 0);
         
@@ -177,12 +177,12 @@ export const appRouter = router({
           },
         });
 
-        // Get user profile to check if it's complete
+        // Felhasználói profil lekérése a teljesség ellenőrzéséhez
         const userProfile = await ctx.prisma.userProfile.findUnique({
           where: { user_id: userId },
         });
 
-        // Get today's daily goal
+        // Mai napi cél lekérése
         let dailyGoal = await ctx.prisma.dailyGoal.findUnique({
           where: {
             user_id_date: {
@@ -192,7 +192,7 @@ export const appRouter = router({
           },
         });
 
-        // If no daily goal exists and profile is complete, create one
+        // Ha nincs napi cél és a profil teljes, hozz létre egyet
         if (!dailyGoal && userProfile) {
           const isProfileComplete = !!(
             userProfile.birthDate &&
@@ -228,7 +228,7 @@ export const appRouter = router({
           }
         }
 
-        // Get this week's exercise logs
+        // Ezen heti gyakorlat naplók lekérése
         const weekExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
             user_id: userId,
@@ -239,7 +239,7 @@ export const appRouter = router({
           },
         });
 
-        // Calculate weekly totals from database
+        // Heti összegek számítása az adatbázisból
         const weeklyCaloriesBurned = weekExerciseLogs.reduce((total, log) => {
           return total + Number(log.caloriesBurned || 0);
         }, 0);
@@ -248,7 +248,7 @@ export const appRouter = router({
           return total + (log.durationMinutes || 0);
         }, 0);
 
-        // Get recent activities (last 7 days)
+        // Legutóbbi aktivitások lekérése (utolsó 7 nap)
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 7);
 
@@ -287,7 +287,7 @@ export const appRouter = router({
           take: 10,
         });
 
-        // Calculate calories consumed today
+        // Mai bevitt kalóriák számítása
         const caloriesConsumed = todayFoodLogs.reduce((total, log) => {
           const calories = log.foodItem.calories || 0;
           const quantity = log.quantity || 1;
@@ -295,7 +295,7 @@ export const appRouter = router({
           return total + logCalories;
         }, 0);
 
-        // Calculate calories burned today from workouts
+        // Mai elégetett kalóriák számítása edzésekből
         const todayWorkoutLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
             user_id: userId,
@@ -310,11 +310,11 @@ export const appRouter = router({
           return total + Number(log.caloriesBurned || 0);
         }, 0);
         
-        // Calculate streak (consecutive days with logged activities)
+        // Sorozat számítása (egymást követő napok naplózott aktivitással)
         let currentStreak = 0;
         const checkDate = new Date(today);
         
-        for (let i = 0; i < 30; i++) { // Check last 30 days
+        for (let i = 0; i < 30; i++) { // Utolsó 30 nap ellenőrzése
           const dayStart = new Date(checkDate);
           dayStart.setHours(0, 0, 0, 0);
           const dayEnd = new Date(checkDate);
@@ -339,12 +339,12 @@ export const appRouter = router({
           checkDate.setDate(checkDate.getDate() - 1);
         }
 
-        // Get total workouts count for this week (same as workoutsCompleted)
+        // Összes edzés száma erre a hétre (ugyanaz, mint a workoutsCompleted)
         const totalWorkouts = weekExerciseLogs.length;
 
-        // Calculate average calories per day (last 7 days)
+        // Átlagos kalória naponta (utolsó 7 nap)
         const last7Days = new Date(today);
-        last7Days.setDate(today.getDate() - 6); // Include today + 6 previous days
+        last7Days.setDate(today.getDate() - 6); // Mai nap + 6 előző nap
         
         const weeklyFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
@@ -359,7 +359,7 @@ export const appRouter = router({
           },
         });
 
-        // Group calories by date and calculate daily totals
+        // Kalóriák csoportosítása dátum szerint és napi összegek számítása
         const dailyCalories: { [key: string]: number } = {};
         
         weeklyFoodLogs.forEach(log => {
@@ -370,12 +370,12 @@ export const appRouter = router({
           }
         });
 
-        // Calculate average (only count days with logged food)
+        // Átlag számítása (csak a naplózott napokat számítva)
         const daysWithLogs = Object.keys(dailyCalories).length;
         const totalCalories = Object.values(dailyCalories).reduce((sum, cal) => sum + cal, 0);
         const avgCaloriesPerDay = daysWithLogs > 0 ? Math.round(totalCalories / daysWithLogs) : 0;
 
-        // Calculate protein consumed today
+        // Mai bevitt fehérje számítása
         const proteinConsumed = todayFoodLogs.reduce((total, log) => {
           const protein = log.foodItem.protein || 0;
           const quantity = log.quantity || 1;
@@ -383,8 +383,8 @@ export const appRouter = router({
           return total + logProtein;
         }, 0);
 
-        // Calculate goals met percentage (last 7 days)
-        // Get daily goals for the last 7 days
+        // Elért célok százalékának számítása (utolsó 7 nap)
+        // Napi célok lekérése az utolsó 7 napra
         const last7DaysGoals = await ctx.prisma.dailyGoal.findMany({
           where: {
             user_id: userId,
@@ -403,12 +403,12 @@ export const appRouter = router({
           calorieGoalsByDate[dateKey] = Number(goal.caloriesGoal || 2000);
         });
 
-        // Check each day if calorie goal was met
+        // Ellenőrizd minden napra, hogy a kalóriacél teljesült-e
         Object.keys(dailyCalories).forEach(dateKey => {
           const caloriesForDay = dailyCalories[dateKey];
           const goalForDay = calorieGoalsByDate[dateKey] || Number(dailyGoal?.caloriesGoal || 2000);
           
-          // Consider goal met if within 10% of target (not over and not too far under)
+          // Célnak tekintjük, ha a cél 10%-án belül van (nincs túllépés és nem túl kevés)
           const minCalories = goalForDay * 0.9;
           const maxCalories = goalForDay * 1.1;
           
@@ -567,7 +567,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Verify the log belongs to the user
+        // Ellenőrizd, hogy a napló a felhasználóhoz tartozik-e
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
@@ -594,7 +594,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Verify the log belongs to the user
+        // Ellenőrizd, hogy a napló a felhasználóhoz tartozik-e
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
@@ -622,15 +622,15 @@ export const appRouter = router({
       .query(async ({ ctx }) => {
         const mealTypes = await ctx.prisma.mealType.findMany();
         
-        // Define the correct daily order: Breakfast, Lunch, Dinner, Snack
+        // Definiáld a helyes napi sorrendet: Reggeli, Ebéd, Vacsora, Snack
         const orderMap: { [key: string]: number } = {
-          'Reggeli': 1,  // Breakfast
-          'Ebéd': 2,     // Lunch
-          'Vacsora': 3,  // Dinner
-          'Snack': 4     // Snack (last)
+          'Reggeli': 1,  // Reggeli
+          'Ebéd': 2,     // Ebéd
+          'Vacsora': 3,  // Vacsora
+          'Snack': 4     // Snack (utolsó)
         };
         
-        // Sort meal types according to the daily order
+        // Rendezd az étkezés típusokat a napi sorrend szerint
         return mealTypes.sort((a, b) => {
           const orderA = orderMap[a.name] || 999;
           const orderB = orderMap[b.name] || 999;
@@ -654,6 +654,16 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
+        // Ellenőrizd, hogy a felhasználónak van-e jogosultsága egyedi étel létrehozásához
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { canCreateCustomFood: true }
+        });
+        
+        if (!user?.canCreateCustomFood) {
+          throw new Error('Nincs jogosultságod egyedi étel létrehozásához');
+        }
+        
         const customFood = await ctx.prisma.foodItem.create({
           data: {
             id: crypto.randomUUID(),
@@ -676,7 +686,7 @@ export const appRouter = router({
       })
   }),
   workout: router({
-    // Get all exercise categories
+    // Összes gyakorlat kategória lekérése
     getCategories: protectedProcedure
       .query(async ({ ctx }) => {
         const userId = ctx.session.user.id;
@@ -695,7 +705,7 @@ export const appRouter = router({
         return exercises.map(e => e.category).filter(Boolean) as string[];
       }),
     
-    // Search exercises (global + user's custom)
+    // Gyakorlatok keresése (globális + felhasználó egyéni)
     search: protectedProcedure
       .input(z.object({
         query: z.string().optional(),
@@ -705,7 +715,7 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Base condition: show global exercises OR user's own custom exercises
+        // Alapfeltétel: mutasd a globális gyakorlatokat VAGY a felhasználó saját egyéni gyakorlatait
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const conditions: any[] = [
           { OR: [{ isCustom: false }, { createdBy: userId }] }
@@ -736,7 +746,7 @@ export const appRouter = router({
         return exercises;
       }),
     
-    // Create custom exercise
+    // Egyéni gyakorlat létrehozása
     createCustomExercise: protectedProcedure
       .input(z.object({
         name: z.string().min(1),
@@ -762,7 +772,7 @@ export const appRouter = router({
         return exercise;
       }),
 
-    // Delete custom exercise
+    // Egyéni gyakorlat törlése
     deleteCustomExercise: protectedProcedure
       .input(z.object({
         exerciseId: z.string()
@@ -770,7 +780,7 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Only allow deleting own custom exercises
+        // Csak a saját egyéni gyakorlatok törlésének engedélyezése
         const exercise = await ctx.prisma.exercise.findFirst({
           where: {
             id: input.exerciseId,
@@ -783,7 +793,7 @@ export const appRouter = router({
           throw new Error('Az edzés nem található vagy nincs jogosultságod törölni');
         }
         
-        // Delete related logs first
+        // Kapcsolódó naplók törlése először
         await ctx.prisma.userExerciseLog.deleteMany({
           where: { exercise_id: input.exerciseId }
         });
@@ -795,7 +805,7 @@ export const appRouter = router({
         return { success: true };
       }),
     
-    // Log a workout
+    // Edzés naplózása
     logWorkout: protectedProcedure
       .input(z.object({
         exerciseId: z.string(),
@@ -805,11 +815,11 @@ export const appRouter = router({
       .mutation(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Create a UTC date at midnight for consistent date-only storage
+        // UTC dátum létrehozása éjfélkor a konzisztens csak-dátum tároláshoz
         const dateString = input.logDate || new Date().toISOString().split('T')[0];
         const logDate = new Date(dateString + 'T00:00:00.000Z');
         
-        // Get the exercise to calculate calories burned
+        // Gyakorlat lekérése az elégetett kalóriák számításához
         const exercise = await ctx.prisma.exercise.findUnique({
           where: { id: input.exerciseId }
         });
@@ -818,13 +828,13 @@ export const appRouter = router({
           throw new Error('Exercise not found');
         }
         
-        // Get user profile for weight-based calorie calculation
+        // Felhasználói profil lekérése súly alapú kalóriaszámításhoz
         const userProfile = await ctx.prisma.userProfile.findUnique({
           where: { user_id: userId }
         });
         
-        // Calculate calories burned using MET formula: Calories = MET × weight (kg) × duration (hours)
-        const weight = userProfile?.weightKg ? Number(userProfile.weightKg) : 70; // Default 70kg
+        // Elégetett kalóriák számítása MET képlet alapján: Kalória = MET × súly (kg) × időtartam (óra)
+        const weight = userProfile?.weightKg ? Number(userProfile.weightKg) : 70; // Alapértelmezett 70kg
         const met = exercise.metValue ? Number(exercise.metValue) : 5; // Default MET of 5
         const durationHours = input.durationMinutes / 60;
         const caloriesBurned = Math.round(met * weight * durationHours);
@@ -847,7 +857,7 @@ export const appRouter = router({
         return workoutLog;
       }),
     
-    // Get daily workout logs
+    // Napi edzési naplók lekérése
     getDailyLogs: protectedProcedure
       .input(z.object({
         date: z.string().optional()
@@ -855,8 +865,8 @@ export const appRouter = router({
       .query(async ({ input, ctx }) => {
         const userId = ctx.session.user.id;
         
-        // Parse the date string and create a date-only comparison
-        // For PostgreSQL DATE type, we need to compare with the exact date
+        // Dátum sztring elemzése és csak-dátum összehasonlítás létrehozása
+        // PostgreSQL DATE típushoz a pontos dátummal kell összehasonlítani
         const dateString = input.date || new Date().toISOString().split('T')[0];
         const targetDate = new Date(dateString + 'T00:00:00.000Z');
         
@@ -876,7 +886,7 @@ export const appRouter = router({
         return logs;
       }),
     
-    // Delete a workout log
+    // Edzési napló törlése
     deleteLog: protectedProcedure
       .input(z.object({
         logId: z.string()
@@ -902,7 +912,7 @@ export const appRouter = router({
         return { success: true };
       }),
     
-    // Update workout log duration
+    // Edzési napló időtartamának frissítése
     updateLog: protectedProcedure
       .input(z.object({
         logId: z.string(),
@@ -925,7 +935,7 @@ export const appRouter = router({
           throw new Error('Workout log not found or access denied');
         }
         
-        // Recalculate calories burned
+        // Elégetett kalóriák újraszámítása
         const userProfile = await ctx.prisma.userProfile.findUnique({
           where: { user_id: userId }
         });
@@ -949,7 +959,7 @@ export const appRouter = router({
         return updatedLog;
       }),
     
-    // Get workout stats for a date range
+    // Edzési statisztikák lekérése dátumtartományra
     getStats: protectedProcedure
       .input(z.object({
         startDate: z.string().optional(),
@@ -981,7 +991,7 @@ export const appRouter = router({
         const totalMinutes = logs.reduce((sum, log) => sum + (log.durationMinutes || 0), 0);
         const totalCaloriesBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
         
-        // Group by category
+        // Csoportosítás kategória szerint
         const byCategory: { [key: string]: { count: number; minutes: number; calories: number } } = {};
         logs.forEach(log => {
           const category = log.exercise?.category || 'Other';
@@ -1003,7 +1013,7 @@ export const appRouter = router({
         };
       }),
     
-    // Get today's burned calories
+    // Mai elégetett kalóriák lekérése
     getTodayBurnedCalories: protectedProcedure
       .query(async ({ ctx }) => {
         const userId = ctx.session.user.id;
@@ -1026,6 +1036,199 @@ export const appRouter = router({
         const totalBurned = logs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0);
         
         return { caloriesBurned: totalBurned };
+      })
+  }),
+  // Admin panel router - moderátoroknak és adminoknak
+  admin: router({
+    // Jelenlegi felhasználó jogosultsági szintjének lekérése
+    getPermissionLevel: protectedProcedure
+      .query(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        const user = await ctx.prisma.user.findUnique({
+          where: { id: userId },
+          select: { permissionLevel: true }
+        });
+        
+        return { permissionLevel: user?.permissionLevel || 0 };
+      }),
+    
+    // Összes egyedi étel lekérése (moderátor+)
+    getCustomFoods: moderatorProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+        search: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const whereClause = {
+          isCustom: true,
+          ...(input.search && {
+            OR: [
+              { name: { contains: input.search, mode: 'insensitive' as const } },
+              { brand: { contains: input.search, mode: 'insensitive' as const } }
+            ]
+          })
+        };
+        
+        const [foods, total] = await Promise.all([
+          ctx.prisma.foodItem.findMany({
+            where: whereClause,
+            include: {
+              createdByUser: {
+                select: {
+                  id: true,
+                  username: true,
+                  email: true
+                }
+              }
+            },
+            take: input.limit,
+            skip: input.offset,
+            orderBy: { name: 'asc' }
+          }),
+          ctx.prisma.foodItem.count({ where: whereClause })
+        ]);
+        
+        return { foods, total };
+      }),
+    
+    // Egyedi étel törlése (moderátor+)
+    deleteCustomFood: moderatorProcedure
+      .input(z.object({
+        foodId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Ellenőrizd, hogy az étel létezik és egyedi
+        const food = await ctx.prisma.foodItem.findFirst({
+          where: {
+            id: input.foodId,
+            isCustom: true
+          }
+        });
+        
+        if (!food) {
+          throw new Error('Az étel nem található vagy nem egyedi étel');
+        }
+        
+        // Töröld a kapcsolódó naplókat először
+        await ctx.prisma.userFoodLog.deleteMany({
+          where: { foodItem_id: input.foodId }
+        });
+        
+        // Töröld az ételt
+        await ctx.prisma.foodItem.delete({
+          where: { id: input.foodId }
+        });
+        
+        return { success: true };
+      }),
+    
+    // Összes felhasználó lekérése (admin)
+    getUsers: adminProcedure
+      .input(z.object({
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+        search: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const whereClause = input.search ? {
+          OR: [
+            { username: { contains: input.search, mode: 'insensitive' as const } },
+            { email: { contains: input.search, mode: 'insensitive' as const } }
+          ]
+        } : {};
+        
+        const [users, total] = await Promise.all([
+          ctx.prisma.user.findMany({
+            where: whereClause,
+            select: {
+              id: true,
+              username: true,
+              email: true,
+              permissionLevel: true,
+              canCreateCustomFood: true,
+              createdAt: true
+            },
+            take: input.limit,
+            skip: input.offset,
+            orderBy: { username: 'asc' }
+          }),
+          ctx.prisma.user.count({ where: whereClause })
+        ]);
+        
+        return { users, total };
+      }),
+    
+    // Felhasználó jogosultsági szintjének módosítása (admin)
+    updateUserPermission: adminProcedure
+      .input(z.object({
+        userId: z.string(),
+        permissionLevel: z.number().min(0).max(2)
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const currentUserId = ctx.session.user.id;
+        
+        // Ne lehessen saját magát módosítani
+        if (input.userId === currentUserId) {
+          throw new Error('Nem módosíthatod a saját jogosultsági szintedet');
+        }
+        
+        // Ellenőrizd, hogy a felhasználó létezik-e
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        // Frissítsd a jogosultsági szintet
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { permissionLevel: input.permissionLevel },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            permissionLevel: true,
+            canCreateCustomFood: true
+          }
+        });
+        
+        return updatedUser;
+      }),
+    
+    // Felhasználó egyedi étel létrehozási jogának módosítása (admin)
+    toggleCustomFoodPermission: adminProcedure
+      .input(z.object({
+        userId: z.string(),
+        canCreateCustomFood: z.boolean()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Ellenőrizd, hogy a felhasználó létezik-e
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        // Frissítsd az egyedi étel létrehozási jogot
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { canCreateCustomFood: input.canCreateCustomFood },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            permissionLevel: true,
+            canCreateCustomFood: true
+          }
+        });
+        
+        return updatedUser;
       })
   }),
 });

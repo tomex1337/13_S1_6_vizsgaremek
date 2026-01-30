@@ -17,6 +17,7 @@ const t = initTRPC.context<typeof createContext>().create();
 export const router = t.router;
 export const publicProcedure = t.procedure;
 
+// Bejelentkezett felhasználó ellenőrzése
 const isAuthed = t.middleware(({ ctx, next }) => {
   if (!ctx.session?.user) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
@@ -29,4 +30,60 @@ const isAuthed = t.middleware(({ ctx, next }) => {
   });
 });
 
+// Moderátori jogosultság ellenőrzése (permissionLevel >= 1)
+const isModerator = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  
+  const user = await ctx.prisma.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { permissionLevel: true }
+  });
+  
+  if (!user || user.permissionLevel < 1) {
+    throw new TRPCError({ 
+      code: 'FORBIDDEN', 
+      message: 'Nincs moderátori jogosultságod' 
+    });
+  }
+  
+  return next({
+    ctx: {
+      ...ctx,
+      session: { ...ctx.session, user: ctx.session.user },
+      permissionLevel: user.permissionLevel,
+    },
+  });
+});
+
+// Admin jogosultság ellenőrzése (permissionLevel >= 2)
+const isAdmin = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session?.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  
+  const user = await ctx.prisma.user.findUnique({
+    where: { id: ctx.session.user.id },
+    select: { permissionLevel: true }
+  });
+  
+  if (!user || user.permissionLevel < 2) {
+    throw new TRPCError({ 
+      code: 'FORBIDDEN', 
+      message: 'Nincs admin jogosultságod' 
+    });
+  }
+  
+  return next({
+    ctx: {
+      ...ctx,
+      session: { ...ctx.session, user: ctx.session.user },
+      permissionLevel: user.permissionLevel,
+    },
+  });
+});
+
 export const protectedProcedure = t.procedure.use(isAuthed);
+export const moderatorProcedure = t.procedure.use(isModerator);
+export const adminProcedure = t.procedure.use(isAdmin);

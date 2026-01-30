@@ -70,7 +70,7 @@ export default function FoodLogPage() {
   const [editQuantity, setEditQuantity] = useState(1);
   const [showMealSelector, setShowMealSelector] = useState(false);
   
-  // tRPC queries and mutations
+  // tRPC lekérdezések és mutációk
   const { data: mealTypes = [] } = trpc.food.getMealTypes.useQuery();
   const { data: dailyLogs = [], refetch: refetchLogs } = trpc.food.getDailyLogs.useQuery({
     date: selectedDate.toISOString().split('T')[0]
@@ -78,7 +78,7 @@ export default function FoodLogPage() {
     enabled: status === "authenticated"
   });
   
-  // Get user stats for daily goals
+  // Felhasználói statisztikák lekérése a napi célokhoz
   const { data: userStats } = trpc.user.stats.useQuery(undefined, {
     enabled: status === "authenticated"
   });
@@ -201,15 +201,14 @@ export default function FoodLogPage() {
   }
 
   return (
-    <>
-    <Header />
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
       {/* Header Section */}
       <div className="bg-gradient-to-r from-green-600 to-blue-700 dark:from-green-800 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-white/10 dark:bg-gray-900/10 rounded-full flex items-center justify-center">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
                 <FireIconSolid className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -224,11 +223,11 @@ export default function FoodLogPage() {
                 type="date"
                 value={selectedDate.toISOString().split('T')[0]}
                 onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                className="px-3 py-2 bg-white/10 dark:bg-gray-800/10 border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:border-white/40"
+                className="px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:border-white/40"
               />
               <button
                 onClick={() => setShowMealSelector(true)}
-                className="px-4 py-2 bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800/60 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>Étel hozzáadása</span>
@@ -242,10 +241,10 @@ export default function FoodLogPage() {
         {/* Daily Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {/* Calories Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-orange-100 dark:bg-orange-600 rounded-lg">
-                <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-100" />
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <FireIconSolid className="h-6 w-6 text-orange-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Nettó kalória</p>
@@ -269,10 +268,10 @@ export default function FoodLogPage() {
           </div>
 
           {/* Protein Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-red-100 dark:bg-red-600 rounded-lg">
-                <BeakerIcon className="h-6 w-6 text-red-600 dark:text-red-100" />
+              <div className="p-2 bg-red-100 rounded-lg">
+                <BeakerIcon className="h-6 w-6 text-red-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Fehérje</p>
@@ -293,10 +292,10 @@ export default function FoodLogPage() {
           </div>
 
           {/* Fat Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-yellow-100 dark:bg-yellow-600 rounded-lg">
-                <ScaleIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-100" />
+              <div className="p-2 bg-yellow-100 rounded-lg">
+                <ScaleIcon className="h-6 w-6 text-yellow-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Zsír</p>
@@ -317,10 +316,10 @@ export default function FoodLogPage() {
           </div>
 
           {/* Carbs Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-green-100 dark:bg-green-600 rounded-lg">
-                <BeakerIcon className="h-6 w-6 text-green-600 dark:text-green-100" />
+              <div className="p-2 bg-green-100 rounded-lg">
+                <BeakerIcon className="h-6 w-6 text-green-600" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-600">Szénhidrát</p>
@@ -350,7 +349,7 @@ export default function FoodLogPage() {
             );
 
             return (
-              <div key={mealType.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
+              <div key={mealType.id} className="bg-white rounded-xl shadow-sm border border-gray-200">
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
@@ -364,7 +363,7 @@ export default function FoodLogPage() {
                         setSelectedMealType(mealType.id);
                         setShowAddFood(true);
                       }}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
                     >
                       <PlusIcon className="h-5 w-5" />
                     </button>
@@ -374,7 +373,7 @@ export default function FoodLogPage() {
                   {mealLogs.length > 0 ? (
                     <div className="space-y-4">
                       {mealLogs.map((log: DailyLog) => (
-                        <div key={log.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <div key={log.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
                               <div>
@@ -498,15 +497,15 @@ export default function FoodLogPage() {
       {/* Meal Selector Modal */}
       {showMealSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Étkezés Kategória Kiválasztása
                 </h3>
                 <button
                   onClick={() => setShowMealSelector(false)}
-                  className="p-2 text-gray-400 dark:text-gray-100 hover:text-gray-600 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
@@ -514,7 +513,7 @@ export default function FoodLogPage() {
             </div>
             
             <div className="p-6">
-              <p className="mb-4">Válaszd ki, melyik étkezéshez szeretnél ételt hozzáadni:</p>
+              <p className="text-gray-600 mb-4">Válaszd ki, melyik étkezéshez szeretnél ételt hozzáadni:</p>
               <div className="space-y-3">
                 {mealTypes.map((mealType) => (
                   <button
@@ -524,11 +523,11 @@ export default function FoodLogPage() {
                       setShowMealSelector(false);
                       setShowAddFood(true);
                     }}
-                    className="w-full p-4 text-left bg-gray-50 dark:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg border border-gray-200 transition-colors"
+                    className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900 dark:text-gray-200">{mealType.name}</span>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <span className="font-medium text-gray-900">{mealType.name}</span>
+                      <div className="text-sm text-gray-500">
                         {(dailyLogs as unknown as DailyLog[]).filter((log: DailyLog) => log.mealType?.id === mealType.id).reduce((sum: number, log: DailyLog) => 
                           sum + (Number(log.foodItem?.calories) || 0) * Number(log.quantity), 0
                         )} kal naplózva
@@ -545,10 +544,10 @@ export default function FoodLogPage() {
       {/* Add Food Modal */}
       {showAddFood && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white dark:bg-gray-800 dark:bg-gray-800 rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
+          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <h3 className="text-lg font-semibold text-gray-900">
                   Étel hozzáadása: {mealTypes.find(m => m.id === selectedMealType)?.name}
                 </h3>
                 <button
@@ -592,7 +591,7 @@ export default function FoodLogPage() {
                           <button
                             key={food.id}
                             onClick={() => setSelectedFood(food as FoodItem)}
-                            className="w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 rounded-lg border border-gray-200 transition-colors"
+                            className="w-full p-4 text-left hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors"
                           >
                             <div className="flex items-center justify-between">
                               <div>
@@ -615,7 +614,7 @@ export default function FoodLogPage() {
                         ))}
                       </div>
                     ) : searchQuery.length > 2 ? (
-                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <div className="text-center py-8 text-gray-500">
                         <p>Nem található étel erre: &quot;{searchQuery}&quot;</p>
                         <button 
                           onClick={() => router.push('/food/create')}
@@ -637,21 +636,21 @@ export default function FoodLogPage() {
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedFood.name}</h4>
+                        <h4 className="text-lg font-semibold text-gray-900">{selectedFood.name}</h4>
                         {selectedFood.brand && (
                           <p className="text-gray-600">{selectedFood.brand}</p>
                         )}
                       </div>
                       <button
                         onClick={() => setSelectedFood(null)}
-                        className="text-gray-400 dark:text-gray-100"
+                        className="text-gray-400 hover:text-gray-600"
                       >
                         <XMarkIcon className="h-5 w-5" />
                       </button>
                     </div>
                     
                     {/* Nutrition Info */}
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 mb-4">
+                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
                       <p className="text-sm text-gray-600 mb-2">{Number(selectedFood.servingSizeGrams || 0)}g adagonként:</p>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>Kalória: <span className="font-semibold">{Number(selectedFood.calories || 0)}</span></div>
@@ -682,7 +681,7 @@ export default function FoodLogPage() {
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setSelectedFood(null)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-900 dark:text-gray-200 transition-colors"
+                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       Vissza a kereséshez
                     </button>
@@ -712,6 +711,5 @@ export default function FoodLogPage() {
       )}
       <Footer />
     </div>
-    </>
   );
 }

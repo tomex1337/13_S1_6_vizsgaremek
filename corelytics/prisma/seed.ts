@@ -82,6 +82,37 @@ async function main() {
       email: 'teszt@pelda.hu',
       username: 'TesztFelhasznalo',
       passwordHash: hashedPassword,
+      permissionLevel: 0, // Felhasználó
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Create a moderator user
+  const moderatorUser = await prisma.user.upsert({
+    where: { email: 'moderator@pelda.hu' },
+    update: {},
+    create: {
+      id: '550e8400-e29b-41d4-a716-446655440010',
+      email: 'moderator@pelda.hu',
+      username: 'ModeratorFelhasznalo',
+      passwordHash: hashedPassword,
+      permissionLevel: 1, // Moderátor
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    },
+  });
+
+  // Create an admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@pelda.hu' },
+    update: {},
+    create: {
+      id: '550e8400-e29b-41d4-a716-446655440020',
+      email: 'admin@pelda.hu',
+      username: 'AdminFelhasznalo',
+      passwordHash: hashedPassword,
+      permissionLevel: 2, // Admin
       createdAt: new Date(),
       updatedAt: new Date(),
     },
@@ -101,6 +132,42 @@ async function main() {
       heightCm: 175,
       weightKg: 70.5,
       activityLevel_id: activityLevels[1].id, // Enyhén aktív
+      goal_id: goals[1].id, // Súlytartás
+    },
+  });
+
+  // Create moderator profile
+  const moderatorBirthDate = new Date();
+  moderatorBirthDate.setFullYear(moderatorBirthDate.getFullYear() - 30); // 30 éves
+  
+  await prisma.userProfile.upsert({
+    where: { user_id: moderatorUser.id },
+    update: {},
+    create: {
+      user_id: moderatorUser.id,
+      birthDate: moderatorBirthDate,
+      gender: 'female',
+      heightCm: 168,
+      weightKg: 62.0,
+      activityLevel_id: activityLevels[2].id, // Mérsékelten aktív
+      goal_id: goals[0].id, // Fogyás
+    },
+  });
+
+  // Create admin profile
+  const adminBirthDate = new Date();
+  adminBirthDate.setFullYear(adminBirthDate.getFullYear() - 35); // 35 éves
+  
+  await prisma.userProfile.upsert({
+    where: { user_id: adminUser.id },
+    update: {},
+    create: {
+      user_id: adminUser.id,
+      birthDate: adminBirthDate,
+      gender: 'male',
+      heightCm: 180,
+      weightKg: 85.0,
+      activityLevel_id: activityLevels[3].id, // Nagyon aktív
       goal_id: goals[1].id, // Súlytartás
     },
   });
@@ -651,6 +718,10 @@ async function main() {
   ]);
 
   console.log('Adatbázis sikeresen feltöltve!');
+  console.log('\nLétrehozott felhasználók:');
+  console.log('- Felhasználó (szint 0): teszt@pelda.hu / jelszo123');
+  console.log('- Moderátor (szint 1): moderator@pelda.hu / jelszo123');
+  console.log('- Admin (szint 2): admin@pelda.hu / jelszo123');
 }
 
 main()

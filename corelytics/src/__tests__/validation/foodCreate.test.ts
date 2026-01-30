@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Validation schema for creating custom food
+// Egyéni étel létrehozásának validációs sémája
 const createCustomFoodSchema = z.object({
   name: z.string().min(1),
   brand: z.string().optional(),
@@ -359,20 +359,20 @@ describe('Food Create Validation Tests', () => {
 
   describe('Nutritional Validation Logic', () => {
     it('should allow foods where macro calories exceed total calories (user error)', () => {
-      // Note: This test shows current behavior - the schema doesn't validate macro math
-      // In a real app, you might want additional validation
+      // Megjegyzés: Ez a teszt a jelenlegi viselkedést mutatja - a séma nem validálja a makró matematikát
+      // Egy valós alkalmazásban további validáció lehet szükséges
       const validData = {
         name: 'Test Food',
         calories: 100,
-        protein: 50, // 200 cal
-        fat: 10,     // 90 cal  
-        carbs: 20    // 80 cal
-        // Total from macros: 370 cal, but calories is only 100
+        protein: 50, // 200 kcal
+        fat: 10,     // 90 kcal  
+        carbs: 20    // 80 kcal
+        // Összesen makrókból: 370 kcal, de a calories csak 100
       }
 
       const result = createCustomFoodSchema.safeParse(validData)
       expect(result.success).toBe(true)
-      // This passes because the schema doesn't cross-validate
+      // Ez átmegy, mert a séma nem végez keresztvalidálást
     })
 
     it('should allow missing some macros even if calories are specified', () => {
@@ -380,7 +380,7 @@ describe('Food Create Validation Tests', () => {
         name: 'Mystery Food',
         calories: 200,
         protein: 10
-        // Missing fat and carbs
+        // Hiányzik a zsír és szénhidrát
       }
 
       const result = createCustomFoodSchema.safeParse(validData)

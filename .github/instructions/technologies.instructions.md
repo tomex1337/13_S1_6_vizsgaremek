@@ -22,4 +22,4 @@ Egy MyFitnessPal szerű alkalmazás, amely lehetővé teszi a felhasználók sz�
 
 Legyen a header és a footer minden oldalon a components-ből.
 
-Minden oldalon a megjelenitet szöveg magyar legyen, a kódban pedig angol.
+Minden oldalon a megjelenitet szöveg magyar legyen, a kód pedig angol, a kommentek magyarok legyenek.

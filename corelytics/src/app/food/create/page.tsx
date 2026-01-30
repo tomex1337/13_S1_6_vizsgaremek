@@ -80,7 +80,7 @@ export default function CreateFoodPage() {
   }, [status, router]);
 
   const onSubmit = async (data: FoodFormData) => {
-    // Validate macro weight doesn't exceed serving size
+    // Validáld, hogy a makrók súlya ne haladja meg az adagméretet
     const macroWeight = Number(data.protein) + Number(data.carbs) + Number(data.fat);
     if (macroWeight > Number(data.servingSizeGrams)) {
       setErrorMessage(`A makrók összesített súlya (${Math.round(macroWeight)}g) nem lehet nagyobb, mint az adagméret (${data.servingSizeGrams}g)`);
@@ -89,7 +89,7 @@ export default function CreateFoodPage() {
       return;
     }
 
-    // Validate sugar doesn't exceed carbs
+    // Validáld, hogy a cukor ne haladja meg a szénhidrátot
     if (data.sugar && Number(data.sugar) > Number(data.carbs)) {
       setErrorMessage(`A cukor (${data.sugar}g) nem lehet több, mint a szénhidrát (${data.carbs}g)`);
       setShowError(true);

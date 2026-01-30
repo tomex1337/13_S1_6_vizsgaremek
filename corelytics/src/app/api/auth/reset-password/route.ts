@@ -8,12 +8,12 @@ export async function POST(req: Request) {
 
     if (!token || !password) {
       return NextResponse.json(
-        { message: "Token and password are required" },
+        { message: "Token és jelszó megadása kötelező" },
         { status: 400 }
       )
     }
 
-    // Find user with valid reset token
+    // Felhasználó keresése a token alapján
     const user = await prisma.user.findFirst({
       where: {
         resetToken: token,
@@ -25,15 +25,15 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { message: "Invalid or expired reset token" },
+        { message: "Érvénytelen vagy lejárt visszaállító token" },
         { status: 400 }
       )
     }
 
-    // Hash new password
+    // Új jelszó hashelése
     const hashedPassword = await hash(password, 10)
 
-    // Update user password and clear reset token
+    // Frissítse a felhasználó jelszavát és törölje a reset tokent
     await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json(
-      { message: "Password reset successfully" },
+      { message: "Jelszó sikeresen visszaállítva" },
       { 
         status: 200,
         headers: {
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Reset password error:", error)
     return NextResponse.json(
-      { message: "Something went wrong" },
+      { message: "Valami hiba történt" },
       { 
         status: 500,
         headers: {

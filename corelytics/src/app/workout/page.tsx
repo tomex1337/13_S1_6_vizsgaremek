@@ -16,8 +16,7 @@ import {
   TrashIcon,
   ChevronDownIcon,
   ChevronUpIcon,
-  ChartBarIcon,
-  SparklesIcon
+  ChartBarIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -54,7 +53,7 @@ export default function WorkoutLogPage() {
   const [editDuration, setEditDuration] = useState(30);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
 
-  // tRPC queries and mutations
+  // tRPC lekérdezések és mutációk
   const { data: categories = [] } = trpc.workout.getCategories.useQuery(undefined, {
     enabled: status === "authenticated"
   });
@@ -159,7 +158,7 @@ export default function WorkoutLogPage() {
     setExpandedCategories(newExpanded);
   };
 
-  // Group search results by category
+  // Keresési eredmények csoportosítása kategória szerint
   const groupedExercises = searchResults.reduce((acc, exercise) => {
     const category = exercise.category || 'Egyéb';
     if (!acc[category]) {
@@ -169,7 +168,7 @@ export default function WorkoutLogPage() {
     return acc;
   }, {} as Record<string, typeof searchResults>);
 
-  // Calculate today's totals from selected date's logs
+  // Mai összegek számítása
   const todayTotals = (dailyLogs as unknown as WorkoutLog[]).reduce(
     (totals, log) => ({
       workouts: totals.workouts + 1,
@@ -179,12 +178,10 @@ export default function WorkoutLogPage() {
     { workouts: 0, minutes: 0, calories: 0 }
   );
 
-  // Calculate net calories - use todayTotals.calories for selected date's burned calories
+  // Nettó kalóriák számítása (bevitt - elégetett)
   const calorieGoal = userStats?.caloriesTarget || 2000;
-  // Only use userStats values if selected date is today, otherwise use 0 for consumed (would need food.getDailyLogs query)
-  const isToday = selectedDate.toISOString().split('T')[0] === new Date().toISOString().split('T')[0];
-  const caloriesConsumed = isToday ? (userStats?.caloriesConsumed || 0) : 0;
-  const caloriesBurnedToday = todayTotals.calories;
+  const caloriesConsumed = userStats?.caloriesConsumed || 0;
+  const caloriesBurnedToday = userStats?.caloriesBurned || todayTotals.calories;
   const netCalories = caloriesConsumed - caloriesBurnedToday;
   const caloriesRemaining = calorieGoal - netCalories;
 
@@ -233,13 +230,6 @@ export default function WorkoutLogPage() {
               >
                 <ChartBarIcon className="h-5 w-5" />
                 <span>Statisztikák</span>
-              </button>
-              <button
-                onClick={() => router.push('/workout/create')}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
-              >
-                <SparklesIcon className="h-5 w-5" />
-                <span>Egyéni edzés</span>
               </button>
               <button
                 onClick={() => setShowAddWorkout(true)}
@@ -489,7 +479,7 @@ export default function WorkoutLogPage() {
 
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {selectedExercise ? (
-                // Exercise details and logging
+                // Edzés részletei és naplózás
                 <div className="space-y-6">
                   <div className="flex items-center space-x-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <div className="h-12 w-12 bg-purple-100 dark:bg-purple-600 rounded-full flex items-center justify-center">
@@ -505,7 +495,7 @@ export default function WorkoutLogPage() {
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Időtartam (perc)
                     </label>
-                    <div className="space-y-3">
+                    <div className="flex items-center space-x-4">
                       <input
                         type="range"
                         min="5"
@@ -525,7 +515,7 @@ export default function WorkoutLogPage() {
                       />
                     </div>
                     <div className="flex justify-between mt-2">
-                      {[15, 30, 45, 60, 90, 120, 145, 180].map((mins) => (
+                      {[15, 30, 45, 60, 90].map((mins) => (
                         <button
                           key={mins}
                           onClick={() => setDuration(mins)}
@@ -572,7 +562,7 @@ export default function WorkoutLogPage() {
                   </div>
                 </div>
               ) : (
-                // Search and browse exercises
+                // Edzések keresése és böngészése
                 <div className="space-y-4">
                   {/* Search Input */}
                   <div className="relative">
@@ -669,18 +659,6 @@ export default function WorkoutLogPage() {
                         <p className="text-gray-500 dark:text-gray-400 mb-4">
                           {searchQuery ? 'Nincs találat' : 'Kezdj el írni a kereséshez'}
                         </p>
-                        {searchQuery && (
-                          <button
-                            onClick={() => {
-                              setShowAddWorkout(false);
-                              router.push('/workout/create');
-                            }}
-                            className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
-                          >
-                            <SparklesIcon className="h-5 w-5 mr-2" />
-                            Egyéni edzés létrehozása
-                          </button>
-                        )}
                       </div>
                     )}
                   </div>
