@@ -110,16 +110,16 @@ export default function UserPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Completion Banner */}
         {profileData && !profileData.isComplete && (
-          <div className="mb-8 bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-xl p-6">
+          <div className="mb-8 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900 dark:to-red-900 border border-orange-200 rounded-xl p-6">
             <div className="flex items-start space-x-4">
               <div className="flex-shrink-0">
-                <ExclamationTriangleIcon className="h-6 w-6 text-orange-600" />
+                <ExclamationTriangleIcon className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-orange-900 mb-2">
+                <h3 className="text-lg font-semibold text-orange-900 mb-2 dark:text-orange-200">
                   Profil kiegészítése
                 </h3>
-                <p className="text-orange-700 mb-4">
+                <p className="text-orange-700! dark:text-orange-100! mb-4">
                   A profilod nem teljes. Töltsd ki most, hogy személyre szabott ajánlásokat kapj és jobban követhesd a fitness utadat.
                 </p>
                 <button
@@ -136,96 +136,96 @@ export default function UserPage() {
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Calories Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-orange-100 dark:bg-orange-700 rounded-lg">
-                  <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-300" />
+                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                  <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Nettó kalória</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nettó kalória</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {Math.round(netCalories)}
                   </p>
                 </div>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
-                className="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                className="bg-orange-600 dark:bg-orange-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(Math.max(caloriesProgress, 0), 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}
             </p>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               {stats.caloriesConsumed} bevitt - {Math.round(caloriesBurned)} égetett
             </p>
           </div>
 
           {/* Workouts Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-700 rounded-lg">
-                  <ChartBarIcon className="h-6 w-6 text-blue-600 dark:text-blue-300" />
+                <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                  <ChartBarIcon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Edzések ezen a héten</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Edzések ezen a héten</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats.workoutsCompleted}
                   </p>
                 </div>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {weeklyWorkoutMinutes} perc • {stats.weeklyCaloriesBurned || 0} kcal égetve
             </p>
           </div>
 
           {/* Protein Intake Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 dark:bg-green-700 rounded-lg">
-                  <HeartIconSolid className="h-6 w-6 text-green-600 dark:text-green-300" />
+                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                  <HeartIconSolid className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Mai fehérje</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Mai fehérje</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {proteinConsumed}g
                   </p>
                 </div>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all duration-300"
                 style={{ width: `${Math.min(proteinProgress, 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {proteinConsumed >= proteinTarget ? 'Cél elérve! 🎉' : `${Math.round(proteinTarget - proteinConsumed)}g maradt`}
             </p>
           </div>
 
           {/* Streak Card */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-yellow-100 dark:bg-yellow-700 rounded-lg">
-                  <TrophyIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-300" />
+                <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                  <TrophyIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Jelenlegi sorozat</p>
-                  <p className="text-2xl font-bold text-gray-900">
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Jelenlegi sorozat</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                     {stats.currentStreak} nap
                   </p>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
+            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
               <ArrowTrendingUpIcon className="h-4 w-4" />
               <span>Így tovább!</span>
             </div>
@@ -236,20 +236,20 @@ export default function UserPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Recent Activities */}
           <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200">
-              <div className="p-6 border-b border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Legutóbbi tevékenységek</h2>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+              <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">Legutóbbi tevékenységek</h2>
               </div>
               <div className="p-6">
                 <div className="space-y-4">
                   {stats.recentActivities.length > 0 ? (
                     stats.recentActivities.map((activity, index) => (
-                      <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                      <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <div className={`p-2 bg-white dark:bg-gray-800 rounded-lg ${
-                          activity.type === 'exercise' ? 'text-green-600' : 
-                          activity.name.toLowerCase().includes('breakfast') ? 'text-blue-600' :
-                          activity.name.toLowerCase().includes('lunch') ? 'text-orange-600' :
-                          'text-purple-600'
+                          activity.type === 'exercise' ? 'text-green-600 dark:text-green-400' : 
+                          activity.name.toLowerCase().includes('breakfast') ? 'text-blue-600 dark:text-blue-400' :
+                          activity.name.toLowerCase().includes('lunch') ? 'text-orange-600 dark:text-orange-400' :
+                          'text-purple-600 dark:text-purple-400'
                         }`}>
                           {activity.type === 'exercise' ? (
                             <PlayIcon className="h-5 w-5" />
@@ -258,16 +258,16 @@ export default function UserPage() {
                           )}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900">{activity.name}</p>
-                          <p className="text-sm text-gray-500">{activity.time}</p>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">{activity.name}</p>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">{activity.time}</p>
                         </div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                           {activity.calories}
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                       <p>Nincsenek megjeleníthető legutóbbi tevékenységek</p>
                       <p className="text-sm">Kezdd el naplózni az étkezéseidet és edzéseidet!</p>
                     </div>
@@ -280,12 +280,12 @@ export default function UserPage() {
           {/* Quick Actions */}
           <div className="space-y-6">
             {/* Quick Log */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">Gyors műveletek</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Gyors műveletek</h3>
               <div className="space-y-3">
                 <button 
                   onClick={() => router.push('/food/log')}
-                  className="w-full p-4 bg-blue-50 hover:bg-blue-100 dark:bg-blue-800 dark:hover:bg-blue-700 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-blue-50 dark:bg-blue-900 hover:bg-blue-100 dark:hover:bg-blue-800 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <CalendarIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
@@ -294,14 +294,14 @@ export default function UserPage() {
                 </button>
                 <button 
                   onClick={() => router.push('/food/create')}
-                  className="w-full p-4 bg-purple-50 hover:bg-purple-100 dark:bg-purple-800 dark:hover:bg-purple-700 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-purple-50 dark:bg-purple-900 hover:bg-purple-100 dark:hover:bg-purple-800 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <PlusIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                     <span className="font-medium text-purple-900 dark:text-purple-200">Egyedi étel létrehozása</span>
                   </div>
                 </button>
-                <button className="w-full p-4 bg-green-50 hover:bg-green-100 dark:bg-green-800 dark:bg-hover-700 rounded-lg text-left transition-colors">
+                <button className="w-full p-4 bg-green-50 dark:bg-green-900 hover:bg-green-100 dark:hover:bg-green-800 rounded-lg text-left transition-colors">
                   <div className="flex items-center space-x-3">
                     <PlayIcon className="h-5 w-5 text-green-600 dark:text-green-400" />
                     <span className="font-medium text-green-900 dark:text-green-200">Edzés kezdése</span>
@@ -309,7 +309,7 @@ export default function UserPage() {
                 </button>
                 <button 
                   onClick={() => router.push('/progress/view')}
-                  className="w-full p-4 bg-orange-50 hover:bg-orange-100 dark:bg-orange-800 dark:hover:bg-orange-700 rounded-lg text-left transition-colors"
+                  className="w-full p-4 bg-orange-50 dark:bg-orange-900 hover:bg-orange-100 dark:hover:bg-orange-800 rounded-lg text-left transition-colors"
                 >
                   <div className="flex items-center space-x-3">
                     <ChartBarIcon className="h-5 w-5 text-orange-600 dark:text-orange-400" />
@@ -320,22 +320,22 @@ export default function UserPage() {
             </div>
 
             {/* Weekly Summary */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-200 mb-4">Ezen a héten</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Ezen a héten</h3>
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-300">Összes edzés</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Összes edzés</span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">{stats.totalWorkouts}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-300">Átl. kalória/nap (7n)</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Átl. kalória/nap (7n)</span>
                   <span className="font-semibold text-gray-900 dark:text-gray-100">
                     {stats.avgCaloriesPerDay ? stats.avgCaloriesPerDay.toLocaleString() : 'Nincs adat'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600 dark:text-gray-300">Elért célok</span>
-                  <span className="font-semibold text-green-600">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Elért célok</span>
+                  <span className="font-semibold text-green-600 dark:text-green-400">
                     {stats.goalsMetPercentage !== undefined ? `${stats.goalsMetPercentage}%` : 'Nincs adat'}
                   </span>
                 </div>

@@ -59,7 +59,7 @@ const { data: permissionData } = trpc.admin.getPermissionLevel.useQuery(undefine
 const isModerator = (permissionData?.permissionLevel ?? 0) >= 1;
 
   return (
-    <header className="bg-transparent">
+    <header className="bg-transparent sticky top-0 z-50">
       <nav aria-label="Global" className="mx-auto w-[80%] flex items-center justify-between my-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">

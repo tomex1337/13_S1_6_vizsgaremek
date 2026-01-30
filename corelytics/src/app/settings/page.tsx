@@ -211,35 +211,35 @@ export default function SettingsPage() {
           {/* Back Button */}
           <button
             onClick={() => router.push('/user')}
-            className="mb-6 flex items-center not-dark:text-indigo-700 hover:text-indigo-900 dark:hover:text-indigo-400 transition-colors"
+            className="mb-6 flex items-center text-indigo-700 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 transition-colors"
           >
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
             Vissza a vezérlőpultra
           </button>
 
           {/* Header */}
-          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 mb-6">
             <div className="flex items-center space-x-4 mb-2">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <UserIcon className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                <UserIcon className="h-8 w-8 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-900">Profil beállítások</h1>
-                <p className="text-gray-600 dark:text-gray-200 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Profil beállítások</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">Frissítsd személyes adataidat és fitness céljaidat</p>
               </div>
             </div>
           </div>
 
           {/* Profile Form */}
-          <div className="bg-gray-100 dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 p-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Personal Information Section */}
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Személyes adatok</h2>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Személyes adatok</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Birth Date */}
                   <div>
-                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Születési dátum *
                     </label>
                     <input
@@ -247,22 +247,22 @@ export default function SettingsPage() {
                       id="birthDate"
                       {...register("birthDate")}
                       max={new Date().toISOString().split('T')[0]}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
                     {errors.birthDate && (
-                      <p className="mt-1 text-sm text-red-600">{errors.birthDate.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.birthDate.message as string}</p>
                     )}
                   </div>
 
                   {/* Gender */}
                   <div>
-                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="gender" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Nem *
                     </label>
                     <select
                       id="gender"
                       {...register("gender")}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">Válassz nemet</option>
                       <option value="male">Férfi</option>
@@ -270,30 +270,30 @@ export default function SettingsPage() {
                       <option value="other">Egyéb</option>
                     </select>
                     {errors.gender && (
-                      <p className="mt-1 text-sm text-red-600">{errors.gender.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.gender.message as string}</p>
                     )}
                   </div>
 
                   {/* Height */}
                   <div>
-                    <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Magasság (cm) *
                     </label>
                     <input
                       type="number"
                       id="heightCm"
                       {...register("heightCm")}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="pl. 175"
                     />
                     {errors.heightCm && (
-                      <p className="mt-1 text-sm text-red-600">{errors.heightCm.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.heightCm.message as string}</p>
                     )}
                   </div>
 
                   {/* Weight */}
                   <div>
-                    <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Súly (kg) *
                     </label>
                     <input
@@ -301,29 +301,29 @@ export default function SettingsPage() {
                       step="0.1"
                       id="weightKg"
                       {...register("weightKg")}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       placeholder="pl. 70.5"
                     />
                     {errors.weightKg && (
-                      <p className="mt-1 text-sm text-red-600">{errors.weightKg.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.weightKg.message as string}</p>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* Fitness Information Section */}
-              <div className="pt-6 border-t border-gray-200">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Fitness információk</h2>
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">Fitness információk</h2>
                 <div className="space-y-6">
                   {/* Activity Level */}
                   <div>
-                    <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Aktivitási szint *
                     </label>
                     <select
                       id="activityLevelId"
                       {...register("activityLevelId")}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">Válaszd ki az aktivitási szintedet</option>
                       {activityLevels.map((level) => (
@@ -333,22 +333,22 @@ export default function SettingsPage() {
                       ))}
                     </select>
                     {errors.activityLevelId && (
-                      <p className="mt-1 text-sm text-red-600">{errors.activityLevelId.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.activityLevelId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                       Válaszd ki a tipikus napi aktivitási szintedet a kalóriaszükséglet számításához
                     </p>
                   </div>
 
                   {/* Fitness Goal */}
                   <div>
-                    <label htmlFor="goalId" className="block text-sm font-medium text-gray-700 mb-2">
+                    <label htmlFor="goalId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                       Fitness cél *
                     </label>
                     <select
                       id="goalId"
                       {...register("goalId")}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">Válaszd ki a fitness célodat</option>
                       {goals.map((goal) => (
@@ -358,9 +358,9 @@ export default function SettingsPage() {
                       ))}
                     </select>
                     {errors.goalId && (
-                      <p className="mt-1 text-sm text-red-600">{errors.goalId.message as string}</p>
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.goalId.message as string}</p>
                     )}
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-200">
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                       A célod segít nekünk személyre szabni a kalória- és tápanyagcélokat
                     </p>
                   </div>
@@ -369,15 +369,15 @@ export default function SettingsPage() {
 
               {/* Error Message */}
               {submitError && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-600">{submitError}</p>
+                <div className="p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-lg">
+                  <p className="text-sm text-red-600 dark:text-red-200">{submitError}</p>
                 </div>
               )}
 
               {/* Success Message */}
               {submitSuccess && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-600">{submitSuccess}</p>
+                <div className="p-4 bg-green-50 dark:bg-green-900 border border-green-200 dark:border-green-700 rounded-lg">
+                  <p className="text-sm text-green-600 dark:text-green-200">{submitSuccess}</p>
                 </div>
               )}
 
@@ -386,14 +386,14 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="flex-1 py-3 px-6 bg-blue-600 dark:bg-blue-700 text-white rounded-lg font-medium hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   {isLoading ? 'Mentés...' : 'Változtatások mentése'}
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push('/user')}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                  className="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors"
                 >
                   Mégse
                 </button>
@@ -402,8 +402,8 @@ export default function SettingsPage() {
           </div>
 
           {/* Additional Information */}
-          <div className="mt-6 bg-blue-50 dark:bg-blue-700 border border-blue-200 rounded-lg p-4">
-            <p className="text-sm text-blue-800">
+          <div className="mt-6 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>Megjegyzés:</strong> Az összes *-gal jelölt mező kötelező. A profil információid segítenek nekünk személyre szabott kalória- és tápanyag-ajánlásokat nyújtani a céljaid és aktivitási szinted alapján.
             </p>
           </div>

@@ -110,9 +110,9 @@ export default function WorkoutHistoryPage() {
   };
 
   return (
+    <>
+    <Header />
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col">
-      <Header />
-      
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 dark:from-purple-800 dark:to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -266,8 +266,8 @@ export default function WorkoutHistoryPage() {
           </div>
         </div>
       </div>
-
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }
