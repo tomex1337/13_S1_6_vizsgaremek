@@ -108,7 +108,7 @@ export default function CreateWorkoutPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
         {/* Header Section */}
         <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -188,16 +188,16 @@ export default function CreateWorkoutPage() {
             }
           })} className="space-y-6">
             {/* Basic Information Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center space-x-3 mb-6">
-                <BoltIcon className="h-6 w-6 text-orange-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Alapvető Információk</h2>
+                <BoltIcon className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Alapvető Információk</h2>
               </div>
 
               <div className="space-y-4">
                 {/* Exercise Name */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Edzés Neve <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -207,7 +207,7 @@ export default function CreateWorkoutPage() {
                       required: 'Edzés neve: Ez a mező kötelező',
                       minLength: { value: 2, message: 'Edzés neve: Legalább 2 karakter hosszúnak kell lennie' }
                     })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-gray-100"
                     placeholder="pl. Futás, Kerékpározás, Úszás"
                   />
                   {errors.name && (
@@ -217,17 +217,17 @@ export default function CreateWorkoutPage() {
 
                 {/* Category */}
                 <div>
-                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Kategória (Opcionális)
                   </label>
                   <input
                     type="text"
                     id="category"
                     {...register('category')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-gray-100"
                     placeholder="pl. Kardió, Erősítés, Yoga"
                   />
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Ha nem ad meg kategóriát, az &quot;Egyéni&quot; kategóriába kerül
                   </p>
                 </div>
@@ -235,16 +235,16 @@ export default function CreateWorkoutPage() {
             </div>
 
             {/* Exercise Details Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center space-x-3 mb-6">
-                <FireIcon className="h-6 w-6 text-orange-600" />
-                <h2 className="text-xl font-semibold text-gray-900">Edzés Részletei</h2>
+                <FireIcon className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Edzés Részletei</h2>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* MET Value */}
                 <div>
-                  <label htmlFor="metValue" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="metValue" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     MET Érték (Opcionális)
                   </label>
                   <input
@@ -257,20 +257,20 @@ export default function CreateWorkoutPage() {
                       min: { value: 1, message: 'MET érték: Legalább 1 kell legyen' },
                       max: { value: 25, message: 'MET érték: Maximum 25 lehet' }
                     })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-gray-100"
                     placeholder="5"
                   />
                   {errors.metValue && (
                     <p className="mt-1 text-sm text-red-600">{errors.metValue.message}</p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     A MET (metabolikus ekvivalens) az edzés intenzitását jelzi. Alapértelmezett: 5
                   </p>
                 </div>
 
                 {/* Default Duration */}
                 <div>
-                  <label htmlFor="defaultDurationMinutes" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="defaultDurationMinutes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Alapértelmezett Időtartam (perc)
                   </label>
                   <div className="relative">
@@ -281,10 +281,10 @@ export default function CreateWorkoutPage() {
                       {...register('defaultDurationMinutes', { 
                         min: { value: 1, message: 'Időtartam: Legalább 1 perc kell legyen' }
                       })}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-gray-900 dark:text-gray-100"
                       placeholder="30"
                     />
-                    <ClockIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                    <ClockIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-600" />
                   </div>
                   {errors.defaultDurationMinutes && (
                     <p className="mt-1 text-sm text-red-600">{errors.defaultDurationMinutes.message}</p>
@@ -293,9 +293,9 @@ export default function CreateWorkoutPage() {
               </div>
 
               {/* MET Reference Guide */}
-              <div className="mt-6 bg-orange-50 rounded-lg p-4">
-                <h3 className="text-sm font-medium text-orange-900 mb-2">MET Érték Útmutató</h3>
-                <div className="grid grid-cols-2 gap-2 text-sm text-orange-800">
+              <div className="mt-6 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4">
+                <h3 className="text-sm font-medium text-orange-900 dark:text-orange-200 mb-2">MET Érték Útmutató</h3>
+                <div className="grid grid-cols-2 gap-2 text-sm text-orange-800 dark:text-orange-300">
                   <div>• Séta (lassú): 2.0</div>
                   <div>• Séta (gyors): 3.5</div>
                   <div>• Futás (lassú): 7.0</div>
@@ -309,21 +309,21 @@ export default function CreateWorkoutPage() {
             </div>
 
             {/* Calorie Estimate Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <FireIcon className="h-6 w-6 text-red-500" />
+                  <FireIcon className="h-6 w-6 text-red-500 dark:text-red-400" />
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900">Becsült Kalória Égetés</h3>
-                    <p className="text-sm text-gray-500">70 kg-os személy esetén</p>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Becsült Kalória Égetés</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">70 kg-os személy esetén</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-red-600">~{estimatedCalories}</p>
-                  <p className="text-sm text-gray-500">kcal / alkalom</p>
+                  <p className="text-3xl font-bold text-red-600 dark:text-red-400">~{estimatedCalories}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">kcal / alkalom</p>
                 </div>
               </div>
-              <p className="mt-3 text-xs text-gray-500">
+              <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
                 A tényleges kalória égetés a testsúly és az edzés intenzitása alapján változik.
               </p>
             </div>
@@ -333,7 +333,7 @@ export default function CreateWorkoutPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors"
               >
                 Mégse
               </button>
@@ -358,19 +358,19 @@ export default function CreateWorkoutPage() {
           </form>
 
           {/* Info Section */}
-          <div className="mt-8 bg-blue-50 rounded-xl p-6">
-            <h3 className="text-lg font-semibold text-blue-900 mb-3">Tudnivalók</h3>
-            <ul className="space-y-2 text-sm text-blue-800">
+          <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-3">Tudnivalók</h3>
+            <ul className="space-y-2 text-sm text-blue-800 dark:text-blue-300">
               <li className="flex items-start space-x-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-blue-500 dark:text-blue-400 mt-0.5">•</span>
                 <span>Az egyéni edzések csak Önnek láthatóak.</span>
               </li>
               <li className="flex items-start space-x-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-blue-500 dark:text-blue-400 mt-0.5">•</span>
                 <span>A MET érték befolyásolja a kalória számítást - minél magasabb, annál intenzívebb az edzés.</span>
               </li>
               <li className="flex items-start space-x-2">
-                <span className="text-blue-500 mt-0.5">•</span>
+                <span className="text-blue-500 dark:text-blue-400 mt-0.5">•</span>
                 <span>Az alapértelmezett időtartam a naplózásnál automatikusan kitöltésre kerül.</span>
               </li>
             </ul>

@@ -1,7 +1,10 @@
 "use client";
+import Link from 'next/link';
+import { useSession, signOut } from "next-auth/react";
 
 export default function Footer() {
     const currentYear = new Date().getFullYear();
+    const { data: session } = useSession();
 
     return (
         <footer className="dark:bg-gray-900 bg-gray-300 text-white py-8 mt-auto">
@@ -21,19 +24,30 @@ export default function Footer() {
                         <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Gyors linkek</h3>
                         <ul className="space-y-2">
                             <li>
-                                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
-                                    Funkciók
-                                </a>
+                                <Link href="/#meals" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
+                                    Ételek
+                                </Link>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
-                                    Piac
-                                </a>
+                                <Link href="/#workouts" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
+                                    Edzések
+                                </Link>
                             </li>
                             <li>
-                                <a href="#" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
-                                    Cég
-                                </a>
+                                <Link href="/#conclusion" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
+                                    Konklúzió
+                                </Link>
+                            </li>
+                            <li>
+                                {session?.user ? (
+                                    <button onClick={() => signOut({ callbackUrl: '/' })} className="text-gray-600 dark:text-gray-400 hover:text-white transition">
+                                        Kijelentkezés
+                                    </button>
+                                ) : (
+                                    <Link href="/auth/signin" className="text-gray-600 dark:text-gray-400 hover:text-white transition">
+                                        Bejelentkezés
+                                    </Link>
+                                )}
                             </li>
                         </ul>
                     </div>
