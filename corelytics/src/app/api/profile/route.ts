@@ -7,7 +7,9 @@ import { Decimal } from '@prisma/client/runtime/library'
 
 const profileSchema = z.object({
   userId: z.string(),
-  age: z.number().min(13).max(120).optional(),
+  birthDate: z.string()
+    .optional()
+    .transform(val => val ? new Date(val) : undefined),
   gender: z.enum(["male", "female", "other"]).optional(),
   heightCm: z.number().min(50).max(300).optional(),
   weightKg: z.number().min(20).max(500).optional(),
@@ -15,7 +17,20 @@ const profileSchema = z.object({
   goalId: z.number().optional(),
 })
 
-// Helper function to calculate daily nutritional goals
+// Segédfüggvény az életkor kiszámításához a születési dátumból
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+}
+
+// Segédfüggvény a napi táplálkozási célok kiszámításához
 function calculateDailyGoals(
   age: number,
   gender: string,
@@ -24,7 +39,7 @@ function calculateDailyGoals(
   activityLevelId: number,
   goalId: number
 ) {
-  // Calculate BMR (Basal Metabolic Rate) using Mifflin-St Jeor Equation
+  // BMR (Alapanyagcsere) számítása a Mifflin-St Jeor egyenlet alapján
   let bmr: number;
   
   if (gender === 'male') {
@@ -32,58 +47,80 @@ function calculateDailyGoals(
   } else if (gender === 'female') {
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 161;
   } else {
-    // For 'other', use average of male and female
+    // 'other' esetén használd a férfi és női érték átlagát
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
   }
 
-  // Activity level multipliers
-  // 1: Sedentary (little or no exercise) - 1.2
-  // 2: Lightly active (exercise 1-3 days/week) - 1.375
-  // 3: Moderately active (exercise 3-5 days/week) - 1.55
-  // 4: Very active (exercise 6-7 days/week) - 1.725
+  // Aktivitási szint szorzók
+  // 1: Ülő életmód (kevés vagy nincs gyakorlat) - 1.2
+  // 2: Enyhén aktív (edzés 1-3 nap/hét) - 1.375
+  // 3: Mérsékelten aktív (edzés 3-5 nap/hét) - 1.55
+  // 4: Nagyon aktív (edzés 6-7 nap/hét) - 1.725
   const activityMultipliers: { [key: number]: number } = {
-    1: 1.2,
-    2: 1.375,
-    3: 1.55,
-    4: 1.725,
+    2: 1.2,    // Ülő életmód
+    4: 1.375,  // Enyhén aktív
+    3: 1.55,   // Mérsékelten aktív
+    1: 1.725,  // Nagyon aktív
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
-  const tdee = bmr * activityMultiplier; // Total Daily Energy Expenditure
+  const tdee = bmr * activityMultiplier; // Teljes napi energiafelhasználás
 
-  // Adjust based on goal
-  // 1: Weight loss (Fogyás) - subtract 500 cal (lose ~0.5kg/week)
-  // 2: Maintain weight (Súlytartás) - no change
-  // 3: Weight gain (Hízás) - add 500 cal (gain ~0.5kg/week)
+  // Cél alapján módosítás
+  // 1: Hízás - 500 kal hozzáadása (~0.5kg/hét növekedés)
+  // 2: Súlytartás - nincs változás
+  // 3: Fogyás - 500 kal levonása (~0.5kg/hét fogyás)
   let caloriesGoal: number;
   
   if (goalId === 1) {
-    // Weight loss
-    caloriesGoal = tdee - 500;
-  } else if (goalId === 3) {
-    // Weight gain
+    // Hízás
     caloriesGoal = tdee + 500;
+  } else if (goalId === 3) {
+    // Fogyás
+    caloriesGoal = tdee - 500;
   } else {
-    // Maintain
+    // Súlytartás
     caloriesGoal = tdee;
   }
 
-  // Ensure minimum calories (1200 for women, 1500 for men)
+  // Minimális kalória biztosítása (1200 nőknek, 1500 férfiaknak)
   const minCalories = gender === 'female' ? 1200 : gender === 'male' ? 1500 : 1350;
   caloriesGoal = Math.max(caloriesGoal, minCalories);
 
-  // Calculate macronutrient goals
-  // Protein: 1.6-2.2g per kg body weight (use 1.8g average for active individuals)
-  const proteinGoal = weightKg * 1.8;
+  // Makrotápanyag célok számítása
+  // Fehérje: Dinamikus aktivitási szint és cél alapján
+  // Alap: 0.8g/kg (ülő életmód, súlytartás)
+  // Növelés aktivitásra: +0.4g/kg (enyhén aktív), +0.6g/kg (mérsékelten aktív), +1.0g/kg (nagyon aktív)
+  // Növelés célokra: +0.2g/kg (fogyás - izomtömeg megőrzése), +0.4g/kg (hízás - izomépítés)
   
-  // Fat: 25-30% of total calories (use 30%)
+  let proteinMultiplier = 0.8; // Alap ülő életmódhoz
+  
+  // Aktivitási szint alapján módosítás
+  if (activityLevelId === 4) {
+    proteinMultiplier += 0.4; // Enyhén aktív
+  } else if (activityLevelId === 3) {
+    proteinMultiplier += 0.6; // Mérsékelten aktív
+  } else if (activityLevelId === 1) {
+    proteinMultiplier += 1.0; // Nagyon aktív
+  }
+  
+  // Cél alapján módosítás
+  if (goalId === 3) {
+    proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
+  } else if (goalId === 1) {
+    proteinMultiplier += 0.4; // Hízás - izomépítés
+  }
+  
+  const proteinGoal = weightKg * proteinMultiplier;
+  
+  // Zsír: 25-30% az összes kalóriából (30% használata)
   const fatCalories = caloriesGoal * 0.30;
-  const fatGoal = fatCalories / 9; // 9 calories per gram of fat
+  const fatGoal = fatCalories / 9; // 9 kalória grammnonként zsírból
   
-  // Carbs: Remaining calories
-  const proteinCalories = proteinGoal * 4; // 4 calories per gram of protein
+  // Szénhidrát: Maradék kalóriák
+  const proteinCalories = proteinGoal * 4; // 4 kalória grammonként fehérjéből
   const remainingCalories = caloriesGoal - proteinCalories - fatCalories;
-  const carbsGoal = remainingCalories / 4; // 4 calories per gram of carbs
+  const carbsGoal = remainingCalories / 4; // 4 kalória grammonként szénhidrátból
 
   return {
     caloriesGoal: Math.round(caloriesGoal),
@@ -107,7 +144,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const validatedData = profileSchema.parse(body)
 
-    // Ensure user can only create/update their own profile
+    // Biztosítsd, hogy a felhasználó csak a saját profilját hozhassa létre/frissíthesse
     if (validatedData.userId !== session.user.id) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -115,43 +152,43 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if profile already exists
+    // Ellenőrizd, hogy létezik-e már a profil
     const existingProfile = await prisma.userProfile.findUnique({
-      where: { userId: validatedData.userId }
+      where: { user_id: validatedData.userId }
     })
 
     let profile
     if (existingProfile) {
-      // Update existing profile
+      // Meglévő profil frissítése
       profile = await prisma.userProfile.update({
-        where: { userId: validatedData.userId },
+        where: { user_id: validatedData.userId },
         data: {
-          age: validatedData.age,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     } else {
-      // Create new profile
+      // Új profil létrehozása
       profile = await prisma.userProfile.create({
         data: {
-          userId: validatedData.userId,
-          age: validatedData.age,
+          user_id: validatedData.userId,
+          birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevelId: validatedData.activityLevelId,
-          goalId: validatedData.goalId,
+          activityLevel_id: validatedData.activityLevelId,
+          goal_id: validatedData.goalId,
         }
       })
     }
 
-    // Check if profile is complete and calculate daily goals
+    // Ellenőrizd, hogy a profil teljes-e és számítsd ki a napi célokat
     const isComplete = !!(
-      validatedData.age &&
+      validatedData.birthDate &&
       validatedData.gender &&
       validatedData.heightCm &&
       validatedData.weightKg &&
@@ -160,9 +197,12 @@ export async function POST(request: NextRequest) {
     );
 
     if (isComplete) {
-      // Calculate daily nutritional goals
+      // Életkor számítása a születési dátumból
+      const age = calculateAge(validatedData.birthDate!);
+      
+      // Napi táplálkozási célok számítása
       const goals = calculateDailyGoals(
-        validatedData.age!,
+        age,
         validatedData.gender!,
         validatedData.heightCm!,
         validatedData.weightKg!,
@@ -170,14 +210,14 @@ export async function POST(request: NextRequest) {
         validatedData.goalId!
       );
 
-      // Create or update today's daily goal
+      // Mai napi cél létrehozása vagy frissítése
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       await prisma.dailyGoal.upsert({
         where: {
-          userId_date: {
-            userId: validatedData.userId,
+          user_id_date: {
+            user_id: validatedData.userId,
             date: today,
           },
         },
@@ -188,7 +228,7 @@ export async function POST(request: NextRequest) {
           carbsGoal: new Decimal(goals.carbsGoal),
         },
         create: {
-          userId: validatedData.userId,
+          user_id: validatedData.userId,
           date: today,
           caloriesGoal: goals.caloriesGoal,
           proteinGoal: new Decimal(goals.proteinGoal),
@@ -200,7 +240,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         profile,
         dailyGoals: goals,
-        message: 'Profile completed and daily goals calculated successfully!'
+        message: 'Profil sikeresen kitöltve és napi célok kiszámítva!'
       });
     }
 
@@ -210,13 +250,13 @@ export async function POST(request: NextRequest) {
     
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Validation error', details: error.issues },
+        { error: 'Validációs hiba', details: error.issues },
         { status: 400 }
       )
     }
 
     return NextResponse.json(
-      { error: 'Failed to create/update profile' },
+      { error: 'Nem sikerült létrehozni/frissíteni a profilt' },
       { status: 500 }
     )
   }
@@ -234,7 +274,7 @@ export async function GET(request: NextRequest) {
     }
 
     const profile = await prisma.userProfile.findUnique({
-      where: { userId: session.user.id },
+      where: { user_id: session.user.id },
       include: {
         activityLevel: true,
         goal: true,
@@ -243,7 +283,7 @@ export async function GET(request: NextRequest) {
 
     if (!profile) {
       return NextResponse.json(
-        { error: 'Profile not found' },
+        { error: 'Profil nem található' },
         { status: 404 }
       )
     }
@@ -253,7 +293,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching profile:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch profile' },
+      { error: 'Nem sikerült betölteni a profilt' },
       { status: 500 }
     )
   }

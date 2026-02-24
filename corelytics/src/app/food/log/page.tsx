@@ -70,11 +70,16 @@ export default function FoodLogPage() {
   const [editQuantity, setEditQuantity] = useState(1);
   const [showMealSelector, setShowMealSelector] = useState(false);
   
-  // tRPC queries and mutations
+  // tRPC lekérdezések és mutációk
   const { data: mealTypes = [] } = trpc.food.getMealTypes.useQuery();
   const { data: dailyLogs = [], refetch: refetchLogs } = trpc.food.getDailyLogs.useQuery({
     date: selectedDate.toISOString().split('T')[0]
   }, {
+    enabled: status === "authenticated"
+  });
+  
+  // Felhasználói statisztikák lekérése a napi célokhoz
+  const { data: userStats } = trpc.user.stats.useQuery(undefined, {
     enabled: status === "authenticated"
   });
   
@@ -139,7 +144,7 @@ export default function FoodLogPage() {
 
   const handleEditLog = (log: DailyLog) => {
     setEditingLog(log.id);
-    setEditQuantity(Number(log.quantity));
+    setEditQuantity(Number(log.quantity) || 1);
   };
 
   const handleUpdateLog = async (logId: string) => {
@@ -172,8 +177,16 @@ export default function FoodLogPage() {
   };
 
   const totals = calculateTotals();
-  const calorieGoal = 2000; // This would come from user's daily goal
-  const caloriesRemaining = calorieGoal - totals.calories;
+  const calorieGoal = userStats?.caloriesTarget || 2000;
+  const caloriesBurned = userStats?.caloriesBurned || 0;
+  const netCalories = totals.calories - caloriesBurned;
+  const proteinGoal = Number(userStats?.proteinTarget) || 150;
+  const fatGoal = Number(userStats?.fatTarget) || 65;
+  const carbsGoal = Number(userStats?.carbsTarget) || 250;
+  const caloriesRemaining = calorieGoal - netCalories;
+  const proteinRemaining = proteinGoal - totals.protein;
+  const fatRemaining = fatGoal - totals.fat;
+  const carbsRemaining = carbsGoal - totals.carbs;
 
   if (status === "loading") {
     return (
@@ -188,10 +201,11 @@ export default function FoodLogPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+    <>
+    <Header />
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-700 text-white">
+      <div className="bg-gradient-to-r from-green-600 to-blue-700 dark:from-green-800 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -199,9 +213,9 @@ export default function FoodLogPage() {
                 <FireIconSolid className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">Food Diary</h1>
-                <p className="text-green-100 mt-1">
-                  Track your nutrition and reach your goals
+                <h1 className="text-3xl font-bold !text-white">Étkezési Napló</h1>
+                <p className="!text-green-100 mt-1">
+                  Kövesd nyomon a táplálkozásodat és érdd el a céljaidat
                 </p>
               </div>
             </div>
@@ -217,83 +231,113 @@ export default function FoodLogPage() {
                 className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
               >
                 <PlusIcon className="h-5 w-5" />
-                <span>Add Food</span>
+                <span>Étel hozzáadása</span>
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Daily Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           {/* Calories Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-orange-100 rounded-lg">
-                <FireIconSolid className="h-6 w-6 text-orange-600" />
+              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
+                <FireIconSolid className="h-6 w-6 text-orange-600 dark:text-orange-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Calories</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {Math.round(totals.calories)}
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Nettó kalória</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {Math.round(netCalories)} / {Math.round(calorieGoal)}
                 </p>
               </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
-                className="bg-orange-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${Math.min((totals.calories / calorieGoal) * 100, 100)}%` }}
+                className="bg-orange-600 dark:bg-orange-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(Math.max((netCalories / calorieGoal) * 100, 0), 100)}%` }}
               ></div>
             </div>
-            <p className="text-sm text-gray-500 mt-2">
-              {caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} remaining` : `${Math.round(Math.abs(caloriesRemaining))} over goal`}
-            </p>
+            <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 space-y-1">
+              <p>{caloriesRemaining > 0 ? `${Math.round(caloriesRemaining)} maradt` : `${Math.round(Math.abs(caloriesRemaining))} túllépve`}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">
+                {Math.round(totals.calories)} bevitt - {Math.round(caloriesBurned)} égetett
+              </p>
+            </div>
           </div>
 
           {/* Protein Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <BeakerIcon className="h-6 w-6 text-red-600" />
+              <div className="p-2 bg-red-100 dark:bg-red-900 rounded-lg">
+                <BeakerIcon className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Protein</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Fehérje</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {Math.round(totals.protein)}g
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-red-600 dark:bg-red-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.protein / proteinGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {proteinRemaining > 0 ? `${Math.round(proteinRemaining)}g maradt` : 'Cél elérve! 🎉'}
+            </p>
           </div>
 
           {/* Fat Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-yellow-100 rounded-lg">
-                <ScaleIcon className="h-6 w-6 text-yellow-600" />
+              <div className="p-2 bg-yellow-100 dark:bg-yellow-900 rounded-lg">
+                <ScaleIcon className="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Fat</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Zsír</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {Math.round(totals.fat)}g
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-yellow-600 dark:bg-yellow-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.fat / fatGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {fatRemaining > 0 ? `${Math.round(fatRemaining)}g maradt` : 'Cél elérve! 🎉'}
+            </p>
           </div>
 
           {/* Carbs Card */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <BeakerIcon className="h-6 w-6 text-green-600" />
+              <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
+                <BeakerIcon className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600">Carbs</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Szénhidrát</p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {Math.round(totals.carbs)}g
                 </p>
               </div>
             </div>
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-green-600 dark:bg-green-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${Math.min((totals.carbs / carbsGoal) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              {carbsRemaining > 0 ? `${Math.round(carbsRemaining)}g maradt` : 'Cél elérve! 🎉'}
+            </p>
           </div>
         </div>
 
@@ -306,13 +350,13 @@ export default function FoodLogPage() {
             );
 
             return (
-              <div key={mealType.id} className="bg-white rounded-xl shadow-sm border border-gray-200">
-                <div className="p-6 border-b border-gray-200">
+              <div key={mealType.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                <div className="p-6 border-b border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <h2 className="text-xl font-semibold text-gray-900">{mealType.name}</h2>
-                      <span className="text-sm text-gray-500">
-                        {Math.round(mealCalories)} calories
+                      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{mealType.name}</h2>
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        {Math.round(mealCalories)} kalória
                       </span>
                     </div>
                     <button
@@ -320,7 +364,7 @@ export default function FoodLogPage() {
                         setSelectedMealType(mealType.id);
                         setShowAddFood(true);
                       }}
-                      className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+                      className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
                     >
                       <PlusIcon className="h-5 w-5" />
                     </button>
@@ -330,14 +374,14 @@ export default function FoodLogPage() {
                   {mealLogs.length > 0 ? (
                     <div className="space-y-4">
                       {mealLogs.map((log: DailyLog) => (
-                        <div key={log.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div key={log.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                           <div className="flex-1">
                             <div className="flex items-center space-x-3">
                               <div>
-                                <p className="font-medium text-gray-900">
-                                  {log.foodItem?.name || 'Unknown Food'}
+                                <p className="font-medium text-gray-900 dark:text-gray-100">
+                                  {log.foodItem?.name || 'Ismeretlen Étel'}
                                   {log.foodItem?.brand && (
-                                    <span className="text-gray-500 ml-2">- {log.foodItem.brand}</span>
+                                    <span className="text-gray-500 dark:text-gray-400 ml-2">- {log.foodItem.brand}</span>
                                   )}
                                 </p>
                                 {editingLog === log.id ? (
@@ -346,20 +390,21 @@ export default function FoodLogPage() {
                                       type="number"
                                       min="0.1"
                                       step="0.1"
+                                      max="100.0"
                                       value={editQuantity}
-                                      onChange={(e) => setEditQuantity(parseFloat(e.target.value) || 1)}
-                                      className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                      onChange={(e) => setEditQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
+                                      className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     />
-                                    <span className="text-sm text-gray-500">
-                                      serving{editQuantity !== 1 ? 's' : ''}
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
+                                      adag{editQuantity !== 1 ? 'ok' : ''}
                                       {log.foodItem?.servingSizeGrams && (
                                         <span> ({Math.round(Number(log.foodItem.servingSizeGrams) * editQuantity)}g)</span>
                                       )}
                                     </span>
                                   </div>
                                 ) : (
-                                  <p className="text-sm text-gray-500">
-                                    {Number(log.quantity || 0)} serving{Number(log.quantity || 0) !== 1 ? 's' : ''} 
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    {Number(log.quantity || 0)} adag{Number(log.quantity || 0) !== 1 ? 'ok' : ''} 
                                     {log.foodItem?.servingSizeGrams && (
                                       <span> ({Math.round(Number(log.foodItem.servingSizeGrams) * Number(log.quantity || 0))}g)</span>
                                     )}
@@ -370,13 +415,13 @@ export default function FoodLogPage() {
                           </div>
                           <div className="flex items-center space-x-4">
                             <div className="text-right">
-                              <p className="font-semibold text-gray-900">
+                              <p className="font-semibold text-gray-900 dark:text-gray-100">
                                 {editingLog === log.id 
                                   ? Math.round((Number(log.foodItem?.calories) || 0) * editQuantity)
                                   : Math.round((Number(log.foodItem?.calories) || 0) * Number(log.quantity || 0))
                                 } cal
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
                                 P: {editingLog === log.id 
                                   ? Math.round((Number(log.foodItem?.protein) || 0) * editQuantity)
                                   : Math.round((Number(log.foodItem?.protein) || 0) * Number(log.quantity || 0))
@@ -397,13 +442,13 @@ export default function FoodLogPage() {
                                   <button 
                                     onClick={() => handleUpdateLog(log.id)}
                                     disabled={updateLogMutation.isPending}
-                                    className="p-1 text-gray-400 hover:text-green-600 transition-colors disabled:opacity-50"
+                                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-green-600 dark:hover:text-green-400 transition-colors disabled:opacity-50"
                                   >
                                     <CheckIcon className="h-4 w-4" />
                                   </button>
                                   <button 
                                     onClick={handleCancelEdit}
-                                    className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                                   >
                                     <XMarkIcon className="h-4 w-4" />
                                   </button>
@@ -412,13 +457,13 @@ export default function FoodLogPage() {
                                 <>
                                   <button 
                                     onClick={() => handleEditLog(log)}
-                                    className="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                                   >
                                     <PencilIcon className="h-4 w-4" />
                                   </button>
                                   <button 
                                     onClick={() => handleDeleteLog(log.id)}
-                                    className="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                                   >
                                     <TrashIcon className="h-4 w-4" />
                                   </button>
@@ -430,16 +475,16 @@ export default function FoodLogPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No foods logged for {mealType.name.toLowerCase()}</p>
+                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                      <p>Nincs étel naplózva ehhez: {mealType.name.toLowerCase()}</p>
                       <button
                         onClick={() => {
                           setSelectedMealType(mealType.id);
                           setShowAddFood(true);
                         }}
-                        className="text-blue-600 hover:text-blue-700 font-medium mt-2"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium mt-2"
                       >
-                        Add your first food
+                        Első étel hozzáadása
                       </button>
                     </div>
                   )}
@@ -453,15 +498,15 @@ export default function FoodLogPage() {
       {/* Meal Selector Modal */}
       {showMealSelector && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-md w-full">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Choose Meal Category
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Étkezés Kategória Kiválasztása
                 </h3>
                 <button
                   onClick={() => setShowMealSelector(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors"
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
@@ -469,7 +514,7 @@ export default function FoodLogPage() {
             </div>
             
             <div className="p-6">
-              <p className="text-gray-600 mb-4">Select which meal you want to add food to:</p>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">Válaszd ki, melyik étkezéshez szeretnél ételt hozzáadni:</p>
               <div className="space-y-3">
                 {mealTypes.map((mealType) => (
                   <button
@@ -479,14 +524,14 @@ export default function FoodLogPage() {
                       setShowMealSelector(false);
                       setShowAddFood(true);
                     }}
-                    className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors"
+                    className="w-full p-4 text-left bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-medium text-gray-900">{mealType.name}</span>
-                      <div className="text-sm text-gray-500">
+                      <span className="font-medium text-gray-900 dark:text-gray-100">{mealType.name}</span>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         {(dailyLogs as unknown as DailyLog[]).filter((log: DailyLog) => log.mealType?.id === mealType.id).reduce((sum: number, log: DailyLog) => 
                           sum + (Number(log.foodItem?.calories) || 0) * Number(log.quantity), 0
-                        )} cal logged
+                        )} kal naplózva
                       </div>
                     </div>
                   </button>
@@ -500,11 +545,11 @@ export default function FoodLogPage() {
       {/* Add Food Modal */}
       {showAddFood && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-2xl w-full max-h-[90vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Add Food to {mealTypes.find(m => m.id === selectedMealType)?.name}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  Étel hozzáadása: {mealTypes.find(m => m.id === selectedMealType)?.name}
                 </h3>
                 <button
                   onClick={() => {
@@ -512,7 +557,7 @@ export default function FoodLogPage() {
                     setSelectedFood(null);
                     setSearchQuery('');
                   }}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+                  className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg transition-colors"
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
@@ -524,13 +569,13 @@ export default function FoodLogPage() {
                 <>
                   {/* Search Input */}
                   <div className="relative mb-6">
-                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
                     <input
                       type="text"
-                      placeholder="Search for a food..."
+                      placeholder="Keress egy ételt..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
 
@@ -539,7 +584,7 @@ export default function FoodLogPage() {
                     {isSearching ? (
                       <div className="text-center py-8">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="text-gray-500 mt-2">Searching...</p>
+                        <p className="text-gray-500 dark:text-gray-400 mt-2">Keresés...</p>
                       </div>
                     ) : searchResults.length > 0 ? (
                       <div className="space-y-2">
@@ -547,21 +592,21 @@ export default function FoodLogPage() {
                           <button
                             key={food.id}
                             onClick={() => setSelectedFood(food as FoodItem)}
-                            className="w-full p-4 text-left hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors"
+                            className="w-full p-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 transition-colors"
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-medium text-gray-900">{food.name}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-100">{food.name}</p>
                                 {food.brand && (
-                                  <p className="text-sm text-gray-500">{food.brand}</p>
+                                  <p className="text-sm text-gray-500 dark:text-gray-400">{food.brand}</p>
                                 )}
-                                <p className="text-sm text-gray-500">
-                                  {food.servingSizeGrams}g serving
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                  {food.servingSizeGrams}g adag
                                 </p>
                               </div>
                               <div className="text-right">
-                                <p className="font-semibold text-gray-900">{food.calories} cal</p>
-                                <p className="text-xs text-gray-500">
+                                <p className="font-semibold text-gray-900 dark:text-gray-100">{food.calories} cal</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
                                   P: {food.protein}g | F: {food.fat}g | C: {food.carbs}g
                                 </p>
                               </div>
@@ -570,15 +615,18 @@ export default function FoodLogPage() {
                         ))}
                       </div>
                     ) : searchQuery.length > 2 ? (
-                      <div className="text-center py-8 text-gray-500">
-                        <p>No foods found for &quot;{searchQuery}&quot;</p>
-                        <button className="text-blue-600 hover:text-blue-700 font-medium mt-2">
-                          Create custom food
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <p>Nem található étel erre: &quot;{searchQuery}&quot;</p>
+                        <button 
+                          onClick={() => router.push('/food/create')}
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium mt-2"
+                        >
+                          Egyedi étel létrehozása
                         </button>
                       </div>
                     ) : (
-                      <div className="text-center py-8 text-gray-500">
-                        <p>Start typing to search for foods</p>
+                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        <p>Kezdj el gépelni az ételek kereséséhez</p>
                       </div>
                     )}
                   </div>
@@ -589,42 +637,43 @@ export default function FoodLogPage() {
                   <div className="mb-6">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h4 className="text-lg font-semibold text-gray-900">{selectedFood.name}</h4>
+                        <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedFood.name}</h4>
                         {selectedFood.brand && (
-                          <p className="text-gray-600">{selectedFood.brand}</p>
+                          <p className="text-gray-600 dark:text-gray-400">{selectedFood.brand}</p>
                         )}
                       </div>
                       <button
                         onClick={() => setSelectedFood(null)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                       >
                         <XMarkIcon className="h-5 w-5" />
                       </button>
                     </div>
                     
                     {/* Nutrition Info */}
-                    <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                      <p className="text-sm text-gray-600 mb-2">Per {Number(selectedFood.servingSizeGrams || 0)}g serving:</p>
+                    <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">{Number(selectedFood.servingSizeGrams || 0)}g adagonként:</p>
                       <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>Calories: <span className="font-semibold">{Number(selectedFood.calories || 0)}</span></div>
-                        <div>Protein: <span className="font-semibold">{Number(selectedFood.protein || 0)}g</span></div>
-                        <div>Fat: <span className="font-semibold">{Number(selectedFood.fat || 0)}g</span></div>
-                        <div>Carbs: <span className="font-semibold">{Number(selectedFood.carbs || 0)}g</span></div>
+                        <div className="text-gray-900 dark:text-gray-100">Kalória: <span className="font-semibold">{Number(selectedFood.calories || 0)}</span></div>
+                        <div className="text-gray-900 dark:text-gray-100">Fehérje: <span className="font-semibold">{Number(selectedFood.protein || 0)}g</span></div>
+                        <div className="text-gray-900 dark:text-gray-100">Zsír: <span className="font-semibold">{Number(selectedFood.fat || 0)}g</span></div>
+                        <div className="text-gray-900 dark:text-gray-100">Szénhidrát: <span className="font-semibold">{Number(selectedFood.carbs || 0)}g</span></div>
                       </div>
                     </div>
 
                     {/* Quantity Input */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Number of servings:
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Adagok száma:
                       </label>
                       <input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        value={quantity}
-                        onChange={(e) => setQuantity(parseFloat(e.target.value) || 1)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      type="number"
+                      min="0.1"
+                      max="100"
+                      step="0.1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Math.min(parseFloat(e.target.value) || 1, 100))}
+                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -633,24 +682,24 @@ export default function FoodLogPage() {
                   <div className="flex space-x-3">
                     <button
                       onClick={() => setSelectedFood(null)}
-                      className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                      className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                     >
-                      Back to Search
+                      Vissza a kereséshez
                     </button>
                     <button
                       onClick={handleAddFood}
                       disabled={logFoodMutation.isPending}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+                      className="flex-1 px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
                     >
                       {logFoodMutation.isPending ? (
                         <>
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                          <span>Adding...</span>
+                          <span>Hozzáadás...</span>
                         </>
                       ) : (
                         <>
                           <CheckIcon className="h-4 w-4" />
-                          <span>Add Food</span>
+                          <span>Étel hozzáadása</span>
                         </>
                       )}
                     </button>
@@ -661,7 +710,8 @@ export default function FoodLogPage() {
           </div>
         </div>
       )}
-      <Footer />
     </div>
+    <Footer />
+    </>
   );
 }

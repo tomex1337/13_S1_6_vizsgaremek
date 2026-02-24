@@ -8,16 +8,16 @@ export async function sendPasswordResetEmail(email: string, resetToken: string) 
   await resend.emails.send({
     from: 'Corelytics <noreply@mail.corelytics.tomex.xyz>',
     to: email,
-    subject: 'Password Reset Request - Corelytics',
+    subject: 'Jelszó visszaállítási kérelem - Corelytics',
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="color: #4F46E5;">Password Reset Request</h2>
-        <p>You requested a password reset for your Corelytics account. Click the link below to reset your password:</p>
-        <a href="${resetUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Reset Password</a>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn&apos;t request this, please ignore this email and your password will remain unchanged.</p>
+        <h2 style="color: #4F46E5;">Jelszó visszaállítási kérelem</h2>
+        <p>Jelszó visszaállítást kért Corelytics fiókjához. Kattintson az alábbi linkre a jelszó visszaállításához:</p>
+        <a href="${resetUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Jelszó visszaállítása</a>
+        <p>Ez a link 24 órán belül lejár.</p>
+        <p>Ha nem Ön kérte ezt, kérjük hagyja figyelmen kívül ezt az emailt és a jelszava változatlan marad.</p>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 12px;">© Corelytics - Your Fitness Tracking Companion</p>
+        <p style="color: #666; font-size: 12px;">© Corelytics - Az Ön edzéskövető társa</p>
       </div>
     `,
   })
@@ -27,15 +27,15 @@ export async function sendWelcomeEmail(email: string, name: string) {
   await resend.emails.send({
     from: 'Corelytics <noreply@mail.corelytics.tomex.xyz>',
     to: email,
-    subject: 'Welcome to Corelytics!',
+    subject: 'Üdvözöljük a Corelytics-ban!',
     html: `
       <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
-        <h2 style="color: #4F46E5;">Welcome to Corelytics, ${name}!</h2>
-        <p>Thank you for joining our fitness tracking community.</p>
-        <p>Start tracking your meals and workouts to reach your fitness goals!</p>
-        <a href="${process.env.NEXTAUTH_URL}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Get Started</a>
+        <h2 style="color: #4F46E5;">Üdvözöljük a Corelytics-ban, ${name}!</h2>
+        <p>Köszönjük, hogy csatlakozott edzéskövető közösségünkhöz.</p>
+        <p>Kezdje el nyomon követni étkezéseit és edzéseit, hogy elérje fitness céljait!</p>
+        <a href="${process.env.NEXTAUTH_URL}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Kezdjük el</a>
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
-        <p style="color: #666; font-size: 12px;">© Corelytics - Your Fitness Tracking Companion</p>
+        <p style="color: #666; font-size: 12px;">© Corelytics - Az Ön edzéskövető társa</p>
       </div>
     `,
   })

@@ -32,7 +32,7 @@ export default function SignUp() {
     const { email, password, confirmPassword, name } = data
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match")
+      setError("A jelszavak nem egyeznek")
       setIsLoading(false)
       return
     }
@@ -46,9 +46,9 @@ export default function SignUp() {
       router.push("/auth/signin")
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        setError(error.response?.data?.message || "Something went wrong")
+        setError(error.response?.data?.message || "Valami hiba történt")
       } else {
-        setError("Something went wrong")
+        setError("Valami hiba történt")
       }
     } finally {
       setIsLoading(false)
@@ -59,24 +59,24 @@ export default function SignUp() {
     <>
     <Header />
     <div className="flex min-h-screen flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+      <div className="w-full max-w-md space-y-8 bg-gray-100 dark:bg-gray-900 p-10 rounded-lg shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight">
-            Create your account
+            Hozd létre a fiókodat
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4 rounded-md shadow-sm">
+          <div className="space-y-4 rounded-md">
             <div>
               <label htmlFor="name" className="sr-only">
-                Name
+                Név
               </label>
               <input
                 id="name"
-                {...register("name", { required: "Name is required" })}
+                {...register("name", { required: "A név megadása kötelező" })}
                 type="text"
-                className="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Full name"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Teljes név"
               />
               {errors.name && (
                 <span className="text-red-500 text-xs">{errors.name.message}</span>
@@ -84,20 +84,20 @@ export default function SignUp() {
             </div>
             <div>
               <label htmlFor="email" className="sr-only">
-                Email address
+                Email cím
               </label>
               <input
                 id="email"
                 {...register("email", {
-                  required: "Email is required",
+                  required: "Az email cím megadása kötelező",
                   pattern: {
                     value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Invalid email address",
+                    message: "Érvénytelen email cím",
                   },
                 })}
                 type="email"
-                className="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Email address"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Email cím"
               />
               {errors.email && (
                 <span className="text-red-500 text-xs">{errors.email.message}</span>
@@ -105,14 +105,14 @@ export default function SignUp() {
             </div>
             <div>
               <label htmlFor="password" className="sr-only">
-                Password
+                Jelszó
               </label>
               <input
                 id="password"
-                {...register("password", { required: "Password is required" })}
+                {...register("password", { required: "A jelszó megadása kötelező" })}
                 type="password"
-                className="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Password"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Jelszó"
               />
               {errors.password && (
                 <span className="text-red-500 text-xs">{errors.password.message}</span>
@@ -120,14 +120,14 @@ export default function SignUp() {
             </div>
             <div>
               <label htmlFor="confirmPassword" className="sr-only">
-                Confirm Password
+                Jelszó megerősítése
               </label>
               <input
                 id="confirmPassword"
-                {...register("confirmPassword", { required: "Please confirm your password" })}
+                {...register("confirmPassword", { required: "Kérlek erősítsd meg a jelszavad" })}
                 type="password"
-                className="relative block w-full rounded-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Confirm password"
+                className="relative block w-full p-2 rounded-md border-1 border-indigo-900 py-1.5 text-gray-900 dark:border-indigo-200 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                placeholder="Jelszó megerősítése"
               />
               {errors.confirmPassword && (
                 <span className="text-red-500 text-xs">{errors.confirmPassword.message}</span>
@@ -143,20 +143,20 @@ export default function SignUp() {
             <button
               type="submit"
               disabled={isLoading}
-              className="group relative flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative flex w-full justify-center rounded-md bg-indigo-700 py-2 px-3 text-sm font-semibold text-white dark:text-gray-900 hover:bg-indigo-600 dark:bg-indigo-300 dark:hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Creating account..." : "Sign up"}
+              {isLoading ? "Fiók létrehozása..." : "Regisztráció"}
             </button>
           </div>
         </form>
 
         <div className="text-sm text-center">
-          Already have an account?{" "}
+          Már van fiókod?{" "}
           <Link
             href="/auth/signin"
-            className="font-medium text-indigo-600 hover:text-indigo-500"
+            className="font-medium text-indigo-700 hover:text-indigo-600 dark:text-indigo-300 dark:hover:text-indigo-400"
           >
-            Sign in
+            Jelentkezz be
           </Link>
         </div>
       </div>

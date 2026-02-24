@@ -8,13 +8,26 @@ export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json()
 
-    const existingUser = await prisma.user.findUnique({
+    // Néhány alapvető validáció
+    const existingUserByEmail = await prisma.user.findUnique({
       where: { email },
     })
 
-    if (existingUser) {
+    if (existingUserByEmail) {
       return NextResponse.json(
-        { message: "User with this email already exists" },
+        { message: "Ezzel az email címmel már létezik felhasználó" },
+        { status: 400 }
+      )
+    }
+
+    // Felhasználónév ellenőrzése
+    const existingUserByUsername = await prisma.user.findUnique({
+      where: { username: name },
+    })
+
+    if (existingUserByUsername) {
+      return NextResponse.json(
+        { message: "Ez a felhasználónév már foglalt" },
         { status: 400 }
       )
     }
@@ -26,29 +39,38 @@ export async function POST(req: Request) {
       data: {
         id: uuidv4(),
         email,
-        username: name, // Using name as username
+        username: name, // nevezze el a mezőt username-nek
         passwordHash: hashedPassword,
         createdAt: now,
         updatedAt: now,
       },
     })
 
-    // Send welcome email
+    // Email küldése
     try {
       await sendWelcomeEmail(email, name)
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError)
-      // Don't fail the registration if email sending fails
+      // Ne akadályozza meg a regisztrációt, ha az email küldés sikertelen
     }
 
     return NextResponse.json(
-      { message: "User created successfully", user: { id: user.id, email: user.email, username: user.username } },
+      { message: "Felhasználó sikeresen létrehozva", user: { id: user.id, email: user.email, username: user.username } },
       { status: 201 }
     )
   } catch (error) {
     console.error("Registration error:", error)
+    
+    // Prisma egyedi megszorítási hibakezelés
+    if (error instanceof Error && error.message.includes("Unique constraint failed")) {
+      return NextResponse.json(
+        { message: "A felhasználónév vagy email cím már létezik" },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
-      { message: "Error creating user" },
+      { message: "Hiba a felhasználó létrehozása során" },
       { status: 500 }
     )
   }

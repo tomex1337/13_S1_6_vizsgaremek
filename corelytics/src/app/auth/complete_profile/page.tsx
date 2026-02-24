@@ -9,7 +9,7 @@ import axios from "axios"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 
-// Extend the session type to include user id
+// Session típus kiterjesztése a felhasználói azonosítóval
 declare module "next-auth" {
   interface Session {
     user: {
@@ -21,43 +21,53 @@ declare module "next-auth" {
   }
 }
 
-// Form validation schema
+// Űrlap validációs séma
 const profileSchema = z.object({
-  age: z.string()
-    .refine((val) => val !== "", { message: "Age is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Age must be a valid number" })
-    .transform((val) => Number(val))
-    .refine((val) => val >= 13, { message: "Age must be at least 13" })
-    .refine((val) => val <= 120, { message: "Age must be less than 120" }),
+  birthDate: z.string()
+    .refine((val) => val !== "", { message: "A születési dátum megadása kötelező" })
+    .refine((val) => {
+      const date = new Date(val);
+      return !isNaN(date.getTime());
+    }, { message: "Érvényes születési dátumot adj meg" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age >= 13;
+    }, { message: "Legalább 13 évesnek kell lenned" })
+    .refine((val) => {
+      const date = new Date(val);
+      const age = Math.floor((new Date().getTime() - date.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      return age <= 120;
+    }, { message: "Érvénytelen születési dátum" }),
   
   gender: z.string()
-    .refine((val) => val !== "", { message: "Gender is required" })
+    .refine((val) => val !== "", { message: "A nem megadása kötelező" })
     .refine((val) => ["male", "female", "other"].includes(val), {
-      message: "Please select a valid gender"
+      message: "Kérlek válassz érvényes nemet"
     }),
   
   heightCm: z.string()
-    .refine((val) => val !== "", { message: "Height is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Height must be a valid number" })
+    .refine((val) => val !== "", { message: "A magasság megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A magasságnak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 50, { message: "Height must be at least 50cm" })
-    .refine((val) => val <= 300, { message: "Height must be less than 300cm" }),
+    .refine((val) => val >= 50, { message: "A magasságnak legalább 50 cm-nek kell lennie" })
+    .refine((val) => val <= 300, { message: "A magasságnak kevesebb mint 300 cm-nek kell lennie" }),
   
   weightKg: z.string()
-    .refine((val) => val !== "", { message: "Weight is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Weight must be a valid number" })
+    .refine((val) => val !== "", { message: "A súly megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "A súlynak érvényes számnak kell lennie" })
     .transform((val) => Number(val))
-    .refine((val) => val >= 20, { message: "Weight must be at least 20kg" })
-    .refine((val) => val <= 500, { message: "Weight must be less than 500kg" }),
+    .refine((val) => val >= 20, { message: "A súlynak legalább 20 kg-nak kell lennie" })
+    .refine((val) => val <= 500, { message: "A súlynak kevesebb mint 500 kg-nak kell lennie" }),
   
   activityLevelId: z.string()
-    .refine((val) => val !== "", { message: "Activity level is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid activity level" })
+    .refine((val) => val !== "", { message: "Az aktivitási szint megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes aktivitási szintet" })
     .transform((val) => Number(val)),
   
   goalId: z.string()
-    .refine((val) => val !== "", { message: "Fitness goal is required" })
-    .refine((val) => !isNaN(Number(val)), { message: "Please select a valid fitness goal" })
+    .refine((val) => val !== "", { message: "A fitness cél megadása kötelező" })
+    .refine((val) => !isNaN(Number(val)), { message: "Kérlek válassz érvényes fitness célt" })
     .transform((val) => Number(val)),
 })
 
@@ -83,10 +93,10 @@ export default function CompleteProfile() {
     register,
     handleSubmit,
   } = useForm({
-    mode: "onSubmit", // Only validate on submit to avoid initial validation errors
+    mode: "onSubmit", // Csak beküldéskor validáljon, hogy elkerüljük a kezdeti validációs hibákat
   })
 
-  // Fetch activity levels and goals
+  // Aktivitási szintek és célok lekérése
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -107,7 +117,7 @@ export default function CompleteProfile() {
 
   const onSubmit = async (data: Record<string, unknown>) => {
     if (!session?.user?.id) {
-      setSubmitError("Session expired. Please sign in again.")
+      setSubmitError("A munkamenet lejárt. Kérlek jelentkezz be újra.")
       return
     }
 
@@ -115,13 +125,13 @@ export default function CompleteProfile() {
     setSubmitError(null)
     
     try {
-      // Validate the data locally before sending
+      // Adatok helyi validálása beküldés előtt
       const validationResult = profileSchema.safeParse(data)
       
       if (!validationResult.success) {
-        // Extract and format validation errors for user display
+        // Validációs hibák kinyerése és formázása a felhasználói megjelenítéshez
         const errorMessages = validationResult.error.issues.map((err: { message: string }) => err.message)
-        setSubmitError(`Please fix the following errors: ${errorMessages.join(', ')}`)
+        setSubmitError(`Kérlek javítsd a következő hibákat: ${errorMessages.join(', ')}`)
         setIsLoading(false)
         return
       }
@@ -131,14 +141,14 @@ export default function CompleteProfile() {
         ...validationResult.data,
       })
 
-      // Navigate to home page - Prisma cache tags will handle cache invalidation
+      // Navigálj a főoldalra - Prisma cache tagek kezelik a cache invalidálást
       router.push('/')
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message
-        setSubmitError(`Error creating profile: ${errorMessage}`)
+        setSubmitError(`Hiba a profil létrehozása során: ${errorMessage}`)
       } else {
-        setSubmitError("An unexpected error occurred. Please try again.")
+        setSubmitError("Váratlan hiba történt. Kérlek próbáld újra.")
       }
     } finally {
       setIsLoading(false)
@@ -151,7 +161,7 @@ export default function CompleteProfile() {
       <Header />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <p className="text-lg">Please sign in to complete your profile.</p>
+          <p className="text-lg">Kérlek jelentkezz be a profil kiegészítéséhez.</p>
         </div>
       </div>
       <Footer />
@@ -162,68 +172,68 @@ export default function CompleteProfile() {
   return (
     <>
     <Header />
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Complete Your Profile</h1>
-          <p className="mt-2 text-gray-600">
-            Help us personalize your fitness journey
+          <h1 className="text-3xl font-bold">Profil kiegészítése</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
+            Segíts nekünk személyre szabni a fitness utadat
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg px-6 py-8 space-y-6">
-          {/* Age */}
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-gray-800 shadow rounded-lg px-6 py-8 space-y-6">
+          {/* Birth Date */}
           <div>
-            <label htmlFor="age" className="block text-sm font-medium text-gray-700">
-              Age *
+            <label htmlFor="birthDate" className="block text-sm font-medium text-gray-700">
+              Születési dátum *
             </label>
             <input
-              type="number"
-              id="age"
-              {...register("age")}
+              type="date"
+              id="birthDate"
+              {...register("birthDate")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your age"
+              max={new Date().toISOString().split('T')[0]}
+              className=""
             />
           </div>
 
           {/* Gender */}
           <div>
             <label htmlFor="gender" className="block text-sm font-medium text-gray-700">
-              Gender *
+              Nem *
             </label>
             <select
               id="gender"
               {...register("gender")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
-              <option value="">Select gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
+              <option value="">Válassz nemet</option>
+              <option value="male">Férfi</option>
+              <option value="female">Nő</option>
+              <option value="other">Egyéb</option>
             </select>
           </div>
 
           {/* Height */}
           <div>
             <label htmlFor="heightCm" className="block text-sm font-medium text-gray-700">
-              Height (cm) *
+              Magasság (cm) *
             </label>
             <input
               type="number"
               id="heightCm"
               {...register("heightCm")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your height in cm"
+              className=""
+              placeholder="Add meg a magasságod cm-ben"
             />
           </div>
 
           {/* Weight */}
           <div>
             <label htmlFor="weightKg" className="block text-sm font-medium text-gray-700">
-              Weight (kg) *
+              Súly (kg) *
             </label>
             <input
               type="number"
@@ -231,23 +241,23 @@ export default function CompleteProfile() {
               id="weightKg"
               {...register("weightKg")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="Enter your weight in kg"
+              className=""
+              placeholder="Add meg a súlyod kg-ban"
             />
           </div>
 
           {/* Activity Level */}
           <div>
-            <label htmlFor="activityLevelId" className="block text-sm font-medium text-gray-700">
-              Activity Level *
+            <label htmlFor="activityLevelId" className="text-sm font-medium text-gray-700">
+              Aktivitási szint *
             </label>
             <select
               id="activityLevelId"
               {...register("activityLevelId")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
-              <option value="">Select activity level</option>
+              <option value="">Válassz aktivitási szintet</option>
               {activityLevels.map((level) => (
                 <option key={level.id} value={level.id}>
                   {level.name}
@@ -258,16 +268,16 @@ export default function CompleteProfile() {
 
           {/* Goal */}
           <div>
-            <label htmlFor="goalId" className="block text-sm font-medium text-gray-700">
-              Fitness Goal *
+            <label htmlFor="goalId" className="text-sm font-medium text-gray-700">
+              Fitness cél *
             </label>
             <select
               id="goalId"
               {...register("goalId")}
               required
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className=""
             >
-              <option value="">Select your goal</option>
+              <option value="">Válaszd ki a célodat</option>
               {goals.map((goal) => (
                 <option key={goal.id} value={goal.id}>
                   {goal.name}
@@ -290,7 +300,7 @@ export default function CompleteProfile() {
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Creating Profile..." : "Complete Profile"}
+              {isLoading ? "Profil létrehozása..." : "Profil kiegészítése"}
             </button>
           </div>
 
@@ -301,7 +311,7 @@ export default function CompleteProfile() {
               onClick={() => router.push('/')}
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              Skip for now
+              Kihagyás egyelőre
             </button>
           </div>
         </form>
