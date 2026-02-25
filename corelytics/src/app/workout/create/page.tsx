@@ -108,9 +108,9 @@ export default function CreateWorkoutPage() {
   return (
     <>
       <Header />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col">
         {/* Header Section */}
-        <div className="bg-gradient-to-r from-orange-600 to-red-600 text-white">
+        <div className="bg-gradient-to-r from-orange-600 to-red-600 dark:from-orange-800 dark:to-red-800 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
@@ -124,10 +124,10 @@ export default function CreateWorkoutPage() {
                   <SparklesIcon className="h-8 w-8 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold">
+                  <h1 className="text-3xl text-orange-100! dark:text-orange-50! font-bold">
                     Egyedi Edzés Létrehozása
                   </h1>
-                  <p className="text-orange-100 mt-1">
+                  <p className="text-orange-100! dark:text-orange-50! mt-1">
                     Adja hozzá saját edzéseit az adatbázishoz
                   </p>
                 </div>
@@ -139,11 +139,11 @@ export default function CreateWorkoutPage() {
         {/* Success Message */}
         {showSuccess && (
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center space-x-3">
-              <CheckCircleIcon className="h-6 w-6 text-green-600 flex-shrink-0" />
+            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-xl p-4 flex items-center space-x-3">
+              <CheckCircleIcon className="h-6 w-6 text-green-600 dark:text-green-400 flex-shrink-0" />
               <div>
-                <p className="text-green-900 font-medium">Edzés sikeresen létrehozva!</p>
-                <p className="text-green-700 text-sm">Átirányítás az edzésnaplóhoz...</p>
+                <p className="text-green-900 dark:text-green-200 font-medium">Edzés sikeresen létrehozva!</p>
+                <p className="text-green-700 dark:text-green-300 text-sm">Átirányítás az edzésnaplóhoz...</p>
               </div>
             </div>
           </div>
@@ -152,21 +152,21 @@ export default function CreateWorkoutPage() {
         {/* Error Message */}
         {showError && (
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-            <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center justify-between">
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-4 flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">
-                  <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-red-900 font-medium">Hiba történt!</p>
-                  <p className="text-red-700 text-sm">{errorMessage}</p>
+                  <p className="text-red-900 dark:text-red-200 font-medium">Hiba történt!</p>
+                  <p className="text-red-700 dark:text-red-300 text-sm">{errorMessage}</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowError(false)}
-                className="text-red-400 hover:text-red-600 transition-colors"
+                className="text-red-400 dark:text-red-500 hover:text-red-600 dark:hover:text-red-400 transition-colors"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -211,7 +211,7 @@ export default function CreateWorkoutPage() {
                     placeholder="pl. Futás, Kerékpározás, Úszás"
                   />
                   {errors.name && (
-                    <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>
                   )}
                 </div>
 
@@ -261,7 +261,7 @@ export default function CreateWorkoutPage() {
                     placeholder="5"
                   />
                   {errors.metValue && (
-                    <p className="mt-1 text-sm text-red-600">{errors.metValue.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.metValue.message}</p>
                   )}
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     A MET (metabolikus ekvivalens) az edzés intenzitását jelzi. Alapértelmezett: 5
@@ -287,7 +287,7 @@ export default function CreateWorkoutPage() {
                     <ClockIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400 dark:text-gray-600" />
                   </div>
                   {errors.defaultDurationMinutes && (
-                    <p className="mt-1 text-sm text-red-600">{errors.defaultDurationMinutes.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.defaultDurationMinutes.message}</p>
                   )}
                 </div>
               </div>
@@ -340,7 +340,7 @@ export default function CreateWorkoutPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:from-orange-700 hover:to-red-700 transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 dark:from-orange-700 dark:to-red-700 dark:hover:from-orange-800 dark:hover:to-red-800 text-white rounded-xl transition-colors flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <>

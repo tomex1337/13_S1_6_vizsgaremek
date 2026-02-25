@@ -1148,6 +1148,7 @@ export const appRouter = router({
               email: true,
               permissionLevel: true,
               canCreateCustomFood: true,
+              isActive: true,
               createdAt: true
             },
             take: input.limit,
@@ -1229,6 +1230,92 @@ export const appRouter = router({
         });
         
         return updatedUser;
+      }),
+    
+    // Felhasználó deaktiválása (admin/moderátor)
+    deactivateUser: moderatorProcedure
+      .input(z.object({
+        userId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const currentUserId = ctx.session.user.id;
+        
+        // Ne lehessen saját magát itt deaktiválni (arra van külön endpoint)
+        if (input.userId === currentUserId) {
+          throw new Error('Saját fiókod deaktiválásához használd a fiók törlése funkciót');
+        }
+        
+        // Ellenőrizd, hogy a felhasználó létezik-e
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        // Moderátor nem deaktiválhat admin-t vagy másik moderátort
+        if (ctx.permissionLevel < 2 && targetUser.permissionLevel >= 1) {
+          throw new Error('Nincs jogosultságod ehhez a művelethez');
+        }
+        
+        // Felhasználó inaktívvá tétele
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { isActive: false },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            isActive: true
+          }
+        });
+        
+        return updatedUser;
+      }),
+
+    // Felhasználó újraaktiválása (admin)
+    reactivateUser: adminProcedure
+      .input(z.object({
+        userId: z.string()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const targetUser = await ctx.prisma.user.findUnique({
+          where: { id: input.userId }
+        });
+        
+        if (!targetUser) {
+          throw new Error('A felhasználó nem található');
+        }
+        
+        const updatedUser = await ctx.prisma.user.update({
+          where: { id: input.userId },
+          data: { isActive: true },
+          select: {
+            id: true,
+            username: true,
+            email: true,
+            isActive: true
+          }
+        });
+        
+        return updatedUser;
+      })
+  }),
+
+  // Saját fiók deaktiválása (bejelentkezett felhasználó)
+  account: router({
+    deactivate: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        const userId = ctx.session.user.id;
+        
+        // Felhasználó inaktívvá tétele
+        await ctx.prisma.user.update({
+          where: { id: userId },
+          data: { isActive: false }
+        });
+        
+        return { success: true };
       })
   }),
 });

@@ -13,6 +13,34 @@ export async function POST(req: Request) {
       where: { email },
     })
 
+    // Ha a felhasználó létezik, de inaktív, újraaktiváljuk
+    if (existingUserByEmail && !existingUserByEmail.isActive) {
+      const hashedPassword = await hash(password, 10)
+      const now = new Date()
+
+      const reactivatedUser = await prisma.user.update({
+        where: { id: existingUserByEmail.id },
+        data: {
+          passwordHash: hashedPassword,
+          username: name,
+          isActive: true,
+          updatedAt: now,
+        },
+      })
+
+      // Üdvözlő email küldése
+      try {
+        await sendWelcomeEmail(email, name)
+      } catch (emailError) {
+        console.error("Failed to send welcome email:", emailError)
+      }
+
+      return NextResponse.json(
+        { message: "Fiók sikeresen újraaktiválva", user: { id: reactivatedUser.id, email: reactivatedUser.email, username: reactivatedUser.username } },
+        { status: 201 }
+      )
+    }
+
     if (existingUserByEmail) {
       return NextResponse.json(
         { message: "Ezzel az email címmel már létezik felhasználó" },
@@ -20,9 +48,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // Felhasználónév ellenőrzése
-    const existingUserByUsername = await prisma.user.findUnique({
-      where: { username: name },
+    // Felhasználónév ellenőrzése - csak aktív felhasználóknál
+    const existingUserByUsername = await prisma.user.findFirst({
+      where: { username: name, isActive: true },
     })
 
     if (existingUserByUsername) {
