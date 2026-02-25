@@ -32,6 +32,11 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        // Inaktív felhasználó nem tud bejelentkezni
+        if (!user.isActive) {
+          return null
+        }
+
         const isPasswordValid = await compare(credentials.password, user.passwordHash)
 
         if (!isPasswordValid) {

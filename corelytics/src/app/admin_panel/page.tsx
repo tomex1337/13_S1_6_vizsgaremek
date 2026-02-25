@@ -40,6 +40,7 @@ export default function AdminPanelPage() {
   const [foodSearch, setFoodSearch] = useState('');
   const [userSearch, setUserSearch] = useState('');
   const [deleteConfirmFood, setDeleteConfirmFood] = useState<string | null>(null);
+  const [deactivateConfirmUser, setDeactivateConfirmUser] = useState<string | null>(null);
   const [showDisablePrompt, setShowDisablePrompt] = useState<{ foodId: string; creatorId: string | null; creatorName: string } | null>(null);
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [newPermissionLevel, setNewPermissionLevel] = useState<number>(0);
@@ -113,6 +114,33 @@ export default function AdminPanelPage() {
     }
   });
   
+  // Felhasználó deaktiválása
+  const deactivateUserMutation = trpc.admin.deactivateUser.useMutation({
+    onSuccess: (data) => {
+      setSuccessMessage(`${data.username} fiókja sikeresen deaktiválva`);
+      setDeactivateConfirmUser(null);
+      refetchUsers();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    },
+    onError: (error) => {
+      setErrorMessage(error.message || 'Hiba történt a deaktiválás során');
+      setTimeout(() => setErrorMessage(null), 5000);
+    }
+  });
+  
+  // Felhasználó újraaktiválása
+  const reactivateUserMutation = trpc.admin.reactivateUser.useMutation({
+    onSuccess: (data) => {
+      setSuccessMessage(`${data.username} fiókja sikeresen újraaktiválva`);
+      refetchUsers();
+      setTimeout(() => setSuccessMessage(null), 3000);
+    },
+    onError: (error) => {
+      setErrorMessage(error.message || 'Hiba történt az újraaktiválás során');
+      setTimeout(() => setErrorMessage(null), 5000);
+    }
+  });
+  
   // Bejelentkezés ellenőrzése
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -141,6 +169,16 @@ export default function AdminPanelPage() {
   const startEditingUser = (userId: string, currentLevel: number) => {
     setEditingUser(userId);
     setNewPermissionLevel(currentLevel);
+  };
+  
+  // Felhasználó deaktiválás kezelése
+  const handleDeactivateUser = (userId: string) => {
+    deactivateUserMutation.mutate({ userId });
+  };
+  
+  // Felhasználó újraaktiválás kezelése
+  const handleReactivateUser = (userId: string) => {
+    reactivateUserMutation.mutate({ userId });
   };
   
   // Egyedi étel létrehozási jog váltása
@@ -454,6 +492,9 @@ export default function AdminPanelPage() {
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Egyedi étel
                         </th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          Státusz
+                        </th>
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                           Műveletek
                         </th>
@@ -522,6 +563,19 @@ export default function AdminPanelPage() {
                               )}
                             </button>
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            {user.isActive ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-200">
+                                <CheckCircleIcon className="h-4 w-4 mr-1" />
+                                Aktív
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-200">
+                                <XCircleIcon className="h-4 w-4 mr-1" />
+                                Inaktív
+                              </span>
+                            )}
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             {user.id === session?.user?.id ? (
                               <span className="text-gray-400 text-xs">Saját fiók</span>
@@ -541,13 +595,50 @@ export default function AdminPanelPage() {
                                   Mégse
                                 </button>
                               </div>
+                            ) : deactivateConfirmUser === user.id ? (
+                              <div className="flex items-center justify-end space-x-2">
+                                <span className="text-red-600 dark:text-red-400 text-xs">Biztosan deaktiválod?</span>
+                                <button
+                                  onClick={() => handleDeactivateUser(user.id)}
+                                  disabled={deactivateUserMutation.isPending}
+                                  className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                                >
+                                  Igen
+                                </button>
+                                <button
+                                  onClick={() => setDeactivateConfirmUser(null)}
+                                  className="px-3 py-1 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500"
+                                >
+                                  Nem
+                                </button>
+                              </div>
                             ) : (
-                              <button
-                                onClick={() => startEditingUser(user.id, user.permissionLevel)}
-                                className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
-                              >
-                                Szerkesztés
-                              </button>
+                              <div className="flex items-center justify-end space-x-2">
+                                <button
+                                  onClick={() => startEditingUser(user.id, user.permissionLevel)}
+                                  className="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
+                                >
+                                  Szerkesztés
+                                </button>
+                                {user.isActive ? (
+                                  <button
+                                    onClick={() => setDeactivateConfirmUser(user.id)}
+                                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                                    title="Fiók deaktiválása"
+                                  >
+                                    <TrashIcon className="h-5 w-5" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => handleReactivateUser(user.id)}
+                                    disabled={reactivateUserMutation.isPending}
+                                    className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50"
+                                    title="Fiók újraaktiválása"
+                                  >
+                                    <CheckCircleIcon className="h-5 w-5" />
+                                  </button>
+                                )}
+                              </div>
                             )}
                           </td>
                         </tr>

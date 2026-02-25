@@ -1,14 +1,15 @@
 "use client"
 
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
+import { trpc } from "@/lib/trpc"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
-import { UserIcon, ArrowLeftIcon } from "@heroicons/react/24/outline"
+import { UserIcon, ArrowLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline"
 
 // Űrlap validációs séma
 const profileSchema = z.object({
@@ -79,6 +80,8 @@ export default function SettingsPage() {
   const [activityLevels, setActivityLevels] = useState<ActivityLevel[]>([])
   const [goals, setGoals] = useState<Goal[]>([])
   const [isLoadingProfile, setIsLoadingProfile] = useState(true)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [isDeactivating, setIsDeactivating] = useState(false)
 
   const {
     register,
@@ -407,7 +410,61 @@ export default function SettingsPage() {
               <strong>Megjegyzés:</strong> Az összes *-gal jelölt mező kötelező. A profil információid segítenek nekünk személyre szabott kalória- és tápanyag-ajánlásokat nyújtani a céljaid és aktivitási szinted alapján.
             </p>
           </div>
-        </div>
+          {/* Fiók törlése szekció */}
+          <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-red-200 dark:border-red-700 p-8">
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="p-3 bg-red-100 dark:bg-red-900 rounded-lg">
+                <ExclamationTriangleIcon className="h-8 w-8 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-red-600 dark:text-red-400">Fiók törlése</h2>
+                <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">A fiókod véglegesen deaktiválásra kerül és többé nem tudsz bejelentkezni.</p>
+              </div>
+            </div>
+
+            {!showDeleteConfirm ? (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="py-2 px-6 bg-red-600 dark:bg-red-700 text-white rounded-lg font-medium hover:bg-red-700 dark:hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors"
+              >
+                Fiók törlése
+              </button>
+            ) : (
+              <div className="p-4 bg-red-50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-lg">
+                <p className="text-sm text-red-800 dark:text-red-200 mb-4">
+                  <strong>Biztosan törölni szeretnéd a fiókodat?</strong> Ez a művelet nem vonható vissza. A fiókod deaktiválásra kerül és többé nem tudsz bejelentkezni.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    disabled={isDeactivating}
+                    onClick={async () => {
+                      try {
+                        setIsDeactivating(true)
+                        await axios.post('/api/account/deactivate')
+                        await signOut({ callbackUrl: '/auth/signin' })
+                      } catch (error) {
+                        setSubmitError('Nem sikerült deaktiválni a fiókot')
+                        setIsDeactivating(false)
+                        setShowDeleteConfirm(false)
+                      }
+                    }}
+                    className="py-2 px-6 bg-red-600 dark:bg-red-700 text-white rounded-lg font-medium hover:bg-red-700 dark:hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isDeactivating ? 'Törlés...' : 'Igen, törlöm a fiókomat'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="py-2 px-6 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Mégse
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>        </div>
       </div>
       <Footer />
     </>
