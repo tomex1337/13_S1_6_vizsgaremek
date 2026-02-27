@@ -7,7 +7,7 @@
  */
 import { POST } from '@/app/api/account/deactivate/route'
 import { prisma } from '@/lib/prisma'
-import { getServerSession } from 'next-auth'
+import { getServerSession, Session } from 'next-auth'
 
 // Prisma mockolása
 jest.mock('@/lib/prisma', () => ({
@@ -79,7 +79,7 @@ describe('POST /api/account/deactivate', () => {
     mockGetServerSession.mockResolvedValue({
       user: { email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
-    } as any)
+    } as unknown as Session)
 
     const response = await POST()
     const data = await response.json()
