@@ -120,6 +120,9 @@ describe('POST /api/auth/forgot-password', () => {
   })
 
   it('nem száll el, ha az email küldés meghiúsul', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ;(mockPrismaUser.findUnique as jest.Mock).mockResolvedValue({
       id: 'user-id-123',
       email: 'test@test.com',
@@ -132,9 +135,14 @@ describe('POST /api/auth/forgot-password', () => {
 
     // A kérés nem hiúsul meg, még ha az email küldés igen
     expect(response.status).toBe(200)
+
+    consoleSpy.mockRestore()
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ;(mockPrismaUser.findUnique as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const req = createRequest({ email: 'test@test.com' })
@@ -143,5 +151,7 @@ describe('POST /api/auth/forgot-password', () => {
 
     expect(response.status).toBe(500)
     expect(data.message).toBe('Something went wrong')
+
+    consoleSpy.mockRestore()
   })
 })

@@ -160,6 +160,9 @@ describe('POST /api/auth/reset-password', () => {
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ;(mockPrismaUser.findFirst as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const req = createRequest({
@@ -172,5 +175,7 @@ describe('POST /api/auth/reset-password', () => {
 
     expect(response.status).toBe(500)
     expect(data.message).toBe('Valami hiba történt')
+
+    consoleSpy.mockRestore()
   })
 })

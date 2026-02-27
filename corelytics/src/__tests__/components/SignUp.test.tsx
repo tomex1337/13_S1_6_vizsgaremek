@@ -175,6 +175,11 @@ describe('SignUp Page', () => {
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/auth/signin')
     })
+
+    // Várjuk meg, hogy minden állapotfrissítés befejeződjön (setIsLoading(false))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Regisztráció' })).not.toBeDisabled()
+    })
   })
 
   it('hibaüzenetet mutat API hiba esetén', async () => {
@@ -196,6 +201,11 @@ describe('SignUp Page', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Ez az email cím már használatban van')).toBeInTheDocument()
+    })
+
+    // Várjuk meg, hogy minden állapotfrissítés befejeződjön (setIsLoading(false))
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Regisztráció' })).not.toBeDisabled()
     })
   })
 
@@ -220,7 +230,11 @@ describe('SignUp Page', () => {
       expect(button).toBeDisabled()
     })
 
-    // Resolve a hívást
+    // Resolve a hívást, majd várjuk meg, hogy az állapotfrissítés befejeződjön
     resolvePost!({ data: {} })
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Regisztráció' })).not.toBeDisabled()
+    })
   })
 })

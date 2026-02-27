@@ -123,6 +123,9 @@ describe('GET /api/profile', () => {
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     mockGetServerSession.mockResolvedValue({
       user: { id: 'user-id-123', email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
@@ -135,6 +138,8 @@ describe('GET /api/profile', () => {
 
     expect(response.status).toBe(500)
     expect(data.error).toBe('Nem sikerült betölteni a profilt')
+
+    consoleSpy.mockRestore()
   })
 })
 
@@ -224,6 +229,9 @@ describe('POST /api/profile', () => {
   })
 
   it('400-as hibát ad vissza érvénytelen nemmel', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol validációs hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     mockGetServerSession.mockResolvedValue({
       user: { id: 'user-id-123', email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
@@ -239,9 +247,14 @@ describe('POST /api/profile', () => {
 
     expect(response.status).toBe(400)
     expect(data.error).toBe('Validációs hiba')
+
+    consoleSpy.mockRestore()
   })
 
   it('400-as hibát ad vissza érvénytelen magassággal (túl alacsony)', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol validációs hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     mockGetServerSession.mockResolvedValue({
       user: { id: 'user-id-123', email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
@@ -257,9 +270,14 @@ describe('POST /api/profile', () => {
 
     expect(response.status).toBe(400)
     expect(data.error).toBe('Validációs hiba')
+
+    consoleSpy.mockRestore()
   })
 
   it('400-as hibát ad vissza érvénytelen súllyal (túl magas)', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol validációs hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     mockGetServerSession.mockResolvedValue({
       user: { id: 'user-id-123', email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
@@ -275,6 +293,8 @@ describe('POST /api/profile', () => {
 
     expect(response.status).toBe(400)
     expect(data.error).toBe('Validációs hiba')
+
+    consoleSpy.mockRestore()
   })
 
   it('napi célokat számol teljes profil esetén', async () => {

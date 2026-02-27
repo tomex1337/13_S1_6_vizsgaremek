@@ -89,6 +89,9 @@ describe('POST /api/account/deactivate', () => {
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     mockGetServerSession.mockResolvedValue({
       user: { id: 'user-id-123', email: 'test@test.com', name: 'Teszt' },
       expires: '2026-12-31',
@@ -100,5 +103,7 @@ describe('POST /api/account/deactivate', () => {
 
     expect(response.status).toBe(500)
     expect(data.error).toBe('Nem sikerült deaktiválni a fiókot')
+
+    consoleSpy.mockRestore()
   })
 })

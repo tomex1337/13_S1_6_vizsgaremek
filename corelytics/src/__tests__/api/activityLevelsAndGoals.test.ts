@@ -71,6 +71,9 @@ describe('GET /api/activity-levels', () => {
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ;(mockActivityLevel.findMany as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const { GET } = await import('@/app/api/activity-levels/route')
@@ -79,6 +82,8 @@ describe('GET /api/activity-levels', () => {
 
     expect(response.status).toBe(500)
     expect(data.error).toBe('Nem sikerült betölteni az aktivitási szinteket')
+
+    consoleSpy.mockRestore()
   })
 })
 
@@ -160,6 +165,9 @@ describe('GET /api/goals', () => {
   })
 
   it('500-as hibát ad vissza adatbázis hiba esetén', async () => {
+    // Elnyomjuk a console.error-t, mert a route szándékosan logol hibát
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {})
+
     ;(mockGoal.findMany as jest.Mock).mockRejectedValue(new Error('DB error'))
 
     const { GET } = await import('@/app/api/goals/route')
@@ -168,5 +176,7 @@ describe('GET /api/goals', () => {
 
     expect(response.status).toBe(500)
     expect(data.error).toBe('Nem sikerült betölteni a célokat')
+
+    consoleSpy.mockRestore()
   })
 })
