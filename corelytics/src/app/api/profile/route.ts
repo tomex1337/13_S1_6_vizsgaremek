@@ -154,34 +154,34 @@ export async function POST(request: NextRequest) {
 
     // Ellenőrizd, hogy létezik-e már a profil
     const existingProfile = await prisma.userProfile.findUnique({
-      where: { user_id: validatedData.userId }
+      where: { userId: validatedData.userId }
     })
 
     let profile
     if (existingProfile) {
       // Meglévő profil frissítése
       profile = await prisma.userProfile.update({
-        where: { user_id: validatedData.userId },
+        where: { userId: validatedData.userId },
         data: {
           birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevel_id: validatedData.activityLevelId,
-          goal_id: validatedData.goalId,
+          activityLevelId: validatedData.activityLevelId,
+          goalId: validatedData.goalId,
         }
       })
     } else {
       // Új profil létrehozása
       profile = await prisma.userProfile.create({
         data: {
-          user_id: validatedData.userId,
+          userId: validatedData.userId,
           birthDate: validatedData.birthDate,
           gender: validatedData.gender,
           heightCm: validatedData.heightCm,
           weightKg: validatedData.weightKg,
-          activityLevel_id: validatedData.activityLevelId,
-          goal_id: validatedData.goalId,
+          activityLevelId: validatedData.activityLevelId,
+          goalId: validatedData.goalId,
         }
       })
     }
@@ -216,8 +216,8 @@ export async function POST(request: NextRequest) {
 
       await prisma.dailyGoal.upsert({
         where: {
-          user_id_date: {
-            user_id: validatedData.userId,
+          userId_date: {
+            userId: validatedData.userId,
             date: today,
           },
         },
@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
           carbsGoal: new Decimal(goals.carbsGoal),
         },
         create: {
-          user_id: validatedData.userId,
+          userId: validatedData.userId,
           date: today,
           caloriesGoal: goals.caloriesGoal,
           proteinGoal: new Decimal(goals.proteinGoal),
@@ -274,7 +274,7 @@ export async function GET(request: NextRequest) {
     }
 
     const profile = await prisma.userProfile.findUnique({
-      where: { user_id: session.user.id },
+      where: { userId: session.user.id },
       include: {
         activityLevel: true,
         goal: true,

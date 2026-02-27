@@ -110,7 +110,7 @@ export const appRouter = router({
         const userId = ctx.session.user.id;
         
         const profile = await ctx.prisma.userProfile.findUnique({
-          where: { user_id: userId },
+          where: { userId: userId },
           include: {
             activityLevel: true,
             goal: true,
@@ -131,8 +131,8 @@ export const appRouter = router({
           profile.gender &&
           profile.heightCm &&
           profile.weightKg &&
-          profile.activityLevel_id &&
-          profile.goal_id
+          profile.activityLevelId &&
+          profile.goalId
         );
 
         return {
@@ -166,7 +166,7 @@ export const appRouter = router({
         
         const todayFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: startOfDay,
               lte: endOfDay
@@ -179,14 +179,14 @@ export const appRouter = router({
 
         // Felhasználói profil lekérése a teljesség ellenőrzéséhez
         const userProfile = await ctx.prisma.userProfile.findUnique({
-          where: { user_id: userId },
+          where: { userId: userId },
         });
 
         // Mai napi cél lekérése
         let dailyGoal = await ctx.prisma.dailyGoal.findUnique({
           where: {
-            user_id_date: {
-              user_id: userId,
+            userId_date: {
+              userId: userId,
               date: today,
             },
           },
@@ -199,8 +199,8 @@ export const appRouter = router({
             userProfile.gender &&
             userProfile.heightCm &&
             userProfile.weightKg &&
-            userProfile.activityLevel_id &&
-            userProfile.goal_id
+            userProfile.activityLevelId &&
+            userProfile.goalId
           );
 
           if (isProfileComplete) {
@@ -211,13 +211,13 @@ export const appRouter = router({
               userProfile.gender!,
               userProfile.heightCm!,
               Number(userProfile.weightKg!),
-              userProfile.activityLevel_id!,
-              userProfile.goal_id!
+              userProfile.activityLevelId!,
+              userProfile.goalId!
             );
 
             dailyGoal = await ctx.prisma.dailyGoal.create({
               data: {
-                user_id: userId,
+                userId: userId,
                 date: today,
                 caloriesGoal: goals.caloriesGoal,
                 proteinGoal: new Decimal(goals.proteinGoal),
@@ -231,7 +231,7 @@ export const appRouter = router({
         // Ezen heti gyakorlat naplók lekérése
         const weekExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: startOfWeek,
               lte: endOfDay,
@@ -254,7 +254,7 @@ export const appRouter = router({
 
         const recentFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
@@ -272,7 +272,7 @@ export const appRouter = router({
 
         const recentExerciseLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             createdAt: {
               gte: sevenDaysAgo,
               lt: tomorrow,
@@ -298,7 +298,7 @@ export const appRouter = router({
         // Mai elégetett kalóriák számítása edzésekből
         const todayWorkoutLogs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: startOfDay,
               lte: endOfDay
@@ -322,7 +322,7 @@ export const appRouter = router({
 
           const hasActivity = await ctx.prisma.userFoodLog.findFirst({
             where: {
-              user_id: userId,
+              userId: userId,
               logDate: {
                 gte: dayStart,
                 lte: dayEnd,
@@ -348,7 +348,7 @@ export const appRouter = router({
         
         const weeklyFoodLogs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: last7Days,
               lte: today,
@@ -387,7 +387,7 @@ export const appRouter = router({
         // Napi célok lekérése az utolsó 7 napra
         const last7DaysGoals = await ctx.prisma.dailyGoal.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             date: {
               gte: last7Days,
               lte: today,
@@ -508,9 +508,9 @@ export const appRouter = router({
         const foodLog = await ctx.prisma.userFoodLog.create({
           data: {
             id: crypto.randomUUID(),
-            user_id: userId,
-            foodItem_id: input.foodItemId,
-            mealType_id: input.mealTypeId,
+            userId: userId,
+            foodItemId: input.foodItemId,
+            mealTypeId: input.mealTypeId,
             quantity: input.quantity,
             logDate,
             createdAt: new Date()
@@ -541,7 +541,7 @@ export const appRouter = router({
         
         const logs = await ctx.prisma.userFoodLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: startOfDay,
               lte: endOfDay
@@ -552,7 +552,7 @@ export const appRouter = router({
             mealType: true
           },
           orderBy: [
-            { mealType_id: 'asc' },
+            { mealTypeId: 'asc' },
             { createdAt: 'asc' }
           ]
         });
@@ -571,7 +571,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
-            user_id: userId
+            userId: userId
           }
         });
         
@@ -598,7 +598,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userFoodLog.findFirst({
           where: {
             id: input.logId,
-            user_id: userId
+            userId: userId
           }
         });
         
@@ -795,7 +795,7 @@ export const appRouter = router({
         
         // Kapcsolódó naplók törlése először
         await ctx.prisma.userExerciseLog.deleteMany({
-          where: { exercise_id: input.exerciseId }
+          where: { exerciseId: input.exerciseId }
         });
         
         await ctx.prisma.exercise.delete({
@@ -830,7 +830,7 @@ export const appRouter = router({
         
         // Felhasználói profil lekérése súly alapú kalóriaszámításhoz
         const userProfile = await ctx.prisma.userProfile.findUnique({
-          where: { user_id: userId }
+          where: { userId: userId }
         });
         
         // Elégetett kalóriák számítása MET képlet alapján: Kalória = MET × súly (kg) × időtartam (óra)
@@ -842,8 +842,8 @@ export const appRouter = router({
         const workoutLog = await ctx.prisma.userExerciseLog.create({
           data: {
             id: crypto.randomUUID(),
-            user_id: userId,
-            exercise_id: input.exerciseId,
+            userId: userId,
+            exerciseId: input.exerciseId,
             durationMinutes: input.durationMinutes,
             caloriesBurned,
             logDate,
@@ -872,7 +872,7 @@ export const appRouter = router({
         
         const logs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: targetDate
           },
           include: {
@@ -897,7 +897,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userExerciseLog.findFirst({
           where: {
             id: input.logId,
-            user_id: userId
+            userId: userId
           }
         });
         
@@ -924,7 +924,7 @@ export const appRouter = router({
         const log = await ctx.prisma.userExerciseLog.findFirst({
           where: {
             id: input.logId,
-            user_id: userId
+            userId: userId
           },
           include: {
             exercise: true
@@ -937,7 +937,7 @@ export const appRouter = router({
         
         // Elégetett kalóriák újraszámítása
         const userProfile = await ctx.prisma.userProfile.findUnique({
-          where: { user_id: userId }
+          where: { userId: userId }
         });
         
         const weight = userProfile?.weightKg ? Number(userProfile.weightKg) : 70;
@@ -976,7 +976,7 @@ export const appRouter = router({
         
         const logs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: startDate,
               lte: endDate
@@ -1025,7 +1025,7 @@ export const appRouter = router({
         
         const logs = await ctx.prisma.userExerciseLog.findMany({
           where: {
-            user_id: userId,
+            userId: userId,
             logDate: {
               gte: today,
               lte: endOfDay
@@ -1113,7 +1113,7 @@ export const appRouter = router({
         
         // Töröld a kapcsolódó naplókat először
         await ctx.prisma.userFoodLog.deleteMany({
-          where: { foodItem_id: input.foodId }
+          where: { foodItemId: input.foodId }
         });
         
         // Töröld az ételt
