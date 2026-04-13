@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import axios from "axios"
@@ -9,7 +10,7 @@ import Footer from "@/components/footer"
 
 type VerificationStatus = "loading" | "success" | "error"
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams()
   const [status, setStatus] = useState<VerificationStatus>("loading")
   const [message, setMessage] = useState("Email cím megerősítése folyamatban...")
@@ -70,5 +71,13 @@ export default function VerifyEmailPage() {
       </div>
       <Footer />
     </>
+  )
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={null}>
+      <VerifyEmailContent />
+    </Suspense>
   )
 }

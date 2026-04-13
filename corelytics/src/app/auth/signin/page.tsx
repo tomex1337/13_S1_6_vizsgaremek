@@ -3,6 +3,7 @@
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
+import { Suspense } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import axios from "axios"
@@ -14,7 +15,7 @@ interface SignInFormInputs {
   password: string
 }
 
-export default function SignIn() {
+function SignInContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
@@ -161,5 +162,13 @@ export default function SignIn() {
     </div>
     <Footer />
     </>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={null}>
+      <SignInContent />
+    </Suspense>
   )
 }
