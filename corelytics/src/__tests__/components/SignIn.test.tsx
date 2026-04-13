@@ -1,9 +1,9 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @next/next/no-img-element */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useSession, signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import SignIn from '@/app/auth/signin/page'
 
 // next-auth mockolása
