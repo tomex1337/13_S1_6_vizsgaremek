@@ -95,9 +95,6 @@ function calculateDailyGoals(
 }
 
 describe('calculateAge', () => {
-  // Az aktuális dátumot fix értékre állítjuk teszteléshez
-  const realDate = Date
-
   beforeAll(() => {
     // Fix dátum: 2026. február 27.
     jest.useFakeTimers()

@@ -2,7 +2,6 @@
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import Image from "next/image";
-import { useSession, signOut } from "next-auth/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import {
   FireIcon,
@@ -11,9 +10,6 @@ import {
 } from '@heroicons/react/24/solid';
 
 export default function Home() {
-  const { data: session } = useSession();
-    <SpeedInsights/>
-
   return (
     <>
       <SpeedInsights/>

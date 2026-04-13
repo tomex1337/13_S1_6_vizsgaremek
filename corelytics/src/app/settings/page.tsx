@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import axios from "axios"
-import { trpc } from "@/lib/trpc"
 import Header from "@/components/header"
 import Footer from "@/components/footer"
 import { UserIcon, ArrowLeftIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline"
@@ -444,7 +443,7 @@ export default function SettingsPage() {
                         setIsDeactivating(true)
                         await axios.post('/api/account/deactivate')
                         await signOut({ callbackUrl: '/auth/signin' })
-                      } catch (error) {
+                      } catch {
                         setSubmitError('Nem sikerült deaktiválni a fiókot')
                         setIsDeactivating(false)
                         setShowDeleteConfirm(false)
