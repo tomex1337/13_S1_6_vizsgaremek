@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @next/next/no-img-element */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
 import SignUp from '@/app/auth/signup/page'
@@ -173,7 +174,7 @@ describe('SignUp Page', () => {
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/auth/signin')
+      expect(mockPush).toHaveBeenCalledWith('/auth/signin?registered=1')
     })
 
     // Várjuk meg, hogy minden állapotfrissítés befejeződjön (setIsLoading(false))

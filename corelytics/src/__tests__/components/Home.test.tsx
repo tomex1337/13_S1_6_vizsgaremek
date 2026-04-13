@@ -1,6 +1,7 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @next/next/no-img-element */
 import { render, screen } from '@testing-library/react'
 import { useSession } from 'next-auth/react'
 import Home from '@/app/page'

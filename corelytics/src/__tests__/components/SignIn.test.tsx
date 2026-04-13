@@ -1,9 +1,9 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @next/next/no-img-element */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useSession, signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
 import SignIn from '@/app/auth/signin/page'
 
 // next-auth mockolása
@@ -14,6 +14,7 @@ const mockSignIn = signIn as jest.MockedFunction<typeof signIn>
 // next/navigation mockolása
 const mockPush = jest.fn()
 const mockRefresh = jest.fn()
+const mockSearchParamsGet = jest.fn(() => null)
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
@@ -27,6 +28,11 @@ jest.mock('next/navigation', () => ({
   },
   usePathname() {
     return '/auth/signin'
+  },
+  useSearchParams() {
+    return {
+      get: mockSearchParamsGet,
+    }
   },
 }))
 
@@ -63,6 +69,7 @@ jest.mock('axios', () => ({
 describe('SignIn Page', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockSearchParamsGet.mockReturnValue(null)
     mockUseSession.mockReturnValue({
       data: null,
       status: 'unauthenticated',
@@ -155,6 +162,33 @@ describe('SignIn Page', () => {
     await waitFor(() => {
       expect(screen.getByText('Érvénytelen bejelentkezési adatok')).toBeInTheDocument()
     })
+  })
+
+  it('mutat hibaüzenetet nem megerősített email esetén', async () => {
+    mockSignIn.mockResolvedValue({
+      error: 'EMAIL_NOT_VERIFIED',
+      status: 401,
+      ok: false,
+      url: null,
+    })
+
+    render(<SignIn />)
+
+    fireEvent.change(screen.getByPlaceholderText('Email cím'), { target: { value: 'test@test.com' } })
+    fireEvent.change(screen.getByPlaceholderText('Jelszó'), { target: { value: 'helyes_jelszo' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Bejelentkezés' }))
+
+    await waitFor(() => {
+      expect(screen.getByText('A bejelentkezéshez előbb meg kell erősítened az email címedet')).toBeInTheDocument()
+    })
+  })
+
+  it('megjeleníti a regisztráció utáni tájékoztatót', () => {
+    mockSearchParamsGet.mockImplementation((key: string) => (key === 'registered' ? '1' : null))
+
+    render(<SignIn />)
+
+    expect(screen.getByText('A regisztráció sikeres. Kérjük, erősítsd meg az email címedet a kiküldött levélben.')).toBeInTheDocument()
   })
 
   it('meghívja a signIn funkciót az űrlap beküldésekor', async () => {

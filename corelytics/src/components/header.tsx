@@ -7,45 +7,24 @@ import { trpc } from "@/lib/trpc";
 import {
   Dialog,
   DialogPanel,
-  Disclosure,
-  DisclosureButton,
-  DisclosurePanel,
-  Popover,
-  PopoverButton,
   PopoverGroup,
-  PopoverPanel,
   Menu,
   MenuButton,
   MenuItem,
   MenuItems,
 } from '@headlessui/react'
 import {
-  ArrowPathIcon,
   Bars3Icon,
   ChartPieIcon,
   CursorArrowRaysIcon,
-  FingerPrintIcon,
-  SquaresPlusIcon,
   XMarkIcon,
   UserCircleIcon,
   ArrowRightOnRectangleIcon,
   ShieldCheckIcon,
 } from '@heroicons/react/24/outline'
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
 export default function Header() {
-
-const products = [
-  { name: 'Analitika', description: 'Értsd meg jobban a forgalmadat', href: '#', icon: ChartPieIcon },
-  { name: 'Elköteleződés', description: 'Beszélj közvetlenül az ügyfeleidhez', href: '#', icon: CursorArrowRaysIcon },
-  { name: 'Biztonság', description: 'Az ügyfeleid adatai biztonságban lesznek', href: '#', icon: FingerPrintIcon },
-  { name: 'Integrációk', description: 'Csatlakozz harmadik fél eszközeihez', href: '#', icon: SquaresPlusIcon },
-  { name: 'Automatizálás', description: 'Építs stratégiai tölcséreket', href: '#', icon: ArrowPathIcon },
-]
-const callsToAction = [
-  { name: 'Demó megtekintése', href: '#', icon: PlayCircleIcon },
-  { name: 'Kapcsolatfelvétel', href: '#', icon: PhoneIcon },
-]
 
 const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 const { data: session, status } = useSession();

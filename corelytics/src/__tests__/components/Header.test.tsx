@@ -1,10 +1,10 @@
 /**
  * @jest-environment jsdom
  */
+/* eslint-disable @next/next/no-img-element */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { useSession, signOut } from 'next-auth/react'
 import Header from '@/components/header'
-import { trpc } from '@/lib/trpc'
 
 // next-auth mockolása
 jest.mock('next-auth/react')

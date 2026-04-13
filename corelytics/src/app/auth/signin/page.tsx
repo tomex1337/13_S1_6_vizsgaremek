@@ -1,8 +1,9 @@
 "use client"
 
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
+import { Suspense } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import axios from "axios"
@@ -14,8 +15,9 @@ interface SignInFormInputs {
   password: string
 }
 
-export default function SignIn() {
+function SignInContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [error, setError] = useState<string | null>(null)
   const {
     register,
@@ -32,6 +34,10 @@ export default function SignIn() {
         redirect: false,
       })
       if (result?.error) {
+        if (result.error === "EMAIL_NOT_VERIFIED") {
+          setError("A bejelentkezéshez előbb meg kell erősítened az email címedet")
+          return
+        }
         setError("Érvénytelen bejelentkezési adatok")
         return
       }
@@ -68,6 +74,13 @@ export default function SignIn() {
             Jelentkezz be a fiókodba
           </h2>
         </div>
+
+        {searchParams.get("registered") === "1" && (
+          <div className="rounded-md bg-green-100 px-4 py-3 text-sm text-green-800 dark:bg-green-900/30 dark:text-green-300">
+            A regisztráció sikeres. Kérjük, erősítsd meg az email címedet a kiküldött levélben.
+          </div>
+        )}
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-4">
             <div>
@@ -149,5 +162,13 @@ export default function SignIn() {
     </div>
     <Footer />
     </>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={null}>
+      <SignInContent />
+    </Suspense>
   )
 }
