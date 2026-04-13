@@ -173,7 +173,7 @@ describe('SignUp Page', () => {
     })
 
     await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/auth/signin')
+      expect(mockPush).toHaveBeenCalledWith('/auth/signin?registered=1')
     })
 
     // Várjuk meg, hogy minden állapotfrissítés befejeződjön (setIsLoading(false))

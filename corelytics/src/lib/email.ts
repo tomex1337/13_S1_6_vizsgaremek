@@ -2,6 +2,27 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+export async function sendEmailVerificationEmail(email: string, verificationToken: string) {
+  const verifyUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${verificationToken}`
+
+  await resend.emails.send({
+    from: 'Corelytics <noreply@mail.corelytics.tomex.xyz>',
+    to: email,
+    subject: 'Email cím megerősítése - Corelytics',
+    html: `
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+        <h2 style="color: #4F46E5;">Megerősítés szükséges</h2>
+        <p>Köszönjük a regisztrációt! A fiók aktiválásához erősítse meg az email címét az alábbi gombbal:</p>
+        <a href="${verifyUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 16px 0;">Email cím megerősítése</a>
+        <p>Ez a link 24 órán belül lejár.</p>
+        <p>Ha nem Ön kezdeményezte a regisztrációt, kérjük hagyja figyelmen kívül ezt az emailt.</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 12px;">© Corelytics - Az Ön edzéskövető társa</p>
+      </div>
+    `,
+  })
+}
+
 export async function sendPasswordResetEmail(email: string, resetToken: string) {
   const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password/${resetToken}`
   

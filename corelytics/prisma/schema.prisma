@@ -19,6 +19,9 @@ model User {
   email        String        @unique
   username     String        @unique
   passwordHash String        @map("password_hash")
+  emailVerifiedAt DateTime?  @map("email_verified_at")
+  emailVerificationToken String? @map("email_verification_token")
+  emailVerificationTokenExpiry DateTime? @map("email_verification_token_expiry")
   createdAt    DateTime?     @map("created_at")
   updatedAt    DateTime?     @map("updated_at")
   resetToken   String?       @map("reset_token")

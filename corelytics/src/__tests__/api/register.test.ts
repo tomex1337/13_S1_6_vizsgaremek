@@ -8,6 +8,7 @@
 import { POST } from '@/app/api/auth/register/route'
 import { prisma } from '@/lib/prisma'
 import { hash } from 'bcrypt'
+import { sendEmailVerificationEmail } from '@/lib/email'
 
 // Prisma mockolása
 jest.mock('@/lib/prisma', () => ({
@@ -33,10 +34,18 @@ jest.mock('uuid', () => ({
 
 // email mockolása
 jest.mock('@/lib/email', () => ({
-  sendWelcomeEmail: jest.fn(() => Promise.resolve()),
+  sendEmailVerificationEmail: jest.fn(() => Promise.resolve()),
+}))
+
+// crypto mockolása
+jest.mock('crypto', () => ({
+  randomBytes: jest.fn(() => ({
+    toString: jest.fn(() => 'mock-verification-token'),
+  })),
 }))
 
 const mockPrismaUser = prisma.user as jest.Mocked<typeof prisma.user>
+const mockSendEmailVerificationEmail = sendEmailVerificationEmail as jest.MockedFunction<typeof sendEmailVerificationEmail>
 
 // Segédfüggvény a Request objektum létrehozásához
 function createRequest(body: Record<string, unknown>): Request {
@@ -71,9 +80,10 @@ describe('POST /api/auth/register', () => {
     const data = await response.json()
 
     expect(response.status).toBe(201)
-    expect(data.message).toBe('Felhasználó sikeresen létrehozva')
+    expect(data.message).toBe('Felhasználó sikeresen létrehozva. Ellenőrizd az emailedet a megerősítéshez.')
     expect(data.user.email).toBe('test@test.com')
     expect(data.user.username).toBe('Teszt User')
+    expect(mockSendEmailVerificationEmail).toHaveBeenCalledWith('test@test.com', 'mock-verification-token')
   })
 
   it('hibát ad vissza, ha az email már foglalt', async () => {
@@ -139,11 +149,16 @@ describe('POST /api/auth/register', () => {
     const data = await response.json()
 
     expect(response.status).toBe(201)
-    expect(data.message).toBe('Fiók sikeresen újraaktiválva')
+    expect(data.message).toBe('Fiók sikeresen újraaktiválva. Ellenőrizd az emailedet a megerősítéshez.')
     expect(mockPrismaUser.update).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 'inactive-user-id' },
-        data: expect.objectContaining({ isActive: true }),
+        data: expect.objectContaining({
+          isActive: true,
+          emailVerificationToken: 'mock-verification-token',
+          emailVerificationTokenExpiry: expect.any(Date),
+          emailVerifiedAt: null,
+        }),
       })
     )
   })
@@ -170,6 +185,8 @@ describe('POST /api/auth/register', () => {
       expect.objectContaining({
         data: expect.objectContaining({
           passwordHash: 'hashed_password_123',
+          emailVerificationToken: 'mock-verification-token',
+          emailVerificationTokenExpiry: expect.any(Date),
         }),
       })
     )
