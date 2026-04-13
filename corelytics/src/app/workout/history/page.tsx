@@ -18,19 +18,6 @@ import {
   BoltIcon
 } from '@heroicons/react/24/solid';
 
-interface WorkoutLog {
-  id: string;
-  durationMinutes: number | null;
-  caloriesBurned: number | string | null;
-  logDate: Date | null;
-  createdAt: Date | null;
-  exercise: {
-    id: string;
-    name: string;
-    category?: string | null;
-  } | null;
-}
-
 export default function WorkoutHistoryPage() {
   const { status } = useSession();
   const router = useRouter();

@@ -243,7 +243,7 @@ export default function UserPage() {
               <div className="p-6">
                 <div className="space-y-4">
                   {stats.recentActivities.length > 0 ? (
-                    stats.recentActivities.map((activity, index) => (
+                    stats.recentActivities.map((activity) => (
                       <div key={activity.id} className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
                         <div className={`p-2 bg-white dark:bg-gray-800 rounded-lg ${
                           activity.type === 'exercise' ? 'text-green-600 dark:text-green-400' : 
