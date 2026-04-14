@@ -36,8 +36,8 @@ function calculateDailyGoals(
   gender: string,
   heightCm: number,
   weightKg: number,
-  activityLevelId: number,
-  goalId: number
+  activityLevelName: string | null | undefined,
+  goalName: string | null | undefined
 ) {
   // BMR (Alapanyagcsere) számítása a Mifflin-St Jeor egyenlet alapján
   let bmr: number;
@@ -51,31 +51,28 @@ function calculateDailyGoals(
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
   }
 
-  // Aktivitási szint szorzók
-  // 1: Ülő életmód (kevés vagy nincs gyakorlat) - 1.2
-  // 2: Enyhén aktív (edzés 1-3 nap/hét) - 1.375
-  // 3: Mérsékelten aktív (edzés 3-5 nap/hét) - 1.55
-  // 4: Nagyon aktív (edzés 6-7 nap/hét) - 1.725
-  const activityMultipliers: { [key: number]: number } = {
-    1: 1.2,    // Ülő életmód
-    2: 1.375,  // Enyhén aktív
-    3: 1.55,   // Mérsékelten aktív
-    4: 1.725,  // Nagyon aktív
-  };
+  const normalizedActivity = (activityLevelName ?? '').toLocaleLowerCase('hu-HU');
+  const normalizedGoal = (goalName ?? '').toLocaleLowerCase('hu-HU');
 
-  const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
+  const activityMultiplier = normalizedActivity.includes('enyhén')
+    ? 1.375
+    : normalizedActivity.includes('mérsékelten')
+      ? 1.55
+      : normalizedActivity.includes('nagyon')
+        ? 1.725
+        : 1.2;
   const tdee = bmr * activityMultiplier; // Teljes napi energiafelhasználás
 
   // Cél alapján módosítás
-  // 1: Fogyás - 500 kal levonása (~0.5kg/hét fogyás)
-  // 2: Súlytartás - nincs változás
-  // 3: Hízás - 500 kal hozzáadása (~0.5kg/hét növekedés)
+  // Fogyás - 500 kal levonása (~0.5kg/hét fogyás)
+  // Súlytartás - nincs változás
+  // Hízás - 500 kal hozzáadása (~0.5kg/hét növekedés)
   let caloriesGoal: number;
   
-  if (goalId === 1) {
+  if (normalizedGoal.includes('fogyás')) {
     // Fogyás
     caloriesGoal = tdee - 500;
-  } else if (goalId === 3) {
+  } else if (normalizedGoal.includes('hízás')) {
     // Hízás
     caloriesGoal = tdee + 500;
   } else {
@@ -96,18 +93,18 @@ function calculateDailyGoals(
   let proteinMultiplier = 0.8; // Alap ülő életmódhoz
   
   // Aktivitási szint alapján módosítás
-  if (activityLevelId === 2) {
+  if (normalizedActivity.includes('enyhén')) {
     proteinMultiplier += 0.4; // Enyhén aktív
-  } else if (activityLevelId === 3) {
+  } else if (normalizedActivity.includes('mérsékelten')) {
     proteinMultiplier += 0.6; // Mérsékelten aktív
-  } else if (activityLevelId === 4) {
+  } else if (normalizedActivity.includes('nagyon')) {
     proteinMultiplier += 1.0; // Nagyon aktív
   }
   
   // Cél alapján módosítás
-  if (goalId === 1) {
+  if (normalizedGoal.includes('fogyás')) {
     proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
-  } else if (goalId === 3) {
+  } else if (normalizedGoal.includes('hízás')) {
     proteinMultiplier += 0.4; // Hízás - izomépítés
   }
   
@@ -199,6 +196,17 @@ export async function POST(request: NextRequest) {
     if (isComplete) {
       // Életkor számítása a születési dátumból
       const age = calculateAge(validatedData.birthDate!);
+
+      const [activityLevel, goal] = await Promise.all([
+        prisma.activityLevel.findUnique({
+          where: { id: validatedData.activityLevelId! },
+          select: { name: true },
+        }),
+        prisma.goal.findUnique({
+          where: { id: validatedData.goalId! },
+          select: { name: true },
+        }),
+      ]);
       
       // Napi táplálkozási célok számítása
       const goals = calculateDailyGoals(
@@ -206,8 +214,8 @@ export async function POST(request: NextRequest) {
         validatedData.gender!,
         validatedData.heightCm!,
         validatedData.weightKg!,
-        validatedData.activityLevelId!,
-        validatedData.goalId!
+        activityLevel?.name,
+        goal?.name
       );
 
       // Mai napi cél létrehozása vagy frissítése

@@ -18,6 +18,12 @@ jest.mock('@/lib/prisma', () => ({
       create: jest.fn(),
       update: jest.fn(),
     },
+    activityLevel: {
+      findUnique: jest.fn(),
+    },
+    goal: {
+      findUnique: jest.fn(),
+    },
     dailyGoal: {
       upsert: jest.fn(),
     },
@@ -36,6 +42,8 @@ jest.mock('@/lib/auth', () => ({
 
 const mockGetServerSession = getServerSession as jest.MockedFunction<typeof getServerSession>
 const mockPrismaProfile = prisma.userProfile as jest.Mocked<typeof prisma.userProfile>
+const mockPrismaActivityLevel = prisma.activityLevel as jest.Mocked<typeof prisma.activityLevel>
+const mockPrismaGoal = prisma.goal as jest.Mocked<typeof prisma.goal>
 const mockPrismaDailyGoal = prisma.dailyGoal as jest.Mocked<typeof prisma.dailyGoal>
 
 function createNextRequest(body?: Record<string, unknown>): NextRequest {
@@ -146,6 +154,8 @@ describe('GET /api/profile', () => {
 describe('POST /api/profile', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(mockPrismaActivityLevel.findUnique as jest.Mock).mockResolvedValue({ name: 'Ülő életmód' })
+    ;(mockPrismaGoal.findUnique as jest.Mock).mockResolvedValue({ name: 'Súlytartás' })
   })
 
   it('létrehoz egy új profilt', async () => {

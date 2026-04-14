@@ -21,8 +21,8 @@ function calculateDailyGoals(
   gender: string,
   heightCm: number,
   weightKg: number,
-  activityLevelId: number,
-  goalId: number
+  activityLevelName: string | null | undefined,
+  goalName: string | null | undefined
 ) {
   // BMR (Alapanyagcsere) számítása a Mifflin-St Jeor egyenlet alapján
   let bmr: number;
@@ -35,22 +35,23 @@ function calculateDailyGoals(
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
   }
 
-  // Aktivitási szint szorzók
-  const activityMultipliers: { [key: number]: number } = {
-    1: 1.2,    // Ülő életmód
-    2: 1.375,  // Enyhén aktív
-    3: 1.55,   // Mérsékelten aktív
-    4: 1.725,  // Nagyon aktív
-  };
+  const normalizedActivity = (activityLevelName ?? '').toLocaleLowerCase('hu-HU');
+  const normalizedGoal = (goalName ?? '').toLocaleLowerCase('hu-HU');
 
-  const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
+  const activityMultiplier = normalizedActivity.includes('enyhén')
+    ? 1.375
+    : normalizedActivity.includes('mérsékelten')
+      ? 1.55
+      : normalizedActivity.includes('nagyon')
+        ? 1.725
+        : 1.2;
   const tdee = bmr * activityMultiplier;
 
   // Cél alapján módosítás
   let caloriesGoal: number;
-  if (goalId === 1) {
+  if (normalizedGoal.includes('fogyás')) {
     caloriesGoal = tdee - 500; // Fogyás
-  } else if (goalId === 3) {
+  } else if (normalizedGoal.includes('hízás')) {
     caloriesGoal = tdee + 500; // Hízás
   } else {
     caloriesGoal = tdee; // Súlytartás
@@ -64,18 +65,18 @@ function calculateDailyGoals(
   let proteinMultiplier = 0.8; // Alap ülő életmódhoz
   
   // Aktivitási szint alapján módosítás
-  if (activityLevelId === 2) {
+  if (normalizedActivity.includes('enyhén')) {
     proteinMultiplier += 0.4; // Enyhén aktív
-  } else if (activityLevelId === 3) {
+  } else if (normalizedActivity.includes('mérsékelten')) {
     proteinMultiplier += 0.6; // Mérsékelten aktív
-  } else if (activityLevelId === 4) {
+  } else if (normalizedActivity.includes('nagyon')) {
     proteinMultiplier += 1.0; // Nagyon aktív
   }
   
   // Cél alapján módosítás
-  if (goalId === 1) {
+  if (normalizedGoal.includes('fogyás')) {
     proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
-  } else if (goalId === 3) {
+  } else if (normalizedGoal.includes('hízás')) {
     proteinMultiplier += 0.4; // Hízás - izomépítés
   }
   
@@ -180,6 +181,10 @@ export const appRouter = router({
         // Felhasználói profil lekérése a teljesség ellenőrzéséhez
         const userProfile = await ctx.prisma.userProfile.findUnique({
           where: { user_id: userId },
+          include: {
+            activityLevel: true,
+            goal: true,
+          },
         });
 
         // Mai napi cél lekérése
@@ -211,8 +216,8 @@ export const appRouter = router({
               userProfile.gender!,
               userProfile.heightCm!,
               Number(userProfile.weightKg!),
-              userProfile.activityLevel_id!,
-              userProfile.goal_id!
+              userProfile.activityLevel?.name,
+              userProfile.goal?.name
             );
 
             dailyGoal = await ctx.prisma.dailyGoal.create({
