@@ -284,14 +284,14 @@ export default function WorkoutLogPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Daily Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Workouts Today */}
+          {/* Workouts */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
               <div className="p-2 bg-purple-100 dark:bg-purple-600 rounded-lg">
                 <BoltIcon className="h-6 w-6 text-purple-600 dark:text-purple-100" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Mai edzések</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Napi edzések</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {todayTotals.workouts}
                 </p>
@@ -333,9 +333,7 @@ export default function WorkoutLogPage() {
                 </p>
               </div>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Edzésből ma égetve
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Edzésből égetve</p>
           </div>
 
           {/* Net Calories */}
@@ -352,7 +350,6 @@ export default function WorkoutLogPage() {
               </div>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <p>{caloriesConsumed} bevitt - {Math.round(caloriesBurnedToday)} égetett</p>
               <p>{Math.round(caloriesConsumed)} bevitt - {Math.round(caloriesBurnedForSelectedDate)} égetett</p>
               <p className={`font-medium ${caloriesRemaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {caloriesRemaining >= 0 ? `${Math.round(caloriesRemaining)} maradt a célból` : `${Math.abs(Math.round(caloriesRemaining))} túllépve`}
