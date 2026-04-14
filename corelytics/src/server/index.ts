@@ -562,6 +562,53 @@ export const appRouter = router({
         
         return logs;
       }),
+
+    getDailySummary: protectedProcedure
+      .input(z.object({
+        date: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const targetDate = input.date ? new Date(input.date) : new Date();
+
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const [dailyGoal, dayWorkoutLogs] = await Promise.all([
+          ctx.prisma.dailyGoal.findUnique({
+            where: {
+              user_id_date: {
+                user_id: userId,
+                date: startOfDay,
+              },
+            },
+          }),
+          ctx.prisma.userExerciseLog.findMany({
+            where: {
+              user_id: userId,
+              logDate: {
+                gte: startOfDay,
+                lte: endOfDay,
+              },
+            },
+          })
+        ]);
+
+        const caloriesBurned = dayWorkoutLogs.reduce((total, log) => {
+          return total + Number(log.caloriesBurned || 0);
+        }, 0);
+
+        return {
+          caloriesBurned: Math.round(caloriesBurned),
+          caloriesTarget: Number(dailyGoal?.caloriesGoal || 2000),
+          proteinTarget: Number(dailyGoal?.proteinGoal || 150),
+          fatTarget: Number(dailyGoal?.fatGoal || 65),
+          carbsTarget: Number(dailyGoal?.carbsGoal || 250),
+        };
+      }),
     
     deleteLog: protectedProcedure
       .input(z.object({

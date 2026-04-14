@@ -85,8 +85,10 @@ export default function FoodLogPage() {
     enabled: status === "authenticated"
   });
   
-  // Felhasználói statisztikák lekérése a napi célokhoz
-  const { data: userStats } = trpc.user.stats.useQuery(undefined, {
+  // Kiválasztott nap összegzése (célok + elégetett kalória)
+  const { data: dailySummary } = trpc.food.getDailySummary.useQuery({
+    date: selectedDate.toISOString().split('T')[0]
+  }, {
     enabled: status === "authenticated"
   });
   
@@ -244,12 +246,12 @@ export default function FoodLogPage() {
   };
 
   const totals = calculateTotals();
-  const calorieGoal = userStats?.caloriesTarget || 2000;
-  const caloriesBurned = userStats?.caloriesBurned || 0;
+  const calorieGoal = dailySummary?.caloriesTarget || 2000;
+  const caloriesBurned = dailySummary?.caloriesBurned || 0;
   const netCalories = totals.calories - caloriesBurned;
-  const proteinGoal = Number(userStats?.proteinTarget) || 150;
-  const fatGoal = Number(userStats?.fatTarget) || 65;
-  const carbsGoal = Number(userStats?.carbsTarget) || 250;
+  const proteinGoal = Number(dailySummary?.proteinTarget) || 150;
+  const fatGoal = Number(dailySummary?.fatTarget) || 65;
+  const carbsGoal = Number(dailySummary?.carbsTarget) || 250;
   const caloriesRemaining = calorieGoal - netCalories;
   const proteinRemaining = proteinGoal - totals.protein;
   const fatRemaining = fatGoal - totals.fat;
