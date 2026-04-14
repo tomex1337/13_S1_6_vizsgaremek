@@ -42,10 +42,24 @@ interface WorkoutLog {
   exercise: Exercise | null;
 }
 
+interface FoodLog {
+  quantity: number;
+  foodItem: {
+    calories?: number | string | null;
+  };
+}
+
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function WorkoutLogPage() {
   const { status } = useSession();
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showAddWorkout, setShowAddWorkout] = useState(false);
@@ -61,7 +75,19 @@ export default function WorkoutLogPage() {
   });
   
   const { data: dailyLogs = [], refetch: refetchLogs } = trpc.workout.getDailyLogs.useQuery({
-    date: selectedDate.toISOString().split('T')[0]
+    date: selectedDate
+  }, {
+    enabled: status === "authenticated"
+  });
+
+  const { data: dailyFoodLogs = [] } = trpc.food.getDailyLogs.useQuery({
+    date: selectedDate
+  }, {
+    enabled: status === "authenticated"
+  });
+
+  const { data: dailySummary } = trpc.food.getDailySummary.useQuery({
+    date: selectedDate
   }, {
     enabled: status === "authenticated"
   });
@@ -114,7 +140,7 @@ export default function WorkoutLogPage() {
       await logWorkoutMutation.mutateAsync({
         exerciseId: selectedExercise.id,
         durationMinutes: duration,
-        logDate: selectedDate.toISOString().split('T')[0]
+        logDate: selectedDate
       });
     } catch (error) {
       console.error('Error logging workout:', error);
@@ -180,11 +206,14 @@ export default function WorkoutLogPage() {
     { workouts: 0, minutes: 0, calories: 0 }
   );
 
-  // Nettó kalóriák számítása (bevitt - elégetett)
-  const calorieGoal = userStats?.caloriesTarget || 2000;
-  const caloriesConsumed = userStats?.caloriesConsumed || 0;
-  const caloriesBurnedToday = userStats?.caloriesBurned || todayTotals.calories;
-  const netCalories = caloriesConsumed - caloriesBurnedToday;
+  const caloriesConsumed = (dailyFoodLogs as unknown as FoodLog[]).reduce((total, log) => {
+    return total + (Number(log.foodItem?.calories) || 0) * Number(log.quantity || 0);
+  }, 0);
+
+  // Nettó kalóriák számítása (bevitt - elégetett) a kiválasztott napra
+  const calorieGoal = dailySummary?.caloriesTarget || userStats?.caloriesTarget || 2000;
+  const caloriesBurnedForSelectedDate = todayTotals.calories;
+  const netCalories = caloriesConsumed - caloriesBurnedForSelectedDate;
   const caloriesRemaining = calorieGoal - netCalories;
 
   if (status === "loading") {
@@ -222,8 +251,8 @@ export default function WorkoutLogPage() {
             <div className="flex items-center space-x-4">
               <input
                 type="date"
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
                 className="px-3 py-2 bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800/60 border border-white/20 rounded-lg text-white dark:text-white placeholder-white/60 focus:outline-none focus:border-white/40"
               />
               <button
@@ -324,6 +353,7 @@ export default function WorkoutLogPage() {
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
               <p>{caloriesConsumed} bevitt - {Math.round(caloriesBurnedToday)} égetett</p>
+              <p>{Math.round(caloriesConsumed)} bevitt - {Math.round(caloriesBurnedForSelectedDate)} égetett</p>
               <p className={`font-medium ${caloriesRemaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {caloriesRemaining >= 0 ? `${Math.round(caloriesRemaining)} maradt a célból` : `${Math.abs(Math.round(caloriesRemaining))} túllépve`}
               </p>
@@ -331,11 +361,11 @@ export default function WorkoutLogPage() {
           </div>
         </div>
 
-        {/* Today's Workouts */}
+        {/* Selected Day Workouts */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Mai edzések</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Kiválasztott napi edzések</h2>
               <button
                 onClick={() => setShowAddWorkout(true)}
                 className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
@@ -422,7 +452,7 @@ export default function WorkoutLogPage() {
             ) : (
               <div className="text-center py-12">
                 <BoltIcon className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400 mb-4">Még nincs edzés rögzítve ma</p>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">Még nincs edzés rögzítve erre a napra</p>
                 <button
                   onClick={() => setShowAddWorkout(true)}
                   className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
