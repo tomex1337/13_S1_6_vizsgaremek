@@ -37,10 +37,10 @@ function calculateDailyGoals(
 
   // Aktivitási szint szorzók
   const activityMultipliers: { [key: number]: number } = {
-    2: 1.2,    // Ülő életmód
-    4: 1.375,  // Enyhén aktív
+    1: 1.2,    // Ülő életmód
+    2: 1.375,  // Enyhén aktív
     3: 1.55,   // Mérsékelten aktív
-    1: 1.725,  // Nagyon aktív
+    4: 1.725,  // Nagyon aktív
   };
 
   const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
@@ -48,9 +48,9 @@ function calculateDailyGoals(
 
   // Cél alapján módosítás
   let caloriesGoal: number;
-  if (goalId === 3) {
+  if (goalId === 1) {
     caloriesGoal = tdee - 500; // Fogyás
-  } else if (goalId === 1) {
+  } else if (goalId === 3) {
     caloriesGoal = tdee + 500; // Hízás
   } else {
     caloriesGoal = tdee; // Súlytartás
@@ -64,18 +64,18 @@ function calculateDailyGoals(
   let proteinMultiplier = 0.8; // Alap ülő életmódhoz
   
   // Aktivitási szint alapján módosítás
-  if (activityLevelId === 4) {
+  if (activityLevelId === 2) {
     proteinMultiplier += 0.4; // Enyhén aktív
   } else if (activityLevelId === 3) {
     proteinMultiplier += 0.6; // Mérsékelten aktív
-  } else if (activityLevelId === 1) {
+  } else if (activityLevelId === 4) {
     proteinMultiplier += 1.0; // Nagyon aktív
   }
   
   // Cél alapján módosítás
-  if (goalId === 3) {
+  if (goalId === 1) {
     proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
-  } else if (goalId === 1) {
+  } else if (goalId === 3) {
     proteinMultiplier += 0.4; // Hízás - izomépítés
   }
   
