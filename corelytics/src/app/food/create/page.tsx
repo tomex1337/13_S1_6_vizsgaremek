@@ -4,6 +4,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { Capacitor } from "@capacitor/core";
+import { BarcodeFormat, BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 import { trpc } from "@/lib/trpc";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -13,7 +15,8 @@ import {
   BeakerIcon,
   ScaleIcon,
   FireIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  QrCodeIcon
 } from '@heroicons/react/24/outline';
 import {
   SparklesIcon
@@ -22,6 +25,7 @@ import {
 interface FoodFormData {
   name: string;
   brand?: string;
+  barcode?: string;
   servingSizeGrams: number;
   calories: number;
   protein: number;
@@ -35,7 +39,10 @@ interface FoodFormData {
 export default function CreateFoodPage() {
   const { status } = useSession();
   const router = useRouter();
+  const isNativePlatform = Capacitor.isNativePlatform();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isScanningBarcode, setIsScanningBarcode] = useState(false);
+  const [isScannerSupported, setIsScannerSupported] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -44,9 +51,11 @@ export default function CreateFoodPage() {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     watch
   } = useForm<FoodFormData>({
     defaultValues: {
+      barcode: '',
       servingSizeGrams: 100,
       calories: 0,
       protein: 0,
@@ -79,6 +88,93 @@ export default function CreateFoodPage() {
     }
   }, [status, router]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const barcodeFromQuery = params.get('barcode')?.trim();
+
+    if (barcodeFromQuery && barcodeFromQuery.length >= 8 && barcodeFromQuery.length <= 64) {
+      setValue('barcode', barcodeFromQuery, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [setValue]);
+
+  useEffect(() => {
+    const checkScannerSupport = async () => {
+      if (!isNativePlatform) {
+        setIsScannerSupported(false);
+        return;
+      }
+
+      try {
+        const { supported } = await BarcodeScanner.isSupported();
+        setIsScannerSupported(supported);
+      } catch {
+        setIsScannerSupported(false);
+      }
+    };
+
+    void checkScannerSupport();
+  }, [isNativePlatform]);
+
+  const handleBarcodeScan = async () => {
+    if (!isNativePlatform) {
+      setErrorMessage('A vonalkód szkenner csak mobilalkalmazásban érhető el.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+      return;
+    }
+
+    try {
+      setIsScanningBarcode(true);
+
+      const permissionStatus = await BarcodeScanner.checkPermissions();
+      let cameraPermission = permissionStatus.camera;
+
+      if (cameraPermission !== 'granted') {
+        const requestedPermissions = await BarcodeScanner.requestPermissions();
+        cameraPermission = requestedPermissions.camera;
+      }
+
+      if (cameraPermission !== 'granted') {
+        setErrorMessage('A vonalkód olvasáshoz kamerahasználati engedély szükséges.');
+        setShowError(true);
+        setTimeout(() => setShowError(false), 5000);
+        return;
+      }
+
+      const result = await BarcodeScanner.scan({
+        formats: [
+          BarcodeFormat.Ean13,
+          BarcodeFormat.Ean8,
+          BarcodeFormat.UpcA,
+          BarcodeFormat.UpcE,
+        ]
+      });
+
+      const scannedValue = result.barcodes[0]?.rawValue?.trim() || result.barcodes[0]?.displayValue?.trim();
+
+      if (!scannedValue) {
+        setErrorMessage('Nem sikerült érvényes vonalkódot beolvasni.');
+        setShowError(true);
+        setTimeout(() => setShowError(false), 5000);
+        return;
+      }
+
+      setValue('barcode', scannedValue, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    } catch {
+      setErrorMessage('Hiba történt a vonalkód beolvasása közben.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+    } finally {
+      setIsScanningBarcode(false);
+    }
+  };
+
   const onSubmit = async (data: FoodFormData) => {
     // Validáld, hogy a makrók súlya ne haladja meg az adagméretet
     const macroWeight = Number(data.protein) + Number(data.carbs) + Number(data.fat);
@@ -102,6 +198,7 @@ export default function CreateFoodPage() {
       await createFoodMutation.mutateAsync({
         name: data.name,
         brand: data.brand || undefined,
+        barcode: data.barcode?.trim() || undefined,
         servingSizeGrams: Number(data.servingSizeGrams),
         calories: Number(data.calories),
         protein: Number(data.protein),
@@ -267,6 +364,43 @@ export default function CreateFoodPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     placeholder="pl. Általános, Házi"
                   />
+                </div>
+
+                <div>
+                  <label htmlFor="barcode" className="block text-sm font-medium text-gray-700 mb-1">
+                    Vonalkód (Opcionális)
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        id="barcode"
+                        {...register('barcode', {
+                          minLength: { value: 8, message: 'Vonalkód: Legalább 8 karakter hosszúnak kell lennie' },
+                          maxLength: { value: 64, message: 'Vonalkód: Maximum 64 karakter lehet' }
+                        })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="pl. 5991234567890"
+                      />
+                      <QrCodeIcon className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
+                    </div>
+                    {isNativePlatform && (
+                      <button
+                        type="button"
+                        onClick={handleBarcodeScan}
+                        disabled={isScanningBarcode || !isScannerSupported}
+                        className="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isScanningBarcode ? 'Olvasás...' : 'Beolvasás'}
+                      </button>
+                    )}
+                  </div>
+                  {errors.barcode && (
+                    <p className="mt-1 text-sm text-red-600">{errors.barcode.message}</p>
+                  )}
+                  {!isNativePlatform && (
+                    <p className="mt-1 text-xs text-gray-500">A beolvasás gomb mobilalkalmazásban érhető el.</p>
+                  )}
                 </div>
 
                 {/* Serving Size */}

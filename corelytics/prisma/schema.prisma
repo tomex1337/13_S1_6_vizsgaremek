@@ -59,6 +59,7 @@ model FoodItem {
   id              String        @id @db.Uuid
   name            String
   brand           String?
+  barcode         String?
   servingSizeGrams Decimal?     @map("serving_size_grams")
   calories        Decimal?
   protein         Decimal?

@@ -477,11 +477,14 @@ export const appRouter = router({
         limit: z.number().optional().default(20)
       }))
       .query(async ({ input, ctx }) => {
+        const trimmedQuery = input.query.trim();
+
         const foods = await ctx.prisma.foodItem.findMany({
           where: {
             OR: [
-              { name: { contains: input.query, mode: 'insensitive' } },
-              { brand: { contains: input.query, mode: 'insensitive' } }
+              { name: { contains: trimmedQuery, mode: 'insensitive' } },
+              { brand: { contains: trimmedQuery, mode: 'insensitive' } },
+              { barcode: trimmedQuery }
             ]
           },
           take: input.limit,
@@ -642,6 +645,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(1),
         brand: z.string().optional(),
+        barcode: z.string().trim().min(8).max(64).optional(),
         servingSizeGrams: z.number().positive().optional(),
         calories: z.number().nonnegative().optional(),
         protein: z.number().nonnegative().optional(),
@@ -669,6 +673,7 @@ export const appRouter = router({
             id: crypto.randomUUID(),
             name: input.name,
             brand: input.brand,
+            barcode: input.barcode,
             servingSizeGrams: input.servingSizeGrams,
             calories: input.calories,
             protein: input.protein,

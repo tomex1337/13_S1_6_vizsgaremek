@@ -4,6 +4,7 @@ import { z } from 'zod'
 const createCustomFoodSchema = z.object({
   name: z.string().min(1),
   brand: z.string().optional(),
+  barcode: z.string().trim().min(8).max(64).optional(),
   servingSizeGrams: z.number().positive().optional(),
   calories: z.number().nonnegative().optional(),
   protein: z.number().nonnegative().optional(),
@@ -52,6 +53,7 @@ describe('Food Create Validation Tests', () => {
     it('should validate food with name and some optional fields', () => {
       const validData = {
         name: 'Chicken Breast',
+        barcode: '5991234567890',
         calories: 165,
         protein: 31,
         fat: 3.6,
@@ -60,6 +62,16 @@ describe('Food Create Validation Tests', () => {
 
       const result = createCustomFoodSchema.safeParse(validData)
       expect(result.success).toBe(true)
+    })
+
+    it('should reject too short barcode', () => {
+      const invalidData = {
+        name: 'Test Food',
+        barcode: '1234567'
+      }
+
+      const result = createCustomFoodSchema.safeParse(invalidData)
+      expect(result.success).toBe(false)
     })
 
     it('should reject empty name', () => {

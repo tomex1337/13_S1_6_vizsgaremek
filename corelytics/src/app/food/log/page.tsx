@@ -3,6 +3,8 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Capacitor } from "@capacitor/core";
+import { BarcodeFormat, BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 import { trpc } from "@/lib/trpc";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
@@ -14,6 +16,7 @@ import {
   CheckIcon,
   XMarkIcon,
   PencilIcon,
+  QrCodeIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
 import {
@@ -24,6 +27,7 @@ interface FoodItem {
   id: string;   
   name: string;
   brand?: string | null;
+  barcode?: string | null;
   servingSizeGrams?: number | string | null;
   calories?: number | string | null;
   protein?: number | string | null;
@@ -60,8 +64,11 @@ interface NutritionTotals {
 export default function FoodLogPage() {
   const { status } = useSession();
   const router = useRouter();
+  const isNativePlatform = Capacitor.isNativePlatform();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
+  const [isScannerSupported, setIsScannerSupported] = useState(false);
+  const [isScanningBarcode, setIsScanningBarcode] = useState(false);
   const [selectedMealType, setSelectedMealType] = useState<number>(1);
   const [showAddFood, setShowAddFood] = useState(false);
   const [selectedFood, setSelectedFood] = useState<FoodItem | null>(null);
@@ -118,6 +125,66 @@ export default function FoodLogPage() {
       router.push("/auth/signin");
     }
   }, [status, router]);
+
+  useEffect(() => {
+    const checkScannerSupport = async () => {
+      if (!isNativePlatform) {
+        setIsScannerSupported(false);
+        return;
+      }
+
+      try {
+        const { supported } = await BarcodeScanner.isSupported();
+        setIsScannerSupported(supported);
+      } catch {
+        setIsScannerSupported(false);
+      }
+    };
+
+    void checkScannerSupport();
+  }, [isNativePlatform]);
+
+  const handleScanBarcodeSearch = async () => {
+    if (!isNativePlatform) {
+      return;
+    }
+
+    try {
+      setIsScanningBarcode(true);
+
+      const permissionStatus = await BarcodeScanner.checkPermissions();
+      let cameraPermission = permissionStatus.camera;
+
+      if (cameraPermission !== 'granted') {
+        const requestedPermissions = await BarcodeScanner.requestPermissions();
+        cameraPermission = requestedPermissions.camera;
+      }
+
+      if (cameraPermission !== 'granted') {
+        return;
+      }
+
+      const result = await BarcodeScanner.scan({
+        formats: [
+          BarcodeFormat.Ean13,
+          BarcodeFormat.Ean8,
+          BarcodeFormat.UpcA,
+          BarcodeFormat.UpcE,
+        ]
+      });
+
+      const scannedValue = result.barcodes[0]?.rawValue?.trim() || result.barcodes[0]?.displayValue?.trim();
+      if (scannedValue) {
+        setSearchQuery(scannedValue);
+      }
+    } catch (error) {
+      console.error('Error scanning barcode:', error);
+    } finally {
+      setIsScanningBarcode(false);
+    }
+  };
+
+  const isBarcodeSearch = /^\d{8,64}$/.test(searchQuery.trim());
 
   const handleAddFood = async () => {
     if (!selectedFood) return;
@@ -579,6 +646,20 @@ export default function FoodLogPage() {
                     />
                   </div>
 
+                  {isNativePlatform && (
+                    <div className="mb-6">
+                      <button
+                        type="button"
+                        onClick={handleScanBarcodeSearch}
+                        disabled={isScanningBarcode || !isScannerSupported}
+                        className="inline-flex items-center space-x-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        <QrCodeIcon className="h-5 w-5" />
+                        <span>{isScanningBarcode ? 'Beolvasás...' : 'Vonalkód beolvasása'}</span>
+                      </button>
+                    </div>
+                  )}
+
                   {/* Search Results */}
                   <div className="max-h-96 overflow-y-auto">
                     {isSearching ? (
@@ -618,10 +699,15 @@ export default function FoodLogPage() {
                       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
                         <p>Nem található étel erre: &quot;{searchQuery}&quot;</p>
                         <button 
-                          onClick={() => router.push('/food/create')}
+                          onClick={() => {
+                            const barcodeQueryPart = isBarcodeSearch ? `?barcode=${encodeURIComponent(searchQuery.trim())}` : '';
+                            router.push(`/food/create${barcodeQueryPart}`);
+                          }}
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium mt-2"
                         >
-                          Egyedi étel létrehozása
+                          {isBarcodeSearch
+                            ? 'Egyedi étel létrehozása ezzel a vonalkóddal'
+                            : 'Egyedi étel létrehozása'}
                         </button>
                       </div>
                     ) : (
