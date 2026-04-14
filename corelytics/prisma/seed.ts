@@ -176,10 +176,13 @@ async function main() {
   const foodItems = await Promise.all([
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440001' },
-      update: {},
+      update: {
+        barcode: '5999876543210',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440001',
         name: 'Banán',
+        barcode: '5999876543210',
         servingSizeGrams: 100,
         calories: 89,
         protein: 1.1,
@@ -193,10 +196,13 @@ async function main() {
     }),
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440002' },
-      update: {},
+      update: {
+        barcode: '5991234567890',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440002',
         name: 'Csirkemell',
+        barcode: '5991234567890',
         servingSizeGrams: 100,
         calories: 165,
         protein: 31,
@@ -210,10 +216,13 @@ async function main() {
     }),
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440003' },
-      update: {},
+      update: {
+        barcode: '5991111111111',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440003',
         name: 'Barna rizs',
+        barcode: '5991111111111',
         servingSizeGrams: 100,
         calories: 123,
         protein: 2.6,
