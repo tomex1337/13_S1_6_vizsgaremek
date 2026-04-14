@@ -73,48 +73,67 @@ async function main() {
 
   // Create a test user
   const hashedPassword = await hash('jelszo123', 12);
+  const now = new Date();
   
   const testUser = await prisma.user.upsert({
     where: { email: 'teszt@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440000',
       email: 'teszt@pelda.hu',
       username: 'TesztFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 0, // Felhasználó
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
   // Create a moderator user
   const moderatorUser = await prisma.user.upsert({
     where: { email: 'moderator@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440010',
       email: 'moderator@pelda.hu',
       username: 'ModeratorFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 1, // Moderátor
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
   // Create an admin user
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440020',
       email: 'admin@pelda.hu',
       username: 'AdminFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 2, // Admin
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
