@@ -11,7 +11,8 @@ import {
   ChartBarIcon,
   ClockIcon,
   ArrowLeftIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  EllipsisVerticalIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -27,6 +28,7 @@ export default function WorkoutHistoryPage() {
     return date;
   });
   const [endDate, setEndDate] = useState(new Date());
+  const [showMenu, setShowMenu] = useState(false);
 
   const { data: workoutStats } = trpc.workout.getStats.useQuery({
     startDate: startDate.toISOString().split('T')[0],
@@ -103,12 +105,12 @@ export default function WorkoutHistoryPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 dark:from-purple-800 dark:to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4 w-full sm:w-auto">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <ChartBarIcon className="h-8 w-8 text-white" />
               </div>
-              <div>
+              <div className="flex-1 sm:flex-none">
                 <h1 className="text-3xl font-bold !text-white">Edzés Statisztikák</h1>
                 <p className="!text-purple-100 mt-1">
                   Elemezd az edzési előrehaladásodat
@@ -117,7 +119,7 @@ export default function WorkoutHistoryPage() {
             </div>
             <button
               onClick={() => router.push('/workout')}
-              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+              className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 w-full sm:w-auto justify-center sm:justify-start flex-shrink-0"
             >
               <BoltIcon className="h-5 w-5" />
               <span>Vissza az edzésnaplóhoz</span>
@@ -129,32 +131,63 @@ export default function WorkoutHistoryPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Date Range Selector */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-4">
-              <CalendarIcon className="h-6 w-6 text-gray-400 dark:text-gray-500" />
-              <span className="text-gray-700 dark:text-gray-300 font-medium">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            {/* Date Display */}
+            <div className="flex items-center space-x-4 w-full sm:w-auto">
+              <CalendarIcon className="h-6 w-6 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+              <span className="text-gray-700 dark:text-gray-300 font-medium break-words">
                 {formatDate(startDate)} - {formatDate(endDate)}
               </span>
             </div>
-            <div className="flex items-center space-x-2">
+
+            {/* Navigation Controls */}
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
               <button
                 onClick={goToPreviousWeek}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                title="Előző hét"
               >
                 <ArrowLeftIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
               <button
                 onClick={goToCurrentWeek}
-                className="px-4 py-2 text-sm bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+                className="px-4 py-2 text-sm bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-200 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors flex-shrink-0 whitespace-nowrap"
               >
                 Ez a hét
               </button>
               <button
                 onClick={goToNextWeek}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors flex-shrink-0"
+                title="Következő hét"
               >
                 <ArrowRightIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
               </button>
+
+              {/* Mobile Menu Toggle */}
+              <div className="sm:hidden relative ml-auto">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                >
+                  <EllipsisVerticalIcon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                </button>
+                
+                {/* Mobile Menu */}
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-10">
+                    <button
+                      onClick={() => {
+                        router.push('/workout');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                    >
+                      <BoltIcon className="h-5 w-5" />
+                      <span>Vissza az edzésnaplóhoz</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

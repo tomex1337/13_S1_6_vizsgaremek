@@ -276,19 +276,19 @@ export default function FoodLogPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-green-600 to-blue-700 dark:from-green-800 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4 w-full md:w-auto">
               <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
                 <FireIconSolid className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h1 className="text-3xl font-bold !text-white">Étkezési Napló</h1>
                 <p className="!text-green-100 mt-1">
-                  Kövesd nyomon a táplálkozásodat és érdd el a céljaidat
+                  Kövesd nyomon a táplálkozásodat és érrd el a céljaidat
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
               <input
                 type="date"
                 value={selectedDate.toISOString().split('T')[0]}
@@ -297,7 +297,7 @@ export default function FoodLogPage() {
               />
               <button
                 onClick={() => setShowMealSelector(true)}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center justify-center space-x-2"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>Étel hozzáadása</span>
