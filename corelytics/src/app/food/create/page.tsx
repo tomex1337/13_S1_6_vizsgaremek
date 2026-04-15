@@ -126,6 +126,32 @@ export default function CreateFoodPage() {
       return;
     }
 
+    const isAndroid = Capacitor.getPlatform() === 'android';
+    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+    const isEmulator = isAndroid && /Emulator|Android SDK built for x86|google_sdk/i.test(ua);
+
+    // Emulátoron gyakori, hogy a plugin nem tud kamerát nyitni (csak egy pillanatra "villan").
+    // Ilyenkor adjunk egy hasznos fejlesztői fallback-et.
+    if (isEmulator) {
+      const manual = window.prompt('Emulátorban a kamera/beolvasás gyakran nem működik. Másold be vagy írd be a vonalkódot:');
+      const value = (manual ?? '').trim();
+      if (!value) {
+        setErrorMessage('Nem adtál meg vonalkódot.');
+        setShowError(true);
+        setTimeout(() => setShowError(false), 4000);
+        return;
+      }
+      setValue('barcode', value, { shouldDirty: true, shouldValidate: true });
+      return;
+    }
+
+    if (!isScannerSupported) {
+      setErrorMessage('A vonalkód olvasás nem támogatott ezen az eszközön.');
+      setShowError(true);
+      setTimeout(() => setShowError(false), 5000);
+      return;
+    }
+
     try {
       setIsScanningBarcode(true);
 
@@ -150,13 +176,16 @@ export default function CreateFoodPage() {
           BarcodeFormat.Ean8,
           BarcodeFormat.UpcA,
           BarcodeFormat.UpcE,
-        ]
+        ],
       });
 
-      const scannedValue = result.barcodes[0]?.rawValue?.trim() || result.barcodes[0]?.displayValue?.trim();
+      const scannedValue =
+        result.barcodes?.[0]?.rawValue?.trim() ||
+        result.barcodes?.[0]?.displayValue?.trim() ||
+        '';
 
       if (!scannedValue) {
-        setErrorMessage('Nem sikerült érvényes vonalkódot beolvasni.');
+        setErrorMessage('Nem sikerült vonalkódot beolvasni. Próbáld újra, és tartsd stabilan a kamerát a kódra.');
         setShowError(true);
         setTimeout(() => setShowError(false), 5000);
         return;
@@ -166,10 +195,12 @@ export default function CreateFoodPage() {
         shouldDirty: true,
         shouldValidate: true,
       });
-    } catch {
-      setErrorMessage('Hiba történt a vonalkód beolvasása közben.');
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : String(e);
+      console.error('Barcode scan error:', e);
+      setErrorMessage(`Hiba történt a vonalkód beolvasása közben: ${message}`);
       setShowError(true);
-      setTimeout(() => setShowError(false), 5000);
+      setTimeout(() => setShowError(false), 7000);
     } finally {
       setIsScanningBarcode(false);
     }
