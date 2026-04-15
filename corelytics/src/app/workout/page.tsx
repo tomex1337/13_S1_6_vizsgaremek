@@ -18,7 +18,8 @@ import {
   ChevronUpIcon,
   ChartBarIcon,
   SparklesIcon,
-  PlusCircleIcon
+  PlusCircleIcon,
+  EllipsisVerticalIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -68,6 +69,7 @@ export default function WorkoutLogPage() {
   const [editingLog, setEditingLog] = useState<string | null>(null);
   const [editDuration, setEditDuration] = useState(30);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showMenu, setShowMenu] = useState(false);
 
   // tRPC lekérdezések és mutációk
   const { data: categories = [] } = trpc.workout.getCategories.useQuery(undefined, {
@@ -236,19 +238,21 @@ export default function WorkoutLogPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 dark:from-purple-800 dark:to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
+          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4 w-full xl:w-auto">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <BoltIcon className="h-8 w-8 text-white" />
               </div>
-              <div>
+              <div className="flex-1 xl:flex-none">
                 <h1 className="text-3xl font-bold !text-white">Edzésnapló</h1>
                 <p className="!text-purple-100 mt-1">
                   Kövesd nyomon az edzéseidet és égesd a kalóriákat
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Desktop Controls */}
+            <div className="hidden xl:flex items-center gap-2">
               <input
                 type="date"
                 value={selectedDate}
@@ -257,25 +261,79 @@ export default function WorkoutLogPage() {
               />
               <button
                 onClick={() => router.push('/workout/history')}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <ChartBarIcon className="h-5 w-5" />
                 <span>Statisztikák</span>
               </button>
               <button
                 onClick={() => router.push('/workout/create')}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <SparklesIcon className="h-5 w-5" />
                 <span>Egyedi edzés</span>
               </button>
               <button
                 onClick={() => setShowAddWorkout(true)}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>Edzés hozzáadása</span>
               </button>
+            </div>
+
+            {/* Mobile Controls */}
+            <div className="flex xl:hidden items-center space-x-2 w-full gap-2">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 px-3 py-2 bg-white/10 dark:bg-gray-800/50 border border-white/20 rounded-lg text-white dark:text-white placeholder-white/60 focus:outline-none focus:border-white/40 text-sm"
+              />
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <EllipsisVerticalIcon className="h-5 w-5 text-white" />
+                </button>
+                
+                {/* Mobile Menu */}
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
+                    <button
+                      onClick={() => {
+                        router.push('/workout/history');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                    >
+                      <ChartBarIcon className="h-5 w-5" />
+                      <span>Statisztikák</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push('/workout/create');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 border-t border-gray-200 dark:border-gray-700"
+                    >
+                      <SparklesIcon className="h-5 w-5" />
+                      <span>Egyedi edzés</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddWorkout(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 border-t border-gray-200 dark:border-gray-700"
+                    >
+                      <PlusIcon className="h-5 w-5" />
+                      <span>Edzés hozzáadása</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
