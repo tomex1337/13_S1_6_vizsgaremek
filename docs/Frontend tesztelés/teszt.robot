@@ -24,9 +24,9 @@ Kiegészítés
 
 *** Variables ***
 ${URL}    https://corelytics.tomex.xyz
-${email}    Somakoma@gmail.com
+${email}    Soma1koma@gmail.com
 ${password}    12345678
-${name}    Somama
+${name}    Somamaa
 
 *** Test Cases ***
 Regisztráció Teszt
