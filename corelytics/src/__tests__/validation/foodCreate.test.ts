@@ -4,7 +4,7 @@ import { z } from 'zod'
 const createCustomFoodSchema = z.object({
   name: z.string().min(1),
   brand: z.string().optional(),
-  barcode: z.string().trim().min(8).max(64).optional(),
+  barcode: z.string().trim().min(1).max(512).optional(),
   servingSizeGrams: z.number().positive().optional(),
   calories: z.number().nonnegative().optional(),
   protein: z.number().nonnegative().optional(),
@@ -64,14 +64,14 @@ describe('Food Create Validation Tests', () => {
       expect(result.success).toBe(true)
     })
 
-    it('should reject too short barcode', () => {
+    it('should accept short alphanumeric barcode with lax rules', () => {
       const invalidData = {
         name: 'Test Food',
-        barcode: '1234567'
+        barcode: 'A1-2'
       }
 
       const result = createCustomFoodSchema.safeParse(invalidData)
-      expect(result.success).toBe(false)
+      expect(result.success).toBe(true)
     })
 
     it('should reject empty name', () => {

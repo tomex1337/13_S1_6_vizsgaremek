@@ -697,7 +697,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(1),
         brand: z.string().optional(),
-        barcode: z.string().trim().min(8).max(64).optional(),
+        barcode: z.string().trim().min(1).max(512).optional(),
         servingSizeGrams: z.number().positive().optional(),
         calories: z.number().nonnegative().optional(),
         protein: z.number().nonnegative().optional(),

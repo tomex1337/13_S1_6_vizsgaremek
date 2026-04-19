@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Capacitor } from "@capacitor/core";
-import { BarcodeFormat, BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 import { trpc } from "@/lib/trpc";
+import { isBarcodeScannerSupported, normalizeBarcodeValue, scanBarcodeLax } from "@/lib/barcodeScanner";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import {
@@ -92,8 +92,8 @@ export default function CreateFoodPage() {
     const params = new URLSearchParams(window.location.search);
     const barcodeFromQuery = params.get('barcode')?.trim();
 
-    if (barcodeFromQuery && barcodeFromQuery.length >= 8 && barcodeFromQuery.length <= 64) {
-      setValue('barcode', barcodeFromQuery, {
+    if (barcodeFromQuery) {
+      setValue('barcode', normalizeBarcodeValue(barcodeFromQuery), {
         shouldDirty: true,
         shouldValidate: true,
       });
@@ -107,12 +107,8 @@ export default function CreateFoodPage() {
         return;
       }
 
-      try {
-        const { supported } = await BarcodeScanner.isSupported();
-        setIsScannerSupported(supported);
-      } catch {
-        setIsScannerSupported(false);
-      }
+      const supported = await isBarcodeScannerSupported();
+      setIsScannerSupported(supported);
     };
 
     void checkScannerSupport();
@@ -126,25 +122,6 @@ export default function CreateFoodPage() {
       return;
     }
 
-    const isAndroid = Capacitor.getPlatform() === 'android';
-    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
-    const isEmulator = isAndroid && /Emulator|Android SDK built for x86|google_sdk/i.test(ua);
-
-    // Emulátoron gyakori, hogy a plugin nem tud kamerát nyitni (csak egy pillanatra "villan").
-    // Ilyenkor adjunk egy hasznos fejlesztői fallback-et.
-    if (isEmulator) {
-      const manual = window.prompt('Emulátorban a kamera/beolvasás gyakran nem működik. Másold be vagy írd be a vonalkódot:');
-      const value = (manual ?? '').trim();
-      if (!value) {
-        setErrorMessage('Nem adtál meg vonalkódot.');
-        setShowError(true);
-        setTimeout(() => setShowError(false), 4000);
-        return;
-      }
-      setValue('barcode', value, { shouldDirty: true, shouldValidate: true });
-      return;
-    }
-
     if (!isScannerSupported) {
       setErrorMessage('A vonalkód olvasás nem támogatott ezen az eszközön.');
       setShowError(true);
@@ -155,37 +132,37 @@ export default function CreateFoodPage() {
     try {
       setIsScanningBarcode(true);
 
-      const permissionStatus = await BarcodeScanner.checkPermissions();
-      let cameraPermission = permissionStatus.camera;
+      const { value: scannedValue, likelyEmulator } = await scanBarcodeLax();
 
-      if (cameraPermission !== 'granted') {
-        const requestedPermissions = await BarcodeScanner.requestPermissions();
-        cameraPermission = requestedPermissions.camera;
-      }
+      if (likelyEmulator && !scannedValue) {
+        const manual = window.prompt('Emulátorban a kamera/beolvasás gyakran nem működik. Másold be vagy írd be a vonalkódot:');
+        const value = (manual ?? '').trim();
+        if (!value) {
+          setErrorMessage('Nem adtál meg vonalkódot.');
+          setShowError(true);
+          setTimeout(() => setShowError(false), 4000);
+          return;
+        }
 
-      if (cameraPermission !== 'granted') {
-        setErrorMessage('A vonalkód olvasáshoz kamerahasználati engedély szükséges.');
-        setShowError(true);
-        setTimeout(() => setShowError(false), 5000);
+        setValue('barcode', normalizeBarcodeValue(value), {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
         return;
       }
 
-      const result = await BarcodeScanner.scan({
-        formats: [
-          BarcodeFormat.Ean13,
-          BarcodeFormat.Ean8,
-          BarcodeFormat.UpcA,
-          BarcodeFormat.UpcE,
-        ],
-      });
-
-      const scannedValue =
-        result.barcodes?.[0]?.rawValue?.trim() ||
-        result.barcodes?.[0]?.displayValue?.trim() ||
-        '';
-
       if (!scannedValue) {
-        setErrorMessage('Nem sikerült vonalkódot beolvasni. Próbáld újra, és tartsd stabilan a kamerát a kódra.');
+        const manual = window.prompt('Nem sikerült automatikusan beolvasni. Írd be kézzel a vonalkódot (ha látható a csomagoláson):');
+        const manualValue = (manual ?? '').trim();
+        if (manualValue) {
+          setValue('barcode', normalizeBarcodeValue(manualValue), {
+            shouldDirty: true,
+            shouldValidate: true,
+          });
+          return;
+        }
+
+        setErrorMessage('Nem sikerült vonalkódot beolvasni. Próbáld meg távolabbról, jobb fényben, vagy írd be kézzel a kódot.');
         setShowError(true);
         setTimeout(() => setShowError(false), 5000);
         return;
@@ -275,8 +252,8 @@ export default function CreateFoodPage() {
 
   return (
     <>
-      <Header />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col">
+      {!isScanningBarcode && <Header />}
+      <div className={`min-h-screen bg-gray-50 dark:bg-gray-800 flex flex-col ${isScanningBarcode ? 'opacity-0 pointer-events-none' : ''}`}>
         {/* Header Section */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 dark:from-purple-700 dark:to-pink-700 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -407,8 +384,8 @@ export default function CreateFoodPage() {
                         type="text"
                         id="barcode"
                         {...register('barcode', {
-                          minLength: { value: 8, message: 'Vonalkód: Legalább 8 karakter hosszúnak kell lennie' },
-                          maxLength: { value: 64, message: 'Vonalkód: Maximum 64 karakter lehet' }
+                          minLength: { value: 1, message: 'Vonalkód: Legalább 1 karakter szükséges' },
+                          maxLength: { value: 512, message: 'Vonalkód: Maximum 512 karakter lehet' }
                         })}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-gray-100"
                         placeholder="pl. 5991234567890"
@@ -698,7 +675,17 @@ export default function CreateFoodPage() {
           </div>
         </div>
       </div>
-      <Footer />
+      {!isScanningBarcode && <Footer />}
+
+      {isScanningBarcode && (
+        <div className="fixed inset-0 z-[1000] pointer-events-none flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/20"></div>
+          <div className="relative mx-6 rounded-xl bg-black/60 px-4 py-3 text-center text-white">
+            <p className="text-sm font-semibold">Irányítsd a kamerát a vonalkódra</p>
+            <p className="text-xs text-gray-200">A beolvasás automatikus, tartsd stabilan az eszközt.</p>
+          </div>
+        </div>
+      )}
     </>
   );
 }

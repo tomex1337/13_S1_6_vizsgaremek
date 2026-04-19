@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
-import { BarcodeFormat, BarcodeScanner } from "@capacitor-mlkit/barcode-scanning";
 import { trpc } from "@/lib/trpc";
+import { isBarcodeScannerSupported, scanBarcodeLax } from "@/lib/barcodeScanner";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import {
@@ -135,12 +135,8 @@ export default function FoodLogPage() {
         return;
       }
 
-      try {
-        const { supported } = await BarcodeScanner.isSupported();
-        setIsScannerSupported(supported);
-      } catch {
-        setIsScannerSupported(false);
-      }
+      const supported = await isBarcodeScannerSupported();
+      setIsScannerSupported(supported);
     };
 
     void checkScannerSupport();
@@ -154,28 +150,8 @@ export default function FoodLogPage() {
     try {
       setIsScanningBarcode(true);
 
-      const permissionStatus = await BarcodeScanner.checkPermissions();
-      let cameraPermission = permissionStatus.camera;
+      const { value: scannedValue } = await scanBarcodeLax();
 
-      if (cameraPermission !== 'granted') {
-        const requestedPermissions = await BarcodeScanner.requestPermissions();
-        cameraPermission = requestedPermissions.camera;
-      }
-
-      if (cameraPermission !== 'granted') {
-        return;
-      }
-
-      const result = await BarcodeScanner.scan({
-        formats: [
-          BarcodeFormat.Ean13,
-          BarcodeFormat.Ean8,
-          BarcodeFormat.UpcA,
-          BarcodeFormat.UpcE,
-        ]
-      });
-
-      const scannedValue = result.barcodes[0]?.rawValue?.trim() || result.barcodes[0]?.displayValue?.trim();
       if (scannedValue) {
         setSearchQuery(scannedValue);
       }
@@ -186,7 +162,7 @@ export default function FoodLogPage() {
     }
   };
 
-  const isBarcodeSearch = /^\d{8,64}$/.test(searchQuery.trim());
+  const isBarcodeSearch = searchQuery.trim().length > 0 && searchQuery.trim().length <= 512;
 
   const handleAddFood = async () => {
     if (!selectedFood) return;
@@ -271,8 +247,8 @@ export default function FoodLogPage() {
 
   return (
     <>
-    <Header />
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-800">
+    {!isScanningBarcode && <Header />}
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-800 ${isScanningBarcode ? 'opacity-0 pointer-events-none' : ''}`}>
       {/* Header Section */}
       <div className="bg-gradient-to-r from-green-600 to-blue-700 dark:from-green-800 dark:to-blue-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -799,7 +775,17 @@ export default function FoodLogPage() {
         </div>
       )}
     </div>
-    <Footer />
+    {!isScanningBarcode && <Footer />}
+
+    {isScanningBarcode && (
+      <div className="fixed inset-0 z-[1000] pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="relative mx-6 rounded-xl bg-black/60 px-4 py-3 text-center text-white">
+          <p className="text-sm font-semibold">Irányítsd a kamerát a vonalkódra</p>
+          <p className="text-xs text-gray-200">A beolvasás automatikus, tartsd stabilan az eszközt.</p>
+        </div>
+      </div>
+    )}
     </>
   );
 }
