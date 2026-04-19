@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@auth/core": "0.34.2",
+    "@capacitor-mlkit/barcode-scanning": "^7.5.0",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
@@ -52,6 +53,7 @@
     "react-dom": "19.1.0",
     "react-hook-form": "^7.62.0",
     "resend": "^6.1.0",
+    "swagger-jsdoc": "^6.2.8",
     "ts-jest": "^29.4.1",
     "uuid": "^13.0.0",
     "zod": "^4.1.5"
@@ -64,6 +66,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/swagger-jsdoc": "^6.0.4",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "jest-environment-jsdom": "^30.1.2",

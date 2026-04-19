@@ -18,7 +18,8 @@ import {
   ChevronUpIcon,
   ChartBarIcon,
   SparklesIcon,
-  PlusCircleIcon
+  PlusCircleIcon,
+  EllipsisVerticalIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -42,10 +43,24 @@ interface WorkoutLog {
   exercise: Exercise | null;
 }
 
+interface FoodLog {
+  quantity: number;
+  foodItem: {
+    calories?: number | string | null;
+  };
+}
+
+const getLocalDateString = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function WorkoutLogPage() {
   const { status } = useSession();
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(getLocalDateString());
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [showAddWorkout, setShowAddWorkout] = useState(false);
@@ -54,6 +69,7 @@ export default function WorkoutLogPage() {
   const [editingLog, setEditingLog] = useState<string | null>(null);
   const [editDuration, setEditDuration] = useState(30);
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const [showMenu, setShowMenu] = useState(false);
 
   // tRPC lekérdezések és mutációk
   const { data: categories = [] } = trpc.workout.getCategories.useQuery(undefined, {
@@ -61,7 +77,19 @@ export default function WorkoutLogPage() {
   });
   
   const { data: dailyLogs = [], refetch: refetchLogs } = trpc.workout.getDailyLogs.useQuery({
-    date: selectedDate.toISOString().split('T')[0]
+    date: selectedDate
+  }, {
+    enabled: status === "authenticated"
+  });
+
+  const { data: dailyFoodLogs = [] } = trpc.food.getDailyLogs.useQuery({
+    date: selectedDate
+  }, {
+    enabled: status === "authenticated"
+  });
+
+  const { data: dailySummary } = trpc.food.getDailySummary.useQuery({
+    date: selectedDate
   }, {
     enabled: status === "authenticated"
   });
@@ -114,7 +142,7 @@ export default function WorkoutLogPage() {
       await logWorkoutMutation.mutateAsync({
         exerciseId: selectedExercise.id,
         durationMinutes: duration,
-        logDate: selectedDate.toISOString().split('T')[0]
+        logDate: selectedDate
       });
     } catch (error) {
       console.error('Error logging workout:', error);
@@ -180,11 +208,14 @@ export default function WorkoutLogPage() {
     { workouts: 0, minutes: 0, calories: 0 }
   );
 
-  // Nettó kalóriák számítása (bevitt - elégetett)
-  const calorieGoal = userStats?.caloriesTarget || 2000;
-  const caloriesConsumed = userStats?.caloriesConsumed || 0;
-  const caloriesBurnedToday = userStats?.caloriesBurned || todayTotals.calories;
-  const netCalories = caloriesConsumed - caloriesBurnedToday;
+  const caloriesConsumed = (dailyFoodLogs as unknown as FoodLog[]).reduce((total, log) => {
+    return total + (Number(log.foodItem?.calories) || 0) * Number(log.quantity || 0);
+  }, 0);
+
+  // Nettó kalóriák számítása (bevitt - elégetett) a kiválasztott napra
+  const calorieGoal = dailySummary?.caloriesTarget || userStats?.caloriesTarget || 2000;
+  const caloriesBurnedForSelectedDate = todayTotals.calories;
+  const netCalories = caloriesConsumed - caloriesBurnedForSelectedDate;
   const caloriesRemaining = calorieGoal - netCalories;
 
   if (status === "loading") {
@@ -207,46 +238,102 @@ export default function WorkoutLogPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-purple-600 to-indigo-700 dark:from-purple-800 dark:to-indigo-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
+          <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+            <div className="flex items-center space-x-4 w-full xl:w-auto">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <BoltIcon className="h-8 w-8 text-white" />
               </div>
-              <div>
+              <div className="flex-1 xl:flex-none">
                 <h1 className="text-3xl font-bold !text-white">Edzésnapló</h1>
                 <p className="!text-purple-100 mt-1">
                   Kövesd nyomon az edzéseidet és égesd a kalóriákat
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            
+            {/* Desktop Controls */}
+            <div className="hidden xl:flex items-center gap-2">
               <input
                 type="date"
-                value={selectedDate.toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
                 className="px-3 py-2 bg-white/10 dark:bg-gray-800/50 dark:hover:bg-gray-800/60 border border-white/20 rounded-lg text-white dark:text-white placeholder-white/60 focus:outline-none focus:border-white/40"
               />
               <button
                 onClick={() => router.push('/workout/history')}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <ChartBarIcon className="h-5 w-5" />
                 <span>Statisztikák</span>
               </button>
               <button
                 onClick={() => router.push('/workout/create')}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <SparklesIcon className="h-5 w-5" />
                 <span>Egyedi edzés</span>
               </button>
               <button
                 onClick={() => setShowAddWorkout(true)}
-                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>Edzés hozzáadása</span>
               </button>
+            </div>
+
+            {/* Mobile Controls */}
+            <div className="flex xl:hidden items-center space-x-2 w-full gap-2">
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="flex-1 px-3 py-2 bg-white/10 dark:bg-gray-800/50 border border-white/20 rounded-lg text-white dark:text-white placeholder-white/60 focus:outline-none focus:border-white/40 text-sm"
+              />
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                >
+                  <EllipsisVerticalIcon className="h-5 w-5 text-white" />
+                </button>
+                
+                {/* Mobile Menu */}
+                {showMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-20">
+                    <button
+                      onClick={() => {
+                        router.push('/workout/history');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2"
+                    >
+                      <ChartBarIcon className="h-5 w-5" />
+                      <span>Statisztikák</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        router.push('/workout/create');
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 border-t border-gray-200 dark:border-gray-700"
+                    >
+                      <SparklesIcon className="h-5 w-5" />
+                      <span>Egyedi edzés</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowAddWorkout(true);
+                        setShowMenu(false);
+                      }}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 border-t border-gray-200 dark:border-gray-700"
+                    >
+                      <PlusIcon className="h-5 w-5" />
+                      <span>Edzés hozzáadása</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -255,14 +342,14 @@ export default function WorkoutLogPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow">
         {/* Daily Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          {/* Workouts Today */}
+          {/* Workouts */}
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
             <div className="flex items-center space-x-3 mb-4">
               <div className="p-2 bg-purple-100 dark:bg-purple-600 rounded-lg">
                 <BoltIcon className="h-6 w-6 text-purple-600 dark:text-purple-100" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Mai edzések</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Napi edzések</p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                   {todayTotals.workouts}
                 </p>
@@ -304,9 +391,7 @@ export default function WorkoutLogPage() {
                 </p>
               </div>
             </div>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Edzésből ma égetve
-            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Edzésből égetve</p>
           </div>
 
           {/* Net Calories */}
@@ -323,7 +408,7 @@ export default function WorkoutLogPage() {
               </div>
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              <p>{caloriesConsumed} bevitt - {Math.round(caloriesBurnedToday)} égetett</p>
+              <p>{Math.round(caloriesConsumed)} bevitt - {Math.round(caloriesBurnedForSelectedDate)} égetett</p>
               <p className={`font-medium ${caloriesRemaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                 {caloriesRemaining >= 0 ? `${Math.round(caloriesRemaining)} maradt a célból` : `${Math.abs(Math.round(caloriesRemaining))} túllépve`}
               </p>
@@ -331,11 +416,11 @@ export default function WorkoutLogPage() {
           </div>
         </div>
 
-        {/* Today's Workouts */}
+        {/* Selected Day Workouts */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
           <div className="p-6 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Mai edzések</h2>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Kiválasztott napi edzések</h2>
               <button
                 onClick={() => setShowAddWorkout(true)}
                 className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-lg transition-colors"
@@ -422,7 +507,7 @@ export default function WorkoutLogPage() {
             ) : (
               <div className="text-center py-12">
                 <BoltIcon className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-500 dark:text-gray-400 mb-4">Még nincs edzés rögzítve ma</p>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">Még nincs edzés rögzítve erre a napra</p>
                 <button
                   onClick={() => setShowAddWorkout(true)}
                   className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"

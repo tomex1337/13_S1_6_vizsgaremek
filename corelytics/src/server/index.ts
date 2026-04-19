@@ -21,8 +21,8 @@ function calculateDailyGoals(
   gender: string,
   heightCm: number,
   weightKg: number,
-  activityLevelId: number,
-  goalId: number
+  activityLevelName: string | null | undefined,
+  goalName: string | null | undefined
 ) {
   // BMR (Alapanyagcsere) számítása a Mifflin-St Jeor egyenlet alapján
   let bmr: number;
@@ -35,22 +35,23 @@ function calculateDailyGoals(
     bmr = 10 * weightKg + 6.25 * heightCm - 5 * age - 78;
   }
 
-  // Aktivitási szint szorzók
-  const activityMultipliers: { [key: number]: number } = {
-    2: 1.2,    // Ülő életmód
-    4: 1.375,  // Enyhén aktív
-    3: 1.55,   // Mérsékelten aktív
-    1: 1.725,  // Nagyon aktív
-  };
+  const normalizedActivity = (activityLevelName ?? '').toLocaleLowerCase('hu-HU');
+  const normalizedGoal = (goalName ?? '').toLocaleLowerCase('hu-HU');
 
-  const activityMultiplier = activityMultipliers[activityLevelId] || 1.2;
+  const activityMultiplier = normalizedActivity.includes('enyhén')
+    ? 1.375
+    : normalizedActivity.includes('mérsékelten')
+      ? 1.55
+      : normalizedActivity.includes('nagyon')
+        ? 1.725
+        : 1.2;
   const tdee = bmr * activityMultiplier;
 
   // Cél alapján módosítás
   let caloriesGoal: number;
-  if (goalId === 3) {
+  if (normalizedGoal.includes('fogyás')) {
     caloriesGoal = tdee - 500; // Fogyás
-  } else if (goalId === 1) {
+  } else if (normalizedGoal.includes('hízás')) {
     caloriesGoal = tdee + 500; // Hízás
   } else {
     caloriesGoal = tdee; // Súlytartás
@@ -64,18 +65,18 @@ function calculateDailyGoals(
   let proteinMultiplier = 0.8; // Alap ülő életmódhoz
   
   // Aktivitási szint alapján módosítás
-  if (activityLevelId === 4) {
+  if (normalizedActivity.includes('enyhén')) {
     proteinMultiplier += 0.4; // Enyhén aktív
-  } else if (activityLevelId === 3) {
+  } else if (normalizedActivity.includes('mérsékelten')) {
     proteinMultiplier += 0.6; // Mérsékelten aktív
-  } else if (activityLevelId === 1) {
+  } else if (normalizedActivity.includes('nagyon')) {
     proteinMultiplier += 1.0; // Nagyon aktív
   }
   
   // Cél alapján módosítás
-  if (goalId === 3) {
+  if (normalizedGoal.includes('fogyás')) {
     proteinMultiplier += 0.2; // Fogyás - izomtömeg megőrzése
-  } else if (goalId === 1) {
+  } else if (normalizedGoal.includes('hízás')) {
     proteinMultiplier += 0.4; // Hízás - izomépítés
   }
   
@@ -180,6 +181,10 @@ export const appRouter = router({
         // Felhasználói profil lekérése a teljesség ellenőrzéséhez
         const userProfile = await ctx.prisma.userProfile.findUnique({
           where: { user_id: userId },
+          include: {
+            activityLevel: true,
+            goal: true,
+          },
         });
 
         // Mai napi cél lekérése
@@ -211,8 +216,8 @@ export const appRouter = router({
               userProfile.gender!,
               userProfile.heightCm!,
               Number(userProfile.weightKg!),
-              userProfile.activityLevel_id!,
-              userProfile.goal_id!
+              userProfile.activityLevel?.name,
+              userProfile.goal?.name
             );
 
             dailyGoal = await ctx.prisma.dailyGoal.create({
@@ -477,11 +482,14 @@ export const appRouter = router({
         limit: z.number().optional().default(20)
       }))
       .query(async ({ input, ctx }) => {
+        const trimmedQuery = input.query.trim();
+
         const foods = await ctx.prisma.foodItem.findMany({
           where: {
             OR: [
-              { name: { contains: input.query, mode: 'insensitive' } },
-              { brand: { contains: input.query, mode: 'insensitive' } }
+              { name: { contains: trimmedQuery, mode: 'insensitive' } },
+              { brand: { contains: trimmedQuery, mode: 'insensitive' } },
+              { barcode: trimmedQuery }
             ]
           },
           take: input.limit,
@@ -558,6 +566,53 @@ export const appRouter = router({
         });
         
         return logs;
+      }),
+
+    getDailySummary: protectedProcedure
+      .input(z.object({
+        date: z.string().optional()
+      }))
+      .query(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+        const targetDate = input.date ? new Date(input.date) : new Date();
+
+        const startOfDay = new Date(targetDate);
+        startOfDay.setHours(0, 0, 0, 0);
+
+        const endOfDay = new Date(targetDate);
+        endOfDay.setHours(23, 59, 59, 999);
+
+        const [dailyGoal, dayWorkoutLogs] = await Promise.all([
+          ctx.prisma.dailyGoal.findUnique({
+            where: {
+              user_id_date: {
+                user_id: userId,
+                date: startOfDay,
+              },
+            },
+          }),
+          ctx.prisma.userExerciseLog.findMany({
+            where: {
+              user_id: userId,
+              logDate: {
+                gte: startOfDay,
+                lte: endOfDay,
+              },
+            },
+          })
+        ]);
+
+        const caloriesBurned = dayWorkoutLogs.reduce((total, log) => {
+          return total + Number(log.caloriesBurned || 0);
+        }, 0);
+
+        return {
+          caloriesBurned: Math.round(caloriesBurned),
+          caloriesTarget: Number(dailyGoal?.caloriesGoal || 2000),
+          proteinTarget: Number(dailyGoal?.proteinGoal || 150),
+          fatTarget: Number(dailyGoal?.fatGoal || 65),
+          carbsTarget: Number(dailyGoal?.carbsGoal || 250),
+        };
       }),
     
     deleteLog: protectedProcedure
@@ -642,6 +697,7 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(1),
         brand: z.string().optional(),
+        barcode: z.string().trim().min(1).max(512).optional(),
         servingSizeGrams: z.number().positive().optional(),
         calories: z.number().nonnegative().optional(),
         protein: z.number().nonnegative().optional(),
@@ -669,6 +725,7 @@ export const appRouter = router({
             id: crypto.randomUUID(),
             name: input.name,
             brand: input.brand,
+            barcode: input.barcode,
             servingSizeGrams: input.servingSizeGrams,
             calories: input.calories,
             protein: input.protein,

@@ -2,11 +2,14 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { hash } from "bcrypt"
 import { v4 as uuidv4 } from 'uuid'
-import { sendWelcomeEmail } from "@/lib/email"
+import { randomBytes } from "crypto"
+import { sendEmailVerificationEmail } from "@/lib/email"
 
 export async function POST(req: Request) {
   try {
     const { email, password, name } = await req.json()
+    const verificationToken = randomBytes(32).toString('hex')
+    const verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
 
     // Néhány alapvető validáció
     const existingUserByEmail = await prisma.user.findUnique({
@@ -24,19 +27,22 @@ export async function POST(req: Request) {
           passwordHash: hashedPassword,
           username: name,
           isActive: true,
+          emailVerifiedAt: null,
+          emailVerificationToken: verificationToken,
+          emailVerificationTokenExpiry: verificationTokenExpiry,
           updatedAt: now,
         },
       })
 
-      // Üdvözlő email küldése
+      // Verifikációs email küldése
       try {
-        await sendWelcomeEmail(email, name)
+        await sendEmailVerificationEmail(email, verificationToken)
       } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError)
+        console.error("Failed to send verification email:", emailError)
       }
 
       return NextResponse.json(
-        { message: "Fiók sikeresen újraaktiválva", user: { id: reactivatedUser.id, email: reactivatedUser.email, username: reactivatedUser.username } },
+        { message: "Fiók sikeresen újraaktiválva. Ellenőrizd az emailedet a megerősítéshez.", user: { id: reactivatedUser.id, email: reactivatedUser.email, username: reactivatedUser.username } },
         { status: 201 }
       )
     }
@@ -69,21 +75,23 @@ export async function POST(req: Request) {
         email,
         username: name, // nevezze el a mezőt username-nek
         passwordHash: hashedPassword,
+        emailVerificationToken: verificationToken,
+        emailVerificationTokenExpiry: verificationTokenExpiry,
         createdAt: now,
         updatedAt: now,
       },
     })
 
-    // Email küldése
+    // Verifikációs email küldése
     try {
-      await sendWelcomeEmail(email, name)
+      await sendEmailVerificationEmail(email, verificationToken)
     } catch (emailError) {
-      console.error("Failed to send welcome email:", emailError)
+      console.error("Failed to send verification email:", emailError)
       // Ne akadályozza meg a regisztrációt, ha az email küldés sikertelen
     }
 
     return NextResponse.json(
-      { message: "Felhasználó sikeresen létrehozva", user: { id: user.id, email: user.email, username: user.username } },
+      { message: "Felhasználó sikeresen létrehozva. Ellenőrizd az emailedet a megerősítéshez.", user: { id: user.id, email: user.email, username: user.username } },
       { status: 201 }
     )
   } catch (error) {

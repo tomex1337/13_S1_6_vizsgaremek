@@ -32,8 +32,12 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to auth pages and API routes without authentication
-        if (req.nextUrl.pathname.startsWith('/auth/') || req.nextUrl.pathname.startsWith('/api/')) {
+        // Allow access to auth pages, API routes and API docs without authentication
+        if (
+          req.nextUrl.pathname.startsWith('/auth/') ||
+          req.nextUrl.pathname.startsWith('/api/') ||
+          req.nextUrl.pathname.startsWith('/api-doc')
+        ) {
           return true
         }
         

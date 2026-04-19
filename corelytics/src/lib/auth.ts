@@ -37,6 +37,10 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        if (!user.emailVerifiedAt) {
+          throw new Error("EMAIL_NOT_VERIFIED")
+        }
+
         const isPasswordValid = await compare(credentials.password, user.passwordHash)
 
         if (!isPasswordValid) {

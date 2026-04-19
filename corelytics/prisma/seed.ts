@@ -73,48 +73,67 @@ async function main() {
 
   // Create a test user
   const hashedPassword = await hash('jelszo123', 12);
+  const now = new Date();
   
   const testUser = await prisma.user.upsert({
     where: { email: 'teszt@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440000',
       email: 'teszt@pelda.hu',
       username: 'TesztFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 0, // Felhasználó
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
   // Create a moderator user
   const moderatorUser = await prisma.user.upsert({
     where: { email: 'moderator@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440010',
       email: 'moderator@pelda.hu',
       username: 'ModeratorFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 1, // Moderátor
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
   // Create an admin user
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@pelda.hu' },
-    update: {},
+    update: {
+      // Dev seed: legyen alapból hitelesítve az email, hogy működjön a belépés
+      emailVerifiedAt: now,
+      isActive: true,
+    },
     create: {
       id: '550e8400-e29b-41d4-a716-446655440020',
       email: 'admin@pelda.hu',
       username: 'AdminFelhasznalo',
       passwordHash: hashedPassword,
       permissionLevel: 2, // Admin
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      emailVerifiedAt: now, // Dev seed: email megerősítve
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     },
   });
 
@@ -176,10 +195,13 @@ async function main() {
   const foodItems = await Promise.all([
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440001' },
-      update: {},
+      update: {
+        barcode: '5999876543210',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440001',
         name: 'Banán',
+        barcode: '5999876543210',
         servingSizeGrams: 100,
         calories: 89,
         protein: 1.1,
@@ -193,10 +215,13 @@ async function main() {
     }),
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440002' },
-      update: {},
+      update: {
+        barcode: '5991234567890',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440002',
         name: 'Csirkemell',
+        barcode: '5991234567890',
         servingSizeGrams: 100,
         calories: 165,
         protein: 31,
@@ -210,10 +235,13 @@ async function main() {
     }),
     prisma.foodItem.upsert({
       where: { id: '650e8400-e29b-41d4-a716-446655440003' },
-      update: {},
+      update: {
+        barcode: '5991111111111',
+      },
       create: {
         id: '650e8400-e29b-41d4-a716-446655440003',
         name: 'Barna rizs',
+        barcode: '5991111111111',
         servingSizeGrams: 100,
         calories: 123,
         protein: 2.6,

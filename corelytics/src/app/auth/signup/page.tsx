@@ -43,7 +43,7 @@ export default function SignUp() {
         password,
         name,
       })
-      router.push("/auth/signin")
+      router.push("/auth/signin?registered=1")
     } catch (error) {
       if (axios.isAxiosError(error)) {
         setError(error.response?.data?.message || "Valami hiba történt")

@@ -1,18 +1,4 @@
 -- CreateTable
-CREATE TABLE "public"."User" (
-    "id" UUID NOT NULL,
-    "email" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
-    "password_hash" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3),
-    "updated_at" TIMESTAMP(3),
-    "reset_token" TEXT,
-    "reset_token_expiry" TIMESTAMP(3),
-
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
 CREATE TABLE "public"."UserProfile" (
     "user_id" UUID NOT NULL,
     "birth_date" DATE,
@@ -126,12 +112,6 @@ CREATE TABLE "public"."Goal" (
 
     CONSTRAINT "Goal_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_email_key" ON "public"."User"("email");
-
--- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "public"."User"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "MealType_name_key" ON "public"."MealType"("name");
