@@ -228,11 +228,12 @@ export default function WorkoutLogPage() {
 
       const errorMessage = error instanceof Error ? error.message : '';
       const isPermissionError = errorMessage.includes('Permission not granted');
+      const isPermissionRequestError = errorMessage.includes('jogosultsag kerese sikertelen') || errorMessage.includes('Invalid records specified') || errorMessage.includes('No valid permissions specified');
 
-      if (isPermissionError) {
+      if (isPermissionError || isPermissionRequestError) {
         window.alert("A Health Connect engedely hianyzik. Engedelyezd a Lepesek es Aktiv kaloria adatok olvasasat, majd probald ujra.");
       } else {
-        window.alert("A Health Connect szinkron kozben hiba tortent.");
+        window.alert(`A Health Connect szinkron kozben hiba tortent.\nReszletek: ${errorMessage || 'ismeretlen hiba'}`);
       }
     } finally {
       setShowMenu(false);

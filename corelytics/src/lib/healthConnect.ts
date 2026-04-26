@@ -2,7 +2,6 @@ import { Capacitor } from "@capacitor/core";
 import {
   HealthConnect,
   type HealthConnectAvailability,
-  type AggregateRecordType,
   type RecordType,
 } from "@devmaxime/capacitor-health-connect";
 
@@ -16,9 +15,7 @@ export type HealthConnectFetchResult =
       status: "not-native" | "not-android" | "not-supported" | "not-installed";
     };
 
-type HealthConnectPermissionType = RecordType | AggregateRecordType;
-
-const readPermissions: HealthConnectPermissionType[] = ["Steps", "ActivitySession", "ActiveCaloriesBurned"];
+const readPermissions: RecordType[] = ["Steps", "ActivitySession"];
 
 const toDayBounds = (dateString: string) => {
   const [year, month, day] = dateString.split("-").map(Number);
@@ -63,12 +60,19 @@ export const fetchHealthConnectDailySummary = async (dateString: string): Promis
     return { status: availabilityStatus };
   }
 
-  // A plugin típusdefiníciója nem tartalmazza az összes érvényes Android rekordot a read listában.
-  // Runtime szinten viszont a rekordnév-mapping támogatja az ActiveCaloriesBurned engedélyt is.
-  await HealthConnect.requestPermissions({
-    read: readPermissions as unknown as RecordType[],
-    write: [],
-  });
+  try {
+    await HealthConnect.requestPermissions({
+      read: readPermissions,
+      write: [],
+    });
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    if (errorMessage.includes("Invalid records specified") || errorMessage.includes("No valid permissions specified")) {
+      throw new Error("Health Connect jogosultsag kerese sikertelen.");
+    }
+
+    throw error;
+  }
 
   const { start, end } = toDayBounds(dateString);
 
