@@ -230,10 +230,10 @@ export default function AdminPanelPage() {
                 <ShieldCheckIcon className="h-8 w-8 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold text-gray-100">
+                <h1 className="text-3xl font-bold !text-gray-900 dark:text-gray-100">
                   Admin Panel
                 </h1>
-                <p className="text-purple-100 mt-1">
+                <p className="!dark:text-purple-100 !text-purple-900 mt-1">
                   {isAdmin ? 'Teljes adminisztrátori hozzáférés' : 'Moderátori hozzáférés'}
                 </p>
               </div>

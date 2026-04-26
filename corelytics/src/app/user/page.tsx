@@ -82,23 +82,23 @@ export default function UserPage() {
       {/* Header Section */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-700 dark:from-blue-800 dark:to-purple-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center space-x-4 min-w-0 flex-shrink">
+              <div className="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">
                 <UserIcon className="h-8 w-8 text-white" />
               </div>
-              <div>
-                <h1 className="!text-gray-100 text-3xl font-bold">
+              <div className="min-w-0">
+                <h1 className="!text-gray-100 text-2xl sm:text-3xl font-bold truncate">
                   Üdvözlünk vissza, {session?.user?.name || 'Felhasználó'}!
                 </h1>
-                <p className="!text-blue-100 mt-1">
+                <p className="!text-blue-100 mt-1 text-sm sm:text-base">
                   Folytasd a nagyszerű munkát a fitness utadon
                 </p>
               </div>
             </div>
             <button 
               onClick={() => router.push('/settings')}
-              className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors"
+              className="p-2 bg-white/10 rounded-lg hover:bg-white/20 transition-colors flex-shrink-0"
               title="Beállítások"
             >
               <CogIcon className="h-6 w-6" />
