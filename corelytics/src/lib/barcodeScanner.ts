@@ -50,6 +50,18 @@ export const normalizeBarcodeValue = (value: string): string => {
   return trimmed;
 };
 
+export const isLikelyBarcodeInput = (value: string): boolean => {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed.length > 512) {
+    return false;
+  }
+
+  const normalized = normalizeBarcodeValue(trimmed);
+  const hasDigitsOnly = /^\d+$/.test(normalized);
+
+  return hasDigitsOnly && normalized.length >= 6 && normalized.length <= 20;
+};
+
 const extractBarcodeValue = (barcode: Pick<DetectedBarcode, "rawValue" | "displayValue" | "bytes">): string => {
   const raw = barcode.rawValue?.trim();
   if (raw) {

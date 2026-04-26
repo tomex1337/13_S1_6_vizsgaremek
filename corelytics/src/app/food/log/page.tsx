@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Capacitor } from "@capacitor/core";
 import { trpc } from "@/lib/trpc";
-import { isBarcodeScannerSupported, scanBarcodeLax } from "@/lib/barcodeScanner";
+import { isBarcodeScannerSupported, isLikelyBarcodeInput, scanBarcodeLax } from "@/lib/barcodeScanner";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import {
@@ -162,7 +162,7 @@ export default function FoodLogPage() {
     }
   };
 
-  const isBarcodeSearch = searchQuery.trim().length > 0 && searchQuery.trim().length <= 512;
+  const isBarcodeSearch = isLikelyBarcodeInput(searchQuery);
 
   const handleAddFood = async () => {
     if (!selectedFood) return;
