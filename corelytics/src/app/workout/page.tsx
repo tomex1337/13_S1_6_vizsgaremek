@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { fetchHealthConnectDailySummary } from "@/lib/healthConnect";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import {
@@ -19,7 +20,8 @@ import {
   ChartBarIcon,
   SparklesIcon,
   PlusCircleIcon,
-  EllipsisVerticalIcon
+  EllipsisVerticalIcon,
+  ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import {
   FireIcon as FireIconSolid,
@@ -129,6 +131,12 @@ export default function WorkoutLogPage() {
     }
   });
 
+  const importHealthConnectMutation = trpc.workout.importHealthConnectSummary.useMutation({
+    onSuccess: () => {
+      refetchLogs();
+    }
+  });
+
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/auth/signin");
@@ -176,6 +184,51 @@ export default function WorkoutLogPage() {
   const handleCancelEdit = () => {
     setEditingLog(null);
     setEditDuration(30);
+  };
+
+  const handleSyncHealthConnect = async () => {
+    try {
+      const summary = await fetchHealthConnectDailySummary(selectedDate);
+
+      if (summary.status === "not-native") {
+        window.alert("A Health Connect szinkron csak mobilalkalmazasban erheto el.");
+        return;
+      }
+
+      if (summary.status === "not-android") {
+        window.alert("A Health Connect szinkron jelenleg csak Androidon erheto el.");
+        return;
+      }
+
+      if (summary.status === "not-installed") {
+        window.alert("A Health Connect alkalmazas nincs telepitve az eszkozon.");
+        return;
+      }
+
+      if (summary.status === "not-supported") {
+        window.alert("A Health Connect ezen az eszkozon nem tamogatott.");
+        return;
+      }
+
+      if (summary.steps <= 0 && summary.activeCaloriesBurned <= 0) {
+        window.alert("Erre a napra nem talalhato importalhato Health Connect adat.");
+        return;
+      }
+
+      const result = await importHealthConnectMutation.mutateAsync({
+        logDate: selectedDate,
+        steps: summary.steps,
+        activeCaloriesBurned: summary.activeCaloriesBurned,
+      });
+
+      const actionText = result.updatedExisting ? "frissitve" : "hozzaadva";
+      window.alert(`Health Connect adat sikeresen ${actionText}.\nLepesek: ${result.imported.steps}\nAktiv kaloria: ${result.imported.activeCaloriesBurned} kcal`);
+    } catch (error) {
+      console.error('Error syncing Health Connect data:', error);
+      window.alert("A Health Connect szinkron kozben hiba tortent.");
+    } finally {
+      setShowMenu(false);
+    }
   };
 
   const toggleCategory = (category: string) => {
@@ -274,6 +327,14 @@ export default function WorkoutLogPage() {
                 <span>Egyedi edzés</span>
               </button>
               <button
+                onClick={handleSyncHealthConnect}
+                disabled={importHealthConnectMutation.isPending}
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap disabled:opacity-60"
+              >
+                <ArrowPathIcon className={`h-5 w-5 ${importHealthConnectMutation.isPending ? 'animate-spin' : ''}`} />
+                <span>{importHealthConnectMutation.isPending ? 'Szinkron...' : 'Health Connect szinkron'}</span>
+              </button>
+              <button
                 onClick={() => setShowAddWorkout(true)}
                 className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors flex items-center space-x-2 whitespace-nowrap"
               >
@@ -330,6 +391,14 @@ export default function WorkoutLogPage() {
                     >
                       <PlusIcon className="h-5 w-5" />
                       <span>Edzés hozzáadása</span>
+                    </button>
+                    <button
+                      onClick={handleSyncHealthConnect}
+                      disabled={importHealthConnectMutation.isPending}
+                      className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center space-x-2 border-t border-gray-200 dark:border-gray-700 disabled:opacity-60"
+                    >
+                      <ArrowPathIcon className={`h-5 w-5 ${importHealthConnectMutation.isPending ? 'animate-spin' : ''}`} />
+                      <span>{importHealthConnectMutation.isPending ? 'Szinkron...' : 'Health Connect szinkron'}</span>
                     </button>
                   </div>
                 )}

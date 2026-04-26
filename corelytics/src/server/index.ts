@@ -913,6 +913,105 @@ export const appRouter = router({
         
         return workoutLog;
       }),
+
+    // Health Connect napi összeg importálása
+    importHealthConnectSummary: protectedProcedure
+      .input(z.object({
+        logDate: z.string(),
+        steps: z.number().int().nonnegative(),
+        activeCaloriesBurned: z.number().nonnegative()
+      }).refine((value) => value.steps > 0 || value.activeCaloriesBurned > 0, {
+        message: 'Nincs importalhato Health Connect adat erre a napra'
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const userId = ctx.session.user.id;
+
+        // UTC dátum létrehozása éjfélkor a konzisztens csak-dátum tároláshoz
+        const logDate = new Date(input.logDate + 'T00:00:00.000Z');
+
+        const userProfile = await ctx.prisma.userProfile.findUnique({
+          where: { user_id: userId }
+        });
+
+        const weightKg = userProfile?.weightKg ? Number(userProfile.weightKg) : 70;
+        const referenceMet = 5;
+
+        let durationMinutes = 0;
+
+        if (input.activeCaloriesBurned > 0) {
+          const estimatedDurationHours = input.activeCaloriesBurned / (referenceMet * weightKg);
+          durationMinutes = Math.max(1, Math.round(estimatedDurationHours * 60));
+        }
+
+        if (durationMinutes === 0 && input.steps > 0) {
+          durationMinutes = Math.max(1, Math.round(input.steps / 100));
+        }
+
+        durationMinutes = Math.max(1, durationMinutes);
+
+        let healthConnectExercise = await ctx.prisma.exercise.findFirst({
+          where: {
+            createdBy: userId,
+            isCustom: true,
+            name: 'Health Connect szinkron'
+          }
+        });
+
+        if (!healthConnectExercise) {
+          healthConnectExercise = await ctx.prisma.exercise.create({
+            data: {
+              id: crypto.randomUUID(),
+              name: 'Health Connect szinkron',
+              category: 'Automatikus',
+              metValue: referenceMet,
+              defaultDurationMinutes: durationMinutes,
+              isCustom: true,
+              createdBy: userId
+            }
+          });
+        }
+
+        const existingLog = await ctx.prisma.userExerciseLog.findFirst({
+          where: {
+            user_id: userId,
+            exercise_id: healthConnectExercise.id,
+            logDate
+          }
+        });
+
+        const workoutLog = existingLog
+          ? await ctx.prisma.userExerciseLog.update({
+              where: { id: existingLog.id },
+              data: {
+                durationMinutes,
+                caloriesBurned: Math.round(input.activeCaloriesBurned),
+                createdAt: new Date()
+              },
+              include: { exercise: true }
+            })
+          : await ctx.prisma.userExerciseLog.create({
+              data: {
+                id: crypto.randomUUID(),
+                user_id: userId,
+                exercise_id: healthConnectExercise.id,
+                durationMinutes,
+                caloriesBurned: Math.round(input.activeCaloriesBurned),
+                logDate,
+                createdAt: new Date()
+              },
+              include: { exercise: true }
+            });
+
+        return {
+          workoutLog,
+          updatedExisting: Boolean(existingLog),
+          imported: {
+            steps: input.steps,
+            activeCaloriesBurned: Math.round(input.activeCaloriesBurned),
+            estimatedDurationMinutes: durationMinutes
+          }
+        };
+      }),
     
     // Napi edzési naplók lekérése
     getDailyLogs: protectedProcedure
