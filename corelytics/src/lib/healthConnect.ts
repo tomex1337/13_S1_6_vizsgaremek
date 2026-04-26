@@ -2,6 +2,7 @@ import { Capacitor } from "@capacitor/core";
 import {
   HealthConnect,
   type HealthConnectAvailability,
+  type AggregateRecordType,
   type RecordType,
 } from "@devmaxime/capacitor-health-connect";
 
@@ -15,7 +16,9 @@ export type HealthConnectFetchResult =
       status: "not-native" | "not-android" | "not-supported" | "not-installed";
     };
 
-const readPermissions: RecordType[] = ["Steps", "ActivitySession"];
+type HealthConnectPermissionType = RecordType | AggregateRecordType;
+
+const readPermissions: HealthConnectPermissionType[] = ["Steps", "ActivitySession", "ActiveCaloriesBurned"];
 
 const toDayBounds = (dateString: string) => {
   const [year, month, day] = dateString.split("-").map(Number);
@@ -60,8 +63,10 @@ export const fetchHealthConnectDailySummary = async (dateString: string): Promis
     return { status: availabilityStatus };
   }
 
+  // A plugin típusdefiníciója nem tartalmazza az összes érvényes Android rekordot a read listában.
+  // Runtime szinten viszont a rekordnév-mapping támogatja az ActiveCaloriesBurned engedélyt is.
   await HealthConnect.requestPermissions({
-    read: readPermissions,
+    read: readPermissions as unknown as RecordType[],
     write: [],
   });
 

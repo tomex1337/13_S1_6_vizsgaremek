@@ -225,7 +225,15 @@ export default function WorkoutLogPage() {
       window.alert(`Health Connect adat sikeresen ${actionText}.\nLepesek: ${result.imported.steps}\nAktiv kaloria: ${result.imported.activeCaloriesBurned} kcal`);
     } catch (error) {
       console.error('Error syncing Health Connect data:', error);
-      window.alert("A Health Connect szinkron kozben hiba tortent.");
+
+      const errorMessage = error instanceof Error ? error.message : '';
+      const isPermissionError = errorMessage.includes('Permission not granted');
+
+      if (isPermissionError) {
+        window.alert("A Health Connect engedely hianyzik. Engedelyezd a Lepesek es Aktiv kaloria adatok olvasasat, majd probald ujra.");
+      } else {
+        window.alert("A Health Connect szinkron kozben hiba tortent.");
+      }
     } finally {
       setShowMenu(false);
     }
